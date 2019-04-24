@@ -1650,3 +1650,8 @@ if USE_WORLDMAP:
     HYPERMAP_REGISTRY_URL = os.getenv('HYPERMAP_REGISTRY_URL', 'http://localhost:8001')
     SOLR_URL = os.getenv('SOLR_URL', 'http://localhost:8983/solr/hypermap/select/')
     MAPPROXY_URL = os.getenv('MAPPROXY_URL', 'http://localhost:8001')
+
+try:
+    from geonode.local_settings import *  # flake8: noqa
+except ImportError:
+    pass
