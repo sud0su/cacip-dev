@@ -168,6 +168,10 @@ urlpatterns += [
     url(r'^api/adminRole', admin_role, name='adminRole'),
     url(r'^api/users', users, name='users'),
     url(r'', include(api.urls)),
+
+    # [EPR-BGD01] 
+    url(r'', include('dashboard.urls')),
+    url(r'^userstatistics/$', 'userstatistics.views.userstatistics', name='userstatistics'),
 ]
 
 urlpatterns += i18n_patterns(

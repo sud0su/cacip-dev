@@ -1,0 +1,845 @@
+{% load i18n avatar_tags %}
+{% load account socialaccount %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+        <meta Http-Equiv="Cache-Control" Content="no-cache">
+        <meta Http-Equiv="Pragma" Content="no-cache">
+        <meta Http-Equiv="Expires" Content="0">
+        <meta Http-Equiv="Pragma-directive: no-cache">
+        <meta Http-Equiv="Cache-directive: no-cache">
+
+        <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+
+        {% block head %}
+            {% if DEBUG_STATIC %}
+                <link href="{{ STATIC_URL }}lib/css/jquery.dataTables.css?v={{ VERSION }}" rel="stylesheet" />
+                <link href="{{ STATIC_URL }}lib/css/select2.css?v={{ VERSION }}" rel="stylesheet"/>
+                <link href="{{ STATIC_URL }}lib/css/bootstrap.min.css?v={{ VERSION }}" rel="stylesheet"/>
+                <link href="{{ STATIC_URL }}lib/css/jquery-ui.css?v={{ VERSION }}" rel="stylesheet"/>
+            {% else %}
+                <!-- <link href="{{ STATIC_URL }}lib/css/assets.min.css?v={{ VERSION }}" rel="stylesheet"/> -->
+            {% endif %}
+
+            <link href="{{ STATIC_URL }}lib/css/select2.css?v={{ VERSION }}" rel="stylesheet"/>
+
+            <link href="{{ STATIC_URL }}geonode/css/ext-compatibility.css?v={{ VERSION }}" rel="stylesheet" />
+            <link href="{{ STATIC_URL }}geonode/css/ux-all.css?v={{ VERSION }}" rel="stylesheet" />
+            <!-- <link href="{{ STATIC_URL }}geonode/css/base.css?v={{ VERSION }}" rel="stylesheet" /> -->
+            <style type="text/css">[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}</style>
+
+            <!-- Favicon -->
+            <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}isdc/img/immap_logo/immap_favicon.png">
+
+            <!-- Font -->
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+            <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+            <!-- Materialize -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css" media="screen, projection">
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css">
+            
+            <!-- DataTables -->
+            <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.18/css/jquery.dataTables.min.css"> -->
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+            <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css">
+
+            <!-- Highcharts -->
+            <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.2.0/css/highcharts.css"> -->
+
+            <!-- Leaflet -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.EasyButton/2.3.0/easy-button.min.css">
+
+            <!-- NoUISlider -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/12.1.0/nouislider.min.css">
+            <!-- <link rel="stylesheet" href="{{ STATIC_URL }}isdc/css/nouislider.css"> -->
+
+            <!-- DateRangePicker -->
+            <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+            <!-- Humanitarian Font -->
+            <link rel="stylesheet" href="{{ STATIC_URL }}isdc/lib/font-ocha/css/style.css">
+            <link rel="stylesheet" href="{{ STATIC_URL }}isdc/lib/font-ocha-v2/style.css">
+
+            <link rel="stylesheet" href="{{ STATIC_URL }}isdc/css/select2-materialize.css">
+            <link rel="stylesheet" href="{{ STATIC_URL }}isdc/css/custom.css">
+
+            {% block extra_head %}
+            {% endblock %}
+        {% endblock %}
+        <!-- [if IE]>
+            <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+            <style>
+                #ieflag{
+                    display: block !important;
+                    height: 150px;
+                    text-align: center;
+                }
+            </style>
+        <![endif] -->
+        <link rel="search" type="application/opensearchdescription+xml" href="/catalogue/opensearch" title="GeoNode Search"/>
+    </head>
+
+    <body class="{% block body_class %}{% endblock %} grey lighten-4">
+        <!-- Loader -->
+        <div class="se-pre-con hidden-print">
+            <div id="loader-wrapper" class="grey lighten-3 valign-wrapper">
+                <div style="margin: auto;">
+                    <img src="{{ STATIC_URL }}isdc/img/loading_immap.gif" alt="immap_loader">
+                </div>
+                <!-- <div class="preloader-wrapper big active" style="margin: auto;">
+                    <div class="spinner-layer spinner-blue">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="spinner-layer spinner-red">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="spinner-layer spinner-yellow">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="spinner-layer spinner-green">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+            <span>{% trans "Loading ..." %}</span>
+        </div>
+        <!-- Navbar -->
+        {% block header %}
+        {% comment %} <div style="background-image: url(/static/isdc/img/ruler.png);height:61px"></div> {% endcomment %}
+        {% comment %} <span id="debugtext"></span>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                $("#debugtext").html('screen width: '+window.screen.width+', height: '+window.screen.height+', on event: DOMContentLoaded');
+            });
+            window.addEventListener('resize', function() {
+                $("#debugtext").html($("#debugtext").html()+'<br/>screen width: '+window.screen.width+', height: '+window.screen.height+', on event: resize');
+            });
+        </script> {% endcomment %}
+        <header>
+            <div class="navbar-fixed">
+                <nav>
+                    <div class="nav-wrapper white grey-text text-darken-2">
+                        <div class="row">
+                            <div class="col s12">
+                                <a href="#" data-target="mobile-demo" class="button-collapse sidenav-trigger grey-text text-darken-2" style="display:inline-block;">
+                                    <i class="material-icons">menu</i>
+                                </a>
+                                <a href="{% url 'home' %}" class="brand-logo">
+                                    <!-- <img src="http://afghanistanavalanches.org/img/iMMAP.png"> -->
+                                    <img src="{{ STATIC_URL }}isdc/img/immap_logo/immap_full_color.png" alt="immap_logo">
+                                    <!-- <span>Spatial Data Center</span> -->
+                                    <!-- <img src="{{ STATIC_URL }}isdc/img/immap_white.png" alt="immap_logo"> -->
+                                </a>
+                                <ul id="nav-mobile" class="right">
+                                    <li class="hide-on-med-and-down"><a class="grey-text text-darken-2" href="{% url 'home' %}">{% trans "Home" %}</a></li>
+                                    <li class="hide-on-med-and-down"><a id="dropdown_dashboard_trigger" class="grey-text text-darken-2 dropdown-trigger" href="" data-target="dropdown_dashboard" >{% trans "Dashboard" %}<i class="material-icons right">expand_more</i></a></li>
+                                    <li class="hide-on-med-and-down"><a class="grey-text text-darken-2" href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Layers" %}</a></li>
+                                    <li class="hide-on-med-and-down"><a class="grey-text text-darken-2" href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a></li>
+                                    <li class="hide-on-med-and-down"><a class="grey-text text-darken-2" href="{% url 'maps_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Interactive Maps" %}</a></li>
+                                    <li>
+                                        <form id="search" action="{% url 'search' %}" style="height:64px;">
+                                            <div class="input-field">
+                                                {% if HAYSTACK_SEARCH %}
+                                                <input id="search_input" type="text" placeholder="Search" name="q"> 
+                                                {% else %}
+                                                <input id="search_input" type="search" placeholder="Search" name="title__icontains"> 
+                                                {% endif %}
+                                                <label class="label-icon" for="search_input">
+                                                    <i class="material-icons grey-text">search</i>
+                                                </label>
+                                                <i class="material-icons search-close hide">close</i>
+                                            </div>
+                                        </form>
+                                    </li>
+                                    <li style="width: 90px; padding: 0 15px;">
+                                        <div class="input-field">
+                                            {% if csrf_token != "NOTPROVIDED" %}
+                                                {% get_current_language as LANGUAGE %}
+                                                <form action="/i18n/setlang/" method="post">
+                                                    {% csrf_token %}
+                                                    <select name="language" onchange="javascript:form.submit()" >
+                                                        {% for lang in LANGUAGES %}
+                                                        <option value="{{ lang.0 }}" {% ifequal LANGUAGE_CODE lang.0 %} selected="selected"{% endifequal %}>
+                                                            {{ lang.1 }}
+                                                        </option>
+                                                        {% endfor %}
+                                                        <!-- <option value="en">EN</option>
+                                                        <option value="id">PRS</option>
+                                                        <option value="es">PS</option> -->
+                                                    </select>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    {% if not user.is_authenticated and ACCOUNT_OPEN_SIGNUP %}
+                                    <li>
+                                        <a href="{% url 'account_login' %}" class="waves-effect waves-light btn red darken-3">Sign In</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.is_authenticated %}
+                                    <li>
+                                        <form action="{% url 'account_logout' %}" id="logout_form" method="post">
+                                            {% csrf_token %}
+                                            <a href="javascript:{}" class="waves-effect waves-light btn-floating btn-flat-border white red-text text-darken-3 z-depth-0" onclick="document.getElementById('logout_form').submit();">
+                                                <i class="material-icons left red-text text-darken-3">power_settings_new</i>
+                                                <!-- <span class="hide-on-small-only">{% trans "Sign out" %}</span> -->
+                                            </a>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+        
+        <ul class="sidenav sidenav-left sidenav-main-menu" id="mobile-demo">
+            <li class="sidenav-header red darken-2">
+                <div class="valign-wrapper" style="justify-content: center; height: 9rem; padding-top: 2rem;">
+                    {% avatar user 32 %}
+                    <!-- <img src="https://gravatar.com/avatar/961997eb7fd5c22b3e12fb3c8ca14e11?s=80&d=https://codepen.io/assets/avatars/user-avatar-80x80-bdcd44a3bfb9a5fd01eb8b86f9e033fa1a9897c3a15b33adfc2649a002dab1b6.png"
+                        width="80px" height="80px" alt="" class="circle responsive-img"> -->
+                </div>
+                <div class="center-align" style="padding-bottom: 4rem">
+                    {% if user.is_authenticated %}
+                        <a class="white-text user-info" href="#">{{ user.username }}</a>
+                        <a href="#" class="white-text email-info">{{ user.email }}</a>
+                    {% else %}
+                        <a class="white-text user-info" href="#">Guest</a>
+                    {% endif %}
+                </div>
+            </li>
+            <li class="no-padding">
+                <ul class="collapsible">
+                    {% block tabs %}
+                        <li>
+                            <a href="{% url 'home' %}" class="waves-effect waves-blue"><i class="material-icons">home</i>{% trans "Home" %}</a>
+                        </li>
+                        <li>
+                            <a class="collapsible-header waves-effect waves-blue">
+                                <i class="material-icons">timeline</i>Dashboard
+                                <i class="material-icons right" style="margin-right:0;">expand_more</i>
+                            </a>
+                            <div class="collapsible-body">
+                                <ul>
+                                    {% for dash in dashboard_page_menu %}
+                                        <li>
+                                            <a class="waves-effect waves-blue" href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">
+                                                <i class="dashboard {{dash.name}}"></i>{{dash.title}}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="waves-effect waves-blue">
+                                <i class="material-icons">layers</i>{% trans "Layers" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="waves-effect waves-blue">
+                                <i class="material-icons">insert_drive_file</i>{% trans "Static Map" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'maps_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="waves-effect waves-blue">
+                                <i class="material-icons">map</i>{% trans "Interactive Map" %}</a>
+                        </li>
+                        <li>
+                            <a class="collapsible-header waves-effect waves-blue">
+                                <i class="material-icons">folder_open</i>Documentation
+                                <i class="material-icons right" style="margin-right:0;">expand_more</i>
+                            </a>
+                            <div class="collapsible-body">
+                                {% comment %} <ul>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'documentation' %}">
+                                            <i class="material-icons">video_library</i>Documentation &amp; Videos</a>
+                                    </li>
+                                    <li>
+                                        <a href="http://afghanistanavalanches.org/" target="_blank" class="waves-effect waves-blue">
+                                            <i class="material-icons">open_in_new</i>{% trans "Avalanches Docs" %}</a>
+                                    </li>
+                                    <li>
+                                        <a href="http://www.afghanistanearthquakes.org/" target="_blank" class="waves-effect waves-blue">
+                                            <i class="material-icons">open_in_new</i>{% trans "Earthquake Docs" %}</a>
+                                    </li>
+                                    <li>
+                                        <a href="http://www.afghanistanflooding.org/" target="_blank" class="waves-effect waves-blue">
+                                            <i class="material-icons">open_in_new</i>{% trans "Flood Docs" %}</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'training' %}">
+                                            <i class="icon-activity_training"></i>Training</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'partners' %}">
+                                            <i class="icon-activity_partnership"></i>Partner</a>
+                                    </li>
+                                    <li>
+                                        <div class="divider"></div>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'about' %}">
+                                            <i class="material-icons">new_releases</i>About</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'disclaimer' %}">
+                                            <i class="material-icons">warning</i>Disclaimer</a>
+                                    </li>
+                                </ul> {% endcomment %}
+                            </div>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li>
+                            <div class="divider"></div>
+                        </li>
+                        <li>
+                            <a href="{% url 'layer_upload' %}" class="waves-effect waves-blue">
+                                <i class="material-icons">layers</i>{% trans "Upload Layer" %}</a>
+                        </li>
+                        <li>
+                            <a class="collapsible-header waves-effect waves-blue">
+                                <i class="material-icons">supervisor_account</i>User
+                                <i class="material-icons right" style="margin-right:0;">expand_more</i>
+                            </a>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'profile_browse' %}">
+                                            <i class="material-icons">person</i>{% trans "Profile" %}</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'messages_inbox' %}">
+                                            <i class="material-icons">chat</i>{% trans "Inbox" %}</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'recent-activity' %}">
+                                            <i class="material-icons">access_time</i>{% trans "Recent Activity" %}</a>
+                                    </li>
+                                    {% if 'geonode.geoserver' in INSTALLED_APPS %}
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'proxy' %}?url={{ GEOSERVER_LOCAL_URL }}web">
+                                            <i class="material-icons">apps</i>{% trans "Geoserver" %}</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="#">
+                                            <i class="material-icons">bar_chart</i>{% trans "User Statistic" %}</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'admin:index' %}">
+                                            <i class="material-icons">how_to_reg</i>{% trans "Admin" %}</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.announcements.can_manage %}
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'announcements_list' %}">
+                                            <i class="material-icons">announcement</i>{% trans "Anouncements" %}</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.is_superuser %}
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'services' %}?limit={{ CLIENT_RESULTS_LIMIT }}">
+                                            <i class="material-icons">vpn_lock</i>{% trans "Remote Service" %}</a>
+                                    </li>
+                                    {% endif %}
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="{% url 'geonode.invitations:geonode-send-invite' %}">
+                                            <i class="material-icons">person_add</i>{% trans "Invite User" %}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <a class="collapsible-header waves-effect waves-blue">
+                                <i class="material-icons">notifications</i>Push Notification
+                                <i class="material-icons right" style="margin-right:0;">expand_more</i>
+                            </a>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="#">
+                                            <i class="material-icons">settings_applications</i>Settings</a>
+                                    </li>
+                                    <li>
+                                        <a class="waves-effect waves-blue" href="#">
+                                            <i class="material-icons">pageview</i>Report</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="divider"></div>
+                        </li>
+                        {% if USE_NOTIFICATIONS %}
+                        <li>
+                            <a href="{% url 'notice_settings' %}" class="waves-effect waves-light">
+                                <i class="material-icons">settings</i>Settings</a> 
+                                <!-- this field with notification url -->
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'help' %}" class="waves-effect waves-light">
+                                <i class="material-icons">help</i>Help</a>
+                        </li>
+                        <li>
+                            <form action="{% url 'account_logout' %}" id="logout_form" method="post">
+                                {% csrf_token %}
+                                <a href="javascript:{}" class="waves-effect waves-light logout" onclick="document.getElementById('logout_form').submit();">
+                                    <i class="material-icons">power_settings_new</i>{% trans "Logout" %}
+                                </a>
+                            </form>
+                        </li>
+                        {% endif %}
+                            {% block extra_tab %} 
+                            {% endblock %} 
+                    {% endblock %}
+                </ul>
+            </li>
+    
+            <li class="sidenav-footer grey darken-4">
+                <div class="row">
+                    <div class="social-icons">
+                        <div class="col s2 offset-s1">
+                            <a href="mailto:admin.geonode@immap.org">
+                                <i class="fa fa-lg fa-envelope"></i>
+                            </a>
+                        </div>
+                        <div class="col s2">
+                            <a href="https://www.youtube.com/channel/UCkd_swrFk9vN81s9SQ3fKgg">
+                                <i class="fa fa-lg fa-youtube"></i>
+                            </a>
+                        </div>
+                        <div class="col s2">
+                            <a href="https://www.facebook.com/immap.org/">
+                                <i class="fa fa-lg fa-facebook-official"></i>
+                            </a>
+                        </div>
+                        <div class="col s2">
+                            <a href="https://twitter.com/immaper?lang=en">
+                                <i class="fa fa-lg fa-twitter"></i>
+                            </a>
+                        </div>
+                        <div class="col s2">
+                            <a href="https://www.linkedin.com/company/527383/">
+                                <i class="fa fa-lg fa-linkedin-square"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <ul id="dropdown_dashboard" class="dropdown-content">
+            {% for dash in dashboard_page_menu %}
+            <li>
+                <a class="waves-effect" href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">{{dash.title}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endblock header %}
+        <!-- End of Navbar -->
+
+        <div class="alert alert-danger alert-dismissible" role="alert" id="ieflag" style="display:none">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h1>You are using an outdated browser that is not supported by GeoNode.</h1>
+            <p>Please use a <strong>modern browser</strong> like Mozilla Firefox, Google Chrome or Safari.</p>
+        </div>
+
+        <div class="page-wrapper">
+            {% block middle %}
+                <div style="padding:0 18px;">
+                    {% block dashboard_content %}{% endblock %}
+                </div>
+                <div class="container">
+                    {% include "_status_message.html" %}
+                    {% include "_announcements.html" %}
+                    {% include "_messages.html" %}
+                    {% block body_outer %}
+                    <!-- <div class="row">
+                        <div class="col s8">
+                        {% block body %}{% endblock %}
+                        </div>
+                        <div class="col s4">
+                        {% block sidebar %}{% endblock %}
+                        </div>
+                    </div> -->
+                    {% endblock %}
+                </div>
+            {% endblock middle %}
+
+            {% block monitoring %}
+            {% endblock %}
+
+            {% block footer %}
+                <footer class="page-footer red darken-3">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col l4 s12">
+                                <h5 class="white-text">{% trans 'Contact' %}</h5>
+                                <ul>
+                                    <li>
+                                        <i class="fa fa-envelope"></i>
+                                        <strong>Email: </strong> afghanistan@immap.org
+                                    </li>
+                                    <li>
+                                        <i class="fa fa-globe"></i>
+                                        <strong>Website:</strong> www.immap.org
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col offset-l4 l4 s12">
+                                <h5 class="white-text">Connect with us</h5>
+                                <a href="mailto:admin.geonode@immap.org" target="_blank" class="btn-floating btn wave-effect orange">
+                                    <i class="fa fa-envelope"></i>
+                                </a>
+                                <a href="https://www.youtube.com/channel/UCkd_swrFk9vN81s9SQ3fKgg" target="_blank" class="btn-floating btn wave-effect red">
+                                    <i class="fa fa-youtube"></i>
+                                </a>
+                                <a href="https://www.facebook.com/immap.org/" target="_blank" class="btn-floating btn wave-effect blue darken-2">
+                                    <i class="fa fa-facebook"></i>
+                                </a>
+                                <a href="https://twitter.com/immaper?lang=en" target="_blank" class="btn-floating btn wave-effect light-blue">
+                                    <i class="fa fa-twitter"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/company/527383/" target="_blank" class="btn-floating btn wave-effect blue darken-2">
+                                    <i class="fa fa-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer-copyright">
+                        <div class="container">
+                            &copy; 2016
+                            <a target="_blank" href="http://immap.org/" class="grey-text text-lighten-4">{% trans "iMMAP" %}</a>. All Rights Reserved.
+                        </div>
+                    </div>
+                </footer>
+            {% endblock footer %}
+
+            <div class="fixed-action-btn">
+                <button id="pdf" class="btn-floating btn-large green waves-effect waves-light" title="Download PDF" style="-moz-animation: bounce 2s infinite;
+                -webkit-animation: bounce 2s infinite;
+                animation: bounce 2s infinite;">
+                    <i class="large material-icons">vertical_align_bottom</i>
+                </a>
+            </div>
+        </div>  
+
+        {% if DEBUG_STATIC %}
+            <script src="{{ STATIC_URL }}lib/js/jquery.min.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/jquery.dataTables.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/jquery.timeago.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/jquery.ajaxprogress.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/jquery.ajaxQueue.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/jquery-ui.custom.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/jquery.raty.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/bootstrap.min.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/moment-with-locales.min.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/bootstrap-datetimepicker.min.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/json2.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/select2.js?v={{ VERSION }}"></script>
+            <script src="{{ STATIC_URL }}lib/js/waypoints.js?v={{ VERSION }}"></script>
+        {% else %}
+            <script src="{{ STATIC_URL }}lib/js/assets.min.js?v={{ VERSION }}"></script>
+        {% endif %}
+
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.0/angular.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.0/angular-cookies.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-simple-logger/0.1.7/angular-simple-logger.min.js"></script>
+        <script src="{{ STATIC_URL }}lib/js/jquery.ajaxQueue.js?v={{ VERSION }}"></script>
+        <script src="{{ STATIC_URL }}lib/js/jquery-ui.custom.js?v={{ VERSION }}"></script>
+        <script src="{{ STATIC_URL }}lib/js/select2.js?v={{ VERSION }}"></script> -->
+
+        <script src="{{ STATIC_URL }}geonode/js/utils/utils.js?v={{ VERSION }}"></script>
+        <script src="{{ STATIC_URL }}geonode/js/base/base.js?v={{ VERSION }}"></script>
+
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+        <!-- DataTables -->
+        <script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css">
+        <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+        <script src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/datetime-moment.js"></script>
+
+        <!-- Highcharts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.2.0/highcharts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.2.0/highcharts-more.js"></script>
+
+        <!-- Leaflet -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.EasyButton/2.3.0/easy-button.min.js"></script>
+
+        <!-- Geostats -->
+        <script src="{{ STATIC_URL }}isdc/js/geostats.min.js"></script>
+
+        <!-- Chroma -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.4.0/chroma.min.js"></script>
+
+        <!-- NoUISlider -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/12.1.0/nouislider.min.js"></script>
+        <!-- <script src="{{ STATIC_URL }}isdc/js/nouislider.min.js"></script> -->
+
+        <!-- wNumb -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.1.0/wNumb.min.js"></script>
+
+        <!-- DateRangePicker -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        
+        <script src="{{ STATIC_URL }}isdc/js/usng.js"></script>
+        <script src="{{ STATIC_URL }}isdc/js/_custom.js"></script>
+        <script src="{{ STATIC_URL }}isdc/js/_custom_dashboard.js"></script>
+
+        {% include 'autocomplete_light/static.html' %}
+        <script type="text/javascript" src="{% url "javascript-catalog" %}"></script>
+        {% block extra_script %}{% endblock extra_script %}
+        <script type="text/javascript">
+            var autocomplete = $('#search_input').yourlabsAutocomplete({
+                url: '{% url "autocomplete_light_autocomplete" "ResourceBaseAutocomplete" %}',
+                choiceSelector: 'span',
+                hideAfter: 200,
+                minimumCharacters: 1,
+                placeholder: '{% trans 'Type your search here ...' %}',
+                appendAutocomplete: $('#search_input'),
+                autoHilightFirst: false
+            });
+            $('#search_input').bind('selectChoice', function(e, choice, autocomplete) {
+                if(choice[0].children[0] == undefined) {
+                    $('#search_input').val($(choice[0]).text());
+                    $('#search').submit();
+                }
+            });
+        </script>
+        <script>
+            // Workaround to fix the autocomplete box positions
+            yourlabs.Autocomplete.prototype.fixPosition = function(html) {
+                this.input.parents().filter(function() {
+                    return $(this).css('overflow') === 'hidden';
+                }).first().css('overflow', 'visible');
+                if(this.input.attr('name') !== 'resource-keywords'){
+                this.box.insertAfter(this.input).css({top: 28, left: 0});
+                }else{
+                var pos = $.extend({}, this.input.position(), {
+                    height: this.input.outerHeight()
+                });
+                this.box.insertAfter(this.input).css({top: pos.top + pos.height, left: pos.left});
+                }
+            };
+        </script>
+        <script type="text/javascript" src="{% url "lang" %}"></script>
+
+        <div id="_resource_uploading" class="modal bottom-sheet" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+            <div class="modal-content">
+                <h4>Uploading...</h4>
+                <div class="preloader-wrapper big active">
+                    <div class="spinner-layer spinner-red-only">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" style="width: 100%; height: 100%;" id="_thumbnail_processing" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1>Processing...</h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+                            Updating Thumbnail...
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="_thumbnail_feedbacks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="exampleModalLabel">Message box</h4>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if 'isdc_panel' in INSTALLED_APPS %}
+            <script language="javascript">
+                var STATIC_URL = "{{ STATIC_URL }}";
+                var PACKAGE = "{{IMMAP_PACKAGE}}";
+            </script>
+            {% include 'isdc_panel/panel.html' %}
+        {% endif %}
+
+        <script>
+            function jump_url(code){
+                var url = window.location.href;
+
+                if (getParameterByName("code") == null){
+                    url += '&code='+code;
+                } else {
+                    url = updateUrlParameter(url, 'code', code)
+                }
+
+                if (code == 0){
+                    url = removeParam('code', url)
+                }
+
+                window.document.location = url;
+
+            }
+
+            function getParameterByName(name, url) {
+                if (!url) url = window.location.href;
+                name = name.replace(/[\[\]]/g, "\\$&");
+                var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                    results = regex.exec(url);
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, " "));
+            }
+
+            function removeParam(key, sourceURL) {
+                var rtn = sourceURL.split("?")[0],
+                    param,
+                    params_arr = [],
+                    queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+                if (queryString !== "") {
+                    params_arr = queryString.split("&");
+                    for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+                        param = params_arr[i].split("=")[0];
+                        if (param === key) {
+                            params_arr.splice(i, 1);
+                        }
+                    }
+                    rtn = rtn + "?" + params_arr.join("&");
+                }
+                return rtn;
+            }
+
+            function updateUrlParameter(url, param, value){
+                param = encodeURIComponent(param);
+                var r = "([&?]|&amp;)" + param + "\\b(?:=(?:[^&#]*))*";
+                var a = document.createElement('a');
+                var regex = new RegExp(r);
+                var str = param + (value ? "=" + encodeURIComponent(value) : ""); 
+                a.href = url;
+                var q = a.search.replace(regex, "$1"+str);
+                if (q === a.search) {
+                    a.search += (a.search ? "&" : "") + str;
+                } else {
+                    a.search = q;
+                }
+                return a.href;
+            }
+        </script>
+
+        <script type="text/javascript">
+            $(window).load(function() {
+                // Animate loader off screen
+                $(".se-pre-con").fadeOut("slow");
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var _checked = [];
+                $('button#pdf').on('click', function(event) {
+                    var url = $(location).attr("href");
+                    $(".se-pre-con").fadeIn("slow");
+                    window.document.location = url+'&pdf=true&_checked='+_checked;
+                    $(".se-pre-con").fadeOut("slow");
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('.sidenav-main-menu .sidenav-header img').addClass('circle responsive-img');
+            });
+        </script>
+    </body>
+</html>

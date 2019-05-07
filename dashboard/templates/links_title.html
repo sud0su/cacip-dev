@@ -1,0 +1,18 @@
+{% for label in parent_label_dash %}
+	<a class="breadcrumb" href="#"
+		onclick='jump_url({{ label.code }});'
+		{% if label.code == 0 %}
+			
+		{% endif %}
+		{% if label.code > 0 %}
+			{% if label.code <= 34 %}
+
+			{% endif %}
+			{% if label.code > 34 %}
+
+			{% endif %}
+		{% endif %}
+		>
+		{{ label.name }}
+	</a>
+{% endfor %}
