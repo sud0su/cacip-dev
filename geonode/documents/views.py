@@ -53,6 +53,9 @@ from geonode.utils import build_social_links
 from geonode.groups.models import GroupProfile
 from geonode.base.views import batch_modify
 
+# [EPR-BGD01]
+from matrix.views import savematrix
+
 logger = logging.getLogger("geonode.documents.views")
 
 ALLOWED_DOC_TYPES = settings.ALLOWED_DOCUMENT_TYPES
@@ -114,6 +117,7 @@ def document_detail(request, docid):
             Document.objects.filter(
                 id=document.id).update(
                 popular_count=F('popular_count') + 1)
+            savematrix(request=request, action='Document View', resource=document)
 
         metadata = document.link_set.metadata().filter(
             name__in=settings.DOWNLOAD_FORMATS_METADATA)
@@ -124,6 +128,7 @@ def document_detail(request, docid):
                 group = GroupProfile.objects.get(slug=document.group.name)
             except GroupProfile.DoesNotExist:
                 group = None
+        preview_url = document.thumbnail_url.replace("-thumb", "-preview")
         context_dict = {
             'perms_list': get_perms(
                 request.user,
@@ -133,6 +138,7 @@ def document_detail(request, docid):
             'group': group,
             'metadata': metadata,
             'imgtypes': IMGTYPES,
+            'preview_url':preview_url,
             'related': related}
 
         if settings.SOCIAL_ORIGINS:
@@ -156,6 +162,9 @@ def document_detail(request, docid):
 
 def document_download(request, docid):
     document = get_object_or_404(Document, pk=docid)
+
+    if request.user != document.owner and not request.user.is_superuser:
+        savematrix(request=request, action='Document Download', resource=document)
 
     if settings.MONITORING_ENABLED and document:
         if hasattr(document, 'alternate'):

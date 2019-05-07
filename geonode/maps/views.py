@@ -74,6 +74,9 @@ from geonode.base.views import batch_modify
 
 from requests.compat import urljoin
 
+# [EPR-BGD01]
+from matrix.views import savematrix
+
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
     # FIXME: The post service providing the map_status object
     # should be moved to geonode.geoserver.
@@ -132,6 +135,7 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
         Map.objects.filter(
             id=map_obj.id).update(
             popular_count=F('popular_count') + 1)
+        savematrix(request=request, action='Map View Detail', resource=map_obj)
 
     if snapshot is None:
         config = map_obj.viewer_json(request)
@@ -518,6 +522,9 @@ def map_view(request, mapid, snapshot=None, layer_name=None,
         mapid,
         'base.view_resourcebase',
         _PERMISSION_MSG_VIEW)
+
+    if request.user != map_obj.owner and not request.user.is_superuser:
+        savematrix(request=request, action='Map View Geoexplorer', resource=map_obj)
 
     if snapshot is None:
         config = map_obj.viewer_json(request)

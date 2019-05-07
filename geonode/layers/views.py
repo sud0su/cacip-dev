@@ -90,6 +90,9 @@ from geonode.geoserver.helpers import (gs_catalog,
                                        set_layer_style)  # cascading_delete
 from .tasks import delete_layer
 
+# [EPR-BGD01]
+from matrix.views import savematrix
+
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
     from geonode.geoserver.helpers import _render_thumbnail
 if check_ogc_backend(qgis_server.BACKEND_PACKAGE):
@@ -476,6 +479,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     # Update count for popularity ranking,
     # but do not includes admins or resource owners
     layer.view_count_up(request.user)
+    if request.user != layer.owner and not request.user.is_superuser:
+        savematrix(request=request, action='Layer View', resource=layer)
 
     # center/zoom don't matter; the viewer will center on the layer bounds
     map_obj = GXPMap(
@@ -633,6 +638,9 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             links = layer.link_set.download().filter(
                 name__in=settings.DOWNLOAD_FORMATS_RASTER)
         context_dict["links_download"] = links_download
+
+        # TODO: pass geoserver layer download url through proxy to make accurate counter
+        savematrix(request=request, action='Layer Download', resource=layer)
 
     if settings.SOCIAL_ORIGINS:
         context_dict["social_links"] = build_social_links(request, layer)
