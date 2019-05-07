@@ -141,15 +141,19 @@
                         <div class="" id="mdinfo">
                             <div class="">
                                 <div class="col-lg-4">
+                                    {% if document_form.language %}
                                     <div>
                                         <span><label for="{{ document_form.language|id }}">{{ document_form.language.label }}</label></span>
                                         <!--<p class="xxs-font-size">(Language used within the dataset)</p>-->
                                         {{ document_form.language }}
                                     </div>
+                                    {% endif %}
+                                    {% if document_form.license %}
                                     <div>
                                         <span><label for="{{ document_form.license|id }}">{{ document_form.license.label }}</label></span>
                                         <!--<p class="xxs-font-size">(License of the dataset)</p>-->
                                         {{ document_form.license }}
+                                    {% endif %}
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
@@ -157,23 +161,29 @@
                                           <span><label for="{{ document_form.regions|id }}">{{ document_form.regions.label }}</label></span>
                                           {{ document_form.regions }}
                                       </div>
+                                    {% if document_form.data_quality_statement %}
                                       <div>
                                           <span><label for="{{ document_form.data_quality_statement|id }}">{{ document_form.data_quality_statement.label }}</label></span>
                                           <!--<p class="xxs-font-size">(General explanation of the data producer's knowledge about the lineage)</p>-->
                                           {{ document_form.data_quality_statement }}
                                       </div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-lg-4">
+                                    {% if document_form.restriction_code_type %}
                                     <div>
                                         <span><label for="{{ document_form.restriction_code_type|id }}">{{ document_form.restriction_code_type.label }}</label></span>
                                         <!--<p class="xxs-font-size">(Limitation/s placed upon the access or use of data)</p>-->
                                         {{ document_form.restriction_code_type }}
                                     </div>
+                                    {% endif %}
+                                    {% if document_form.constraints_other %}
                                     <div>
                                         <span><label for="{{ document_form.constraints_other|id }}">{{ document_form.constraints_other.label }}</label></span>
                                         <!--<p class="xxs-font-size">(Other restrictions and legal prerequisites for accessing or use data and metadata)</p>-->
                                         {{ document_form.constraints_other }}
                                     </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="row">
@@ -207,6 +217,7 @@
                 </div>
             </div>
             <div class="col-xs-12 col-lg-5">
+                    {% if document_form.temporal_extent_start %}
                     <div class="col-xs-12 col-lg-6">
                       <div class="input-group date">
                         <span><label for="{{ document_form.temporal_extent_start|id }}">{{ document_form.temporal_extent_start.label }}</label></span>
@@ -214,6 +225,8 @@
                         {{ document_form.temporal_extent_start }}
                         </div>
                     </div>
+                    {% endif %}
+                    {% if document_form.temporal_extent_end %}
                     <div class="col-xs-12 col-lg-6">
                         <div class="input-group date">
                         <span><label for="{{ document_form.temporal_extent_end|id }}">{{ document_form.temporal_extent_end.label }}</label></span>
@@ -221,17 +234,22 @@
                         {{ document_form.temporal_extent_end }}
                         </div>
                     </div>
+                    {% endif %}
                 <div class="col-xs-12">
+                    {% if document_form.maintenance_frequency %}
                     <div style="margin-top: 5px">
                         <span><label for="{{ document_form.maintenance_frequency|id }}">{{ document_form.maintenance_frequency.label }}</label></span>
                         <!--<p class="xxs-font-size">(Identification of when a given event occurred)</p>-->
                         {{ document_form.maintenance_frequency }}
                     </div>
+                    {% endif %}
+                    {% if document_form.spatial_representation_type %}
                     <div style="margin-top: 5px">
                         <span><label for="{{ document_form.spatial_representation_type|id }}">{{ document_form.spatial_representation_type.label }}</label></span>
                         <!--<p class="xxs-font-size">(Method used to represent geographic information in the dataset)</p>-->
                         {{ document_form.spatial_representation_type }}
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="col-xs-12 col-lg-3">
@@ -294,22 +312,30 @@
                 <div class="panel panel-default" >
                   <div class="panel-heading">{% trans "Publishing" %}</div>
                   <div class="panel-body">
+                    {% if document_form.metadata_uploaded_preserve %}
                     <div>
                         <span><label for="{{ document_form.metadata_uploaded_preserve|id }}">{{ document_form.metadata_uploaded_preserve.label }}</label></span>
                         {{ document_form.metadata_uploaded_preserve }}
                     </div>
+                    {% endif %}
+                    {% if document_form.is_approved %}
                     <div>
                         <span><label for="{{ document_form.is_approved|id }}">{{ document_form.is_approved.label }}</label></span>
                         {{ document_form.is_approved }}
                     </div>
+                    {% endif %}
+                    {% if document_form.is_published %}
                     <div>
                         <span><label for="{{ document_form.is_published|id }}">{{ document_form.is_published.label }}</label></span>
                         {{ document_form.is_published }}
                     </div>
+                    {% endif %}
+                    {% if document_form.featured %}
                     <div>
                         <span><label for="{{ document_form.featured|id }}">{{ document_form.featured.label }}</label></span>
                         {{ document_form.featured }}
                     </div>
+                    {% endif %}
                   </div>
                 </div>
               </div>

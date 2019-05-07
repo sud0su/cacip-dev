@@ -28,8 +28,11 @@ from celery.utils.log import get_task_logger
 from geonode.documents.models import Document
 from geonode.documents.renderers import render_document
 from geonode.documents.renderers import generate_thumbnail_content
+from geonode.documents.renderers import doc_render_thumbnail
 from geonode.documents.renderers import ConversionError
 from geonode.documents.renderers import MissingPILError
+from django.conf import settings
+from django.core.files import File
 
 logger = get_task_logger(__name__)
 
@@ -54,6 +57,7 @@ def create_document_thumbnail(self, object_id):
     elif document.is_file():
         try:
             image_file = render_document(document.doc_file.path)
+            # image_file = doc_render_thumbnail(document, None)
             image_path = image_file.name
         except ConversionError as e:
             logger.debug("Could not convert document #{}: {}."
@@ -85,6 +89,18 @@ def create_document_thumbnail(self, object_id):
     filename = 'document-{}-thumb.png'.format(document.uuid)
     document.save_thumbnail(filename, thumbnail_content)
     logger.debug("Thumbnail for document #{} created.".format(object_id))
+
+    # [EPR-BGD] create preview image for document detail page
+    thumb_folder = 'thumbs'
+    preview = generate_thumbnail_content(image_path, size=(600, 450))
+    filenamePreview = 'document-%s-preview.png' % document.uuid
+    upload_path = os.path.join(settings.MEDIA_ROOT, thumb_folder)
+    if not os.path.exists(upload_path):
+        os.makedirs(upload_path)
+
+    with open(os.path.join(upload_path, filenamePreview), 'w') as f:
+        thumbnail = File(f)
+        thumbnail.write(preview)
 
 
 @shared_task(bind=True, queue='cleanup')

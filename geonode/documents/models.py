@@ -58,6 +58,12 @@ class Document(ResourceBase):
 
     extension = models.CharField(max_length=128, blank=True, null=True)
 
+    # add custom field
+    version    = models.CharField(max_length=50, blank=True, null=True)
+    papersize  = models.CharField(max_length=2, blank=True, null=True)
+    datasource = models.CharField(max_length=128, blank=True, null=True)
+    subtitle = models.CharField(max_length=128, blank=True, null=True)
+
     doc_type = models.CharField(max_length=128, blank=True, null=True)
 
     doc_url = models.URLField(
