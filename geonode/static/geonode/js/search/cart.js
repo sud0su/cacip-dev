@@ -159,7 +159,7 @@
 
       this.getFaClass = function(id){
         if(this.getItemById(id) === null){
-          return 'fa-plus';
+          return 'fa-check';
         }else{
           return 'fa-remove';
         }

@@ -1,0 +1,35 @@
+{% load i18n %}
+<div id="filter_toolbar" class="">
+    <button type="button" class="btn btn-default" id="filter_btn">{% trans "Filter" %}</button>
+    <div class="pull-right">
+        <button type="button" class="btn btn-default" id="view_btn"><i class="fa fa-th-list" aria-hidden="true"></i></button>
+        <div class="dropdown btn-group   ">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <div ng-if="query.limit == 20" ng-cloak>
+                    {% trans "20" %}
+                    <i class="fa fa-angle-down fa-lg"></i>
+                </div>
+                <div ng-if="query.limit == 50" ng-cloak>
+                    {% trans "50" %}
+                    <i class="fa fa-angle-down fa-lg"></i>
+                </div>
+                <div ng-if="query.limit == 100" ng-cloak>
+                    {% trans "100" %}
+                    <i class="fa fa-angle-down fa-lg"></i>
+                </div>
+                <div ng-if="query.limit == total_counts" ng-cloak>
+                    {% trans "All" %}
+                    <i class="fa fa-angle-down fa-lg"></i>
+                </div>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a ng-click="limit_choice_listener(20)">{% trans "20" %}</a></li>
+                <li><a ng-click="limit_choice_listener(50)">{% trans "50" %}</a></li>
+                <li><a ng-click="limit_choice_listener(100)">{% trans "100" %}</a></li>
+                <li><a ng-click="limit_choice_listener('all')">{% trans "All" %}</a></li>
+            </ul>
+        </div>
+        {% include "search/_sort_filters.html" %}
+        {% include 'search/_pagination.html' %}
+    </div>
+</div>

@@ -328,6 +328,21 @@
     };
     query_api($scope.query);
 
+    /*
+    * Limit Pagination
+    */
+    // Control what happens when the total num of one page view change
+    $scope.limit_choice_listener = function(val){
+      if (val == 'all') {
+        $scope.query.limit = $scope.total_counts;
+      }else{
+        $scope.query.limit = val;
+      }
+      console.log($scope.query.limit);
+      console.log($scope.total_counts);
+    }
+    console.log($scope.query.limit);
+
 
     /*
     * Pagination

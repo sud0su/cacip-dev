@@ -1,0 +1,40 @@
+<script>
+    $(document).ready(function () {
+        // Toggle button from grid view to list view
+        $( "#view_btn" ).click(function() {
+            $( "#list_view" ).toggle();
+            $( "#grid_view" ).toggle();
+            if ($( "#view_btn i" ).hasClass("fa-th")) {
+                $( "#view_btn i" ).removeClass("fa-th");
+                $( "#view_btn i" ).addClass("fa-th-list");
+            }else{
+                $( "#view_btn i" ).removeClass("fa-th-list");
+                $( "#view_btn i" ).addClass("fa-th");
+            }
+        });
+
+        // Toggle filter
+        $( "#filter_btn" ).click(function() {
+            $( "#filter_controller" ).toggle();
+            if ($( "#resource_list>div" ).hasClass("col-md-9")) {
+                $( "#resource_list>div" ).toggleClass('col-md-9 col-md-12');
+            }else{
+                $( "#resource_list>div" ).toggleClass('col-md-12 col-md-9');
+            }
+            
+        });
+
+        // Append the set permission btn group
+        $(".container-tools-set").append($("#tools_set"));
+
+        // Stick the Filter bar on scroll
+        $(window).scroll(function(e){
+            if ($(this).scrollTop() > 200){
+                $(".product-filter-nav").addClass("product-filter-nav-scroll");
+            }
+            if ($(this).scrollTop() < 200){
+                $(".product-filter-nav").removeClass("product-filter-nav-scroll");
+            }
+        });
+    });
+</script>

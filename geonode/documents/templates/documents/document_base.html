@@ -5,7 +5,23 @@
 
 {% block body_class %}documents{% endblock %}
 
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>{% trans "Static Maps" %}</h2>
+                    {% block add_on_btn %}
+                    {% endblock add_on_btn %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+{% endblock middle %}
+
 {% block body_outer %}
-  {% block body %}{% endblock body %}
-  {% block sidebar %}{% endblock sidebar %}
+    {% block body %}{% endblock body %}
+    {% block sidebar %}{% endblock sidebar %}
 {% endblock body_outer %}
