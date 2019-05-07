@@ -399,6 +399,13 @@ INSTALLED_APPS = (
 
     # GeoNode
     'geonode',
+
+    # EPR-BGD01
+    'matrix',
+    'userstatistics',
+    'dashboard',
+    'dashboard.weather',
+    
 ) + GEONODE_APPS
 
 REST_FRAMEWORK = {
@@ -457,7 +464,7 @@ LOGGING = {
         'celery': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': 'celery.log',
+            'filename': os.path.expanduser('~/celery.log'),
             'formatter': 'simple',
             'maxBytes': 1024 * 1024 * 10,  # 10 mb
         },
@@ -1005,10 +1012,13 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Require users to authenticate before using Geonode
 LOCKDOWN_GEONODE = strtobool(os.getenv('LOCKDOWN_GEONODE', 'False'))
+LOCKDOWN_GEONODE = True
 
 # Add additional paths (as regular expressions) that don't require
 # authentication.
-AUTH_EXEMPT_URLS = ()
+AUTH_EXEMPT_URLS = (
+    '/account/signup/',
+)
 
 # A tuple of hosts the proxy can send requests to.
 PROXY_ALLOWED_HOSTS = ()
@@ -1651,7 +1661,8 @@ if USE_WORLDMAP:
     SOLR_URL = os.getenv('SOLR_URL', 'http://localhost:8983/solr/hypermap/select/')
     MAPPROXY_URL = os.getenv('MAPPROXY_URL', 'http://localhost:8001')
 
-try:
-    from geonode.local_settings import *  # flake8: noqa
-except ImportError:
-    pass
+from geonode.local_settings import *  # flake8: noqa
+# try:
+# except ImportError:
+#     print 
+#     pass
