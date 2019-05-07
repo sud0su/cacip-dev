@@ -1176,3 +1176,19 @@ def str2bool(v):
         return v.lower() in ("yes", "true", "t", "1")
     else:
         return False
+
+@task
+def start_chrome_devtool():
+	"""
+	Start Chrome Devtool process.
+	"""
+	# cmd_str = 'google-chrome --headless --disable-gpu --remote-debugging-port=9222'
+	cmd_str = 'chromium-browser --headless --disable-gpu --remote-debugging-port=9222' # produces smaller pdf size
+	p = subprocess.Popen(cmd_str.split())
+
+@task
+def stop_chrome_devtool():
+	"""
+	Stop Chrome Devtool process.
+	"""
+	sh('lsof -n -i:9222 | grep LISTEN | awk \'{ print $2 }\' | xargs kill')
