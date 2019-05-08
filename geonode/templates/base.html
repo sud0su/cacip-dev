@@ -299,6 +299,34 @@
                                         {% with request.resolver_match.view_name as url_name %}
                                         <li class="{% if url_name == 'home' %}active{% endif %}"><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
                                         {% endwith %}
+                                        <li class="dropdown hide">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                                aria-haspopup="true" aria-expanded="false">Dropdown <span
+                                                    class="caret"></span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="#">Action</a></li>
+                                                <li><a href="#">Another action</a></li>
+                                                <li><a href="#">Something else here</a></li>
+                                                <li role="separator" class="divider"></li>
+                                                <li><a href="#">Separated link</a></li>
+                                                <li role="separator" class="divider"></li>
+                                                <li><a href="#">One more separated link</a></li>
+                                                <li class="dropdown-submenu">
+                                                    <a class="test" tabindex="-1" href="#">New dropdown <span class="caret"></span></a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a tabindex="-1" href="#">2nd level dropdown</a></li>
+                                                        <li><a tabindex="-1" href="#">2nd level dropdown</a></li>
+                                                        <li class="dropdown-submenu">
+                                                        <a class="test" href="#">Another dropdown <span class="caret"></span></a>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a href="#">3rd level dropdown</a></li>
+                                                            <li><a href="#">3rd level dropdown</a></li>
+                                                        </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
                                         <li class="dropdown dropdown-toggle {% if 'maps' in request.path_info %}active{% endif %} hide">
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Interactive Maps" %}
                                                 <i class="fa fa-angle-down fa-lg"></i>
@@ -375,6 +403,11 @@
                                                         <li role="separator" class="divider"></li>
                                                         <li><a href="{% url "monitoring:index" %}">{% trans "Monitoring" %}</a></li>
                                                     {% endif %}
+                                                {% endif %}
+                                                {% if user.is_superuser %}
+                                                <li>
+                                                    <a class="waves-effect waves-light" href="{% url 'userstatistics' %}">{% trans "User Statistic" %}</a>
+                                                </li>
                                                 {% endif %}
                                                 <li role="separator" class="divider"></li>
                                                 <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>

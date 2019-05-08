@@ -3,19 +3,24 @@
 {% load i18n %}
 {% block title %} {% trans "User Statistics" %} — {{ block.super }} {% endblock %}
 {% block head %} {{ block.super }}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
+<!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css"> -->
+<!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css"> -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="https://rawgit.com/davidstutz/bootstrap-multiselect/master/dist/css/bootstrap-multiselect.css">
 <!-- <script type="text/javascript" src="/static/lib/js/datauseractivity.js"></script> -->
 <style>
-#blockfilter .form-group {
-  display: none;
-}
-/* reset */
-.dropdown-menu>li>a {
-  font-size: 14px;
-  line-height: 1.42857143;
-}
+  #blockfilter .form-group {
+    display: none;
+  }
+  /* reset */
+  .dropdown-menu>li>a {
+    font-size: 14px;
+    line-height: 1.42857143;
+  }
+
+  .multiselect-container{
+    width: 100%;
+  }
 </style>
 <script>
 var jsondata = {{ jsondata | safe }};
@@ -72,9 +77,11 @@ config['selectqry'] = [
         $('#blockfilter .form-group').each(function () {
           if (showids.indexOf(this.id) === -1) {
             $(this).hide();
+            $('#filter_note').show();
           }
           else {
             $(this).show();
+            $('#filter_note').hide();
           }
         });
       },
@@ -282,9 +289,11 @@ config['selectqry'] = [
         $('#blockfilter .form-group').each(function () {
           if (showids.indexOf(this.id) === -1) {
             $(this).hide();
+            $('#filter_note').show();
           }
           else {
             $(this).show();
+            $('#filter_note').hide();
           }
         });
       },
@@ -704,9 +713,11 @@ config['selectqry'] = [
         $('#blockfilter .form-group').each(function () {
           if (showids.indexOf(this.id) === -1) {
             $(this).hide();
+            $('#filter_note').show();
           }
           else {
             $(this).show();
+            $('#filter_note').hide();
           }
         });
       },
@@ -1002,9 +1013,11 @@ config['selectqry'] = [
         $('#blockfilter .form-group').each(function () {
           if (showids.indexOf(this.id) === -1) {
             $(this).hide();
+            $('#filter_note').show();
           }
           else {
             $(this).show();
+            $('#filter_note').hide();
           }
         });
       },
@@ -1419,89 +1432,123 @@ background-color: rgba(255, 255, 255, 0.5);
 {{ block.super }}
 {% endblock %}
 
-{% block body_outer %}
-<div class="page-header">
-  <h2>{% trans "User Statistics" %}</h2>
-</div>
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>{% trans "User Statistic" %}</h2>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+{% endblock middle %}
 
-<div class="row">
-  <div class="col-md-12">
-    <p class="lead">{% trans "Query" %}</p>
-    <form class="">
-      <!-- <div class="form-group">
-      <label for="selectsql" class="col-sm-2 control-label">Select Query</label>
-      <div class="col-sm-3">
-      <select id="selectsql" class="form-control">
-      <option selected="selected">Raw Data</option>
-      <option>Group By Resource</option>
-    </select>
+{% block body_outer %}
+  <div class="page-header hide">
+    <h2>{% trans "User Statistics" %}</h2>
   </div>
-</div> -->
-<div class="form-group">
-  <label for="selectsql">Select Query</label>
-  <select id="selectsql" class="form-control">
-    <option selected="selected"></option>
-  </select>
-</div>
-</form>
-</div>
-<div id="blockfilter" class="col-md-12">
-  <p class="lead">{% trans "Filter" %}</p>
-  <form class="">
-    <div id="blockfilterresource" class="form-group">
-      <label for="filterresource">Resource</label>
-      <select id="filterresource" class="form-control" multiple="multiple">
-      </select>
-      <span id="filterorganizationoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></span>
+
+  <div class="row g-margin-t-45--xs g-margin-b-45--xs">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <p class="lead">{% trans "Query" %}</p>
+          <form class="">
+            <!-- <div class="form-group">
+            <label for="selectsql" class="col-sm-2 control-label">Select Query</label>
+            <div class="col-sm-3">
+            <select id="selectsql" class="form-control">
+            <option selected="selected">Raw Data</option>
+            <option>Group By Resource</option>
+          </select>
+        </div>
+      </div> -->
+            <div class="form-group">
+              <label for="selectsql">Select Query</label>
+              <select id="selectsql" class="form-control">
+                <option selected="selected"></option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div id="blockfilterorganization" class="form-group">
-      <label for="filterorganization">Organization</label>
-      <select id="filterorganization" class="form-control" multiple="multiple">
-      </select>
-      <p id="filterorganizationoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></p>
+    <div id="blockfilter" class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+           <p class="lead">{% trans "Filter" %}</p>
+           <p id="filter_note">
+             {% trans "Additional filter will show here" %}
+           </p>
+           <form class="">
+             <div id="blockfilterresource" class="form-group">
+               <label for="filterresource">Resource</label>
+               <select id="filterresource" class="form-control" multiple="multiple">
+               </select>
+               <span id="filterorganizationoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></span>
+             </div>
+             <div id="blockfilterorganization" class="form-group">
+               <label for="filterorganization">Organization</label>
+               <select id="filterorganization" class="form-control" multiple="multiple">
+               </select>
+               <p id="filterorganizationoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></p>
+             </div>
+             <div id="blockfilterorganizationtype" class="form-group">
+               <label for="filterorganizationtype">Organization Type</label>
+               <select id="filterorganizationtype" class="form-control" multiple="multiple">
+               </select>
+               <p id="filterorganizationtypeoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></p>
+             </div>
+             <div id="blockfilterorganizationgrowth" class="form-group">
+               <label for="filterorganizationgrowth">Organization</label>
+               <select id="filterorganizationgrowth" class="form-control" multiple="multiple">
+               </select>
+               <p id="filterorganizationgrowthoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></p>
+             </div>
+             <div id="blockperiodic" class="form-group">
+               <label for="periodic">Periodic</label>
+               <select id="periodic" class="form-control">
+                 <option selected="selected" value="daily">Daily</option>
+                 <option value="weekly">Weekly</option>
+                 <option value="monthly">Monthly</option>
+                 <option value="quarterly">Quarterly</option>
+               </select>
+             </div>
+             <div id="blockbtnfiltersubmit" class="form-group">
+               <button id="btnfiltersubmit" class="btn btn-primary" type="button">Filter</button>
+             </div>
+           </form>
+        </div>
+      </div>
     </div>
-    <div id="blockfilterorganizationtype" class="form-group">
-      <label for="filterorganizationtype">Organization Type</label>
-      <select id="filterorganizationtype" class="form-control" multiple="multiple">
-      </select>
-      <p id="filterorganizationtypeoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></p>
+
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+           <p class="lead">{% trans "Chart" %}</p>
+           <!-- <div id="graphuseractivity" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto"></div> -->
+           <div id="graphuseractivity">{% trans "Chart will show here" %}</div>
+           <!-- <canvas id="canvasuseractivity" width="100%" height="482" style="display: block; width: 100%; height: 482px;"></canvas> -->
+           <!-- <table id="tblgraphdetail" class="stripe row-border order-column" role="grid" aria-describedby="" style=""> -->
+        </div>
+      </div>
+      
     </div>
-    <div id="blockfilterorganizationgrowth" class="form-group">
-      <label for="filterorganizationgrowth">Organization</label>
-      <select id="filterorganizationgrowth" class="form-control" multiple="multiple">
-      </select>
-      <p id="filterorganizationgrowthoption"><span id="setsort">Sort by: <a id="sortbyname">Name</a>, <a id="sortbynumber">Number of User</a></span>, <span id="setselect">Select: <a id="selectall">All</a>, <a id="selectnone">None</a></span></p>
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+           <p class="lead">{% trans "Table" %}</p>
+           <table id="tbluseractivity" class="stripe row-border order-column" role="grid" aria-describedby="" style="">
+           </table>
+        </div>
+      </div>
     </div>
-    <div id="blockperiodic" class="form-group">
-      <label for="periodic">Periodic</label>
-      <select id="periodic" class="form-control">
-        <option selected="selected" value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-        <option value="monthly">Monthly</option>
-        <option value="quarterly">Quarterly</option>
-      </select>
-    </div>
-    <div id="blockbtnfiltersubmit" class="form-group">
-      <button id="btnfiltersubmit" class="btn btn-primary" type="button">Filter</button>
-    </div>
-  </form>
-</div>
-<div class="col-md-12">
-  <p class="lead">{% trans "Chart" %}</p>
-  <!-- <div id="graphuseractivity" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto"></div> -->
-  <div id="graphuseractivity"></div>
-  <!-- <canvas id="canvasuseractivity" width="100%" height="482" style="display: block; width: 100%; height: 482px;"></canvas> -->
-  <!-- <table id="tblgraphdetail" class="stripe row-border order-column" role="grid" aria-describedby="" style=""> -->
-</div>
-<div class="col-md-12">
-  <p class="lead">{% trans "Table" %}</p>
-  <table id="tbluseractivity" class="stripe row-border order-column" role="grid" aria-describedby="" style="">
-  </table>
-</div>
-<!-- <div class="col-md-4">
-</div> -->
-</div>
+  </div>
 {% endblock %}
+
 {% block extra_script %}
 {{ block.super }}
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js" integrity="sha256-SiHXR50l06UwJvHhFY4e5vzwq75vEHH+8fFNpkXePr0=" crossorigin="anonymous"></script> -->
@@ -1513,7 +1560,8 @@ background-color: rgba(255, 255, 255, 0.5);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/js/themes/grid-light.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://rawgit.com/davidstutz/bootstrap-multiselect/master/dist/js/bootstrap-multiselect.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.print.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.flash.min.js"></script>
@@ -1524,291 +1572,292 @@ background-color: rgba(255, 255, 255, 0.5);
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.print.min.js"></script>
 <script type="text/javascript">
 
-var dtoptionsbase = {
-  // data: jsondata['useractivities']['data'],
-  // columns: dtcolumns,
-  autoWidth: false,
-  "scrollX": true,
-  dom: 'Bfrtip',
-  "deferRender": true,
-  buttons: [
-    {
-      extend: "copy",
-      className: "btn-sm"
-    },
-    {
-      extend: "csv",
-      className: "btn-sm"
-    },
-    {
-      extend: "excel",
-      className: "btn-sm"
-    },
-    {
-      extend: "print",
-      className: "btn-sm"
-    },
-    // {
-    //   extend: "colvis"
-    //   className: "btn-sm"
-    // }
-  ],
-  // responsive: true,
+    var dtoptionsbase = {
+      // data: jsondata['useractivities']['data'],
+      // columns: dtcolumns,
+      autoWidth: false,
+      "scrollX": true,
+      dom: 'Bfrtip',
+      "deferRender": true,
+      buttons: [
+        {
+          extend: "copy",
+          className: "btn"
+        },
+        {
+          extend: "csv",
+          className: "btn"
+        },
+        {
+          extend: "excel",
+          className: "btn"
+        },
+        {
+          extend: "print",
+          className: "btn"
+        },
+        // {
+        //   extend: "colvis"
+        //   className: "btn-sm"
+        // }
+      ],
+      // responsive: true,
 
-  "columnDefs": [{
-    // "type": "num",
-    // "visible": false,
-    // "render": function (data, type, row){
-    // if (type == 'display') {return humanizeFormatter(data);}
-    // return data;
-    // },
-    // console.log(data, type, row);
-    // return data+'K';
-    // },
-    // "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  }]
-}
-
-// string format function
-// usage: "{greeting} {who}!".format({greeting: "Hello", who: "world"})
-String.prototype.format = function(placeholders) {
-  var s = this;
-  for(var propertyName in placeholders) {
-    var re = new RegExp('{' + propertyName + '}', 'gm');
-    s = s.replace(re, placeholders[propertyName]);
-  }
-  return s;
-};
-
-function fill_options(elm, data, fnvalue, fntext) {
-  var optvalue, opttext;
-  elm.empty();
-  for (let i in data){
-    selected = data[i]['selected'] ? ' selected="selected"' : '';
-    if (data[i]['disabled'] !== true) {
-      optvalue = fnvalue ? fnvalue(data[i]) : i;
-      opttext = fntext ? fntext(data[i]) : data[i]['text'];
-      elm.append('<option value="'+optvalue+'" '+selected+'>' + opttext +'</option>');
+      "columnDefs": [{
+        // "type": "num",
+        // "visible": false,
+        // "render": function (data, type, row){
+        // if (type == 'display') {return humanizeFormatter(data);}
+        // return data;
+        // },
+        // console.log(data, type, row);
+        // return data+'K';
+        // },
+        // "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      }]
     }
-  }
-  return false;
-}
 
-// draw chart and datatable
-function renderoutput(queryopted) {
-
-  // start load anim
-  $(".se-pre-con").css('display', 'initial');
-
-  // wrap long process in async function call
-  setTimeout(function() {
-    var strsql = queryopted.sqlfiltered || queryopted.sql;
-
-    console.time('Run query');
-    var arvalues = alasql(strsql);
-    console.timeEnd('Run query');
-    // console.log(strsql);
-
-    // remove previous chart
-    console.time('Destroy chart');
-    if ($("#graphuseractivity").highcharts()) {
-      $("#graphuseractivity").highcharts().destroy()
-    }
-    console.timeEnd('Destroy chart');
-
-    // draw graph
-    console.time('Render chart');
-    if (!queryopted['nograph'] && (queryopted['fngraph']) && (arvalues.length)) {
-      queryopted['fngraph'](arvalues);
-    }
-    console.timeEnd('Render chart');
-
-    // render datatable
-    console.time('Render datatable');
-    if (queryopted['fnfilldatatable']) {
-      queryopted['fnfilldatatable'](arvalues);
-    }
-    else {
-      filldatatable(arvalues);
-    }
-    console.timeEnd('Render datatable');
-
-    // stop load anim
-    $(".se-pre-con").fadeOut("slow");
-  }, 0);
-}
-
-// common function for fnfilldatatable
-function filldatatable(querydata) {
-
-  // convert array to datatable columns
-  function makedtcolumns(arcolumns) {
-    var dtcolumns = [];
-    for (let i in arcolumns) {
-      dtcolumns.push({title: arcolumns[i], data: arcolumns[i]});
-    }
-    return dtcolumns;
-  }
-
-  var tblusac = $('#tbluseractivity');
-  if ($.fn.DataTable.isDataTable('#tbluseractivity')) {
-    // destroy previous datatable instance
-    tblusac.dataTable().api().destroy();
-    tblusac.empty(); // empty in case the columns change
-  }
-
-  // reinitialize datatable
-  if (querydata && querydata.length) {
-    var dtoptions = Object.assign({}, dtoptionsbase); // clone dtoptionsbase
-    dtoptions['data'] = querydata;
-    dtoptions['columns'] = makedtcolumns(Object.keys(querydata[0]));
-    tblusac.DataTable(dtoptions);
-  }
-}
-
-// wrapper to run function asyncronously
-function runasync(func) {
-
-  // start load anim
-  $(".se-pre-con").css('display', 'initial');
-
-  // use setTimeout to make async function call
-  setTimeout(function() {
-
-    // call main function
-    func();
-
-    // stop load anim
-    $(".se-pre-con").fadeOut("slow");
-  }, 0);
-}
-
-window.onload = function() {
-  // console.log("window.onload");
-
-  // add alasql user defined function
-  alasql.fn.parseInt = function(x) { return parseInt(x); }
-  alasql.fn.isoWeek = function(d) { return moment(d).isoWeek(); }
-  alasql.fn.isoWeekYear = function(d) { return moment(d).isoWeekYear(); }
-  alasql.fn.YEAR = function(d) { return moment(d).year(); };
-  alasql.fn.MONTH = function(d) { return moment(d).month()+1; }
-
-  // Animate loader off screen
-  $(".se-pre-con").fadeOut("slow");
-
-  // change loader animation
-  $(".se-pre-con").addClass("noimg")
-
-  var t0, t1;
-  // var dtcolumns = [];
-  // for (let i in jsondata['useractivities']['columns']) {
-  //   dtcolumns.push({title: jsondata['useractivities']['columns'][i]});
-  // }
-
-  fill_options($('#selectsql'), config['selectqry']);
-
-  // on change, requery datatable source data
-  $('#selectsql').change(function(event) {
-    var selectedval = this.options[this.selectedIndex].value;
-    var queryopted = config['selectqry'][selectedval];
-
-    // hide filters
-    $('#blockfilter .form-group').each(function() {
-      $(this).hide();
-    });
-
-    // clear previous output
-    runasync(function() {
-
-      // remove previous chart
-      console.time('Destroy chart');
-      if ($("#graphuseractivity").highcharts()) {
-        $("#graphuseractivity").highcharts().destroy()
+    // string format function
+    // usage: "{greeting} {who}!".format({greeting: "Hello", who: "world"})
+    String.prototype.format = function(placeholders) {
+      var s = this;
+      for(var propertyName in placeholders) {
+        var re = new RegExp('{' + propertyName + '}', 'gm');
+        s = s.replace(re, placeholders[propertyName]);
       }
-      console.timeEnd('Destroy chart');
+      return s;
+    };
 
-      // remove previous datatable
-      console.time('Destroy datatable');
+    function fill_options(elm, data, fnvalue, fntext) {
+      var optvalue, opttext;
+      elm.empty();
+      for (let i in data){
+        selected = data[i]['selected'] ? ' selected="selected"' : '';
+        if (data[i]['disabled'] !== true) {
+          optvalue = fnvalue ? fnvalue(data[i]) : i;
+          opttext = fntext ? fntext(data[i]) : data[i]['text'];
+          elm.append('<option value="'+optvalue+'" '+selected+'>' + opttext +'</option>');
+        }
+      }
+      return false;
+    }
+
+    // draw chart and datatable
+    function renderoutput(queryopted) {
+
+      // start load anim
+      $(".se-pre-con").css('display', 'initial');
+
+      // wrap long process in async function call
+      setTimeout(function() {
+        var strsql = queryopted.sqlfiltered || queryopted.sql;
+
+        console.time('Run query');
+        var arvalues = alasql(strsql);
+        console.timeEnd('Run query');
+        // console.log(strsql);
+
+        // remove previous chart
+        console.time('Destroy chart');
+        if ($("#graphuseractivity").highcharts()) {
+          $("#graphuseractivity").highcharts().destroy()
+        }
+        console.timeEnd('Destroy chart');
+
+        // draw graph
+        console.time('Render chart');
+        if (!queryopted['nograph'] && (queryopted['fngraph']) && (arvalues.length)) {
+          queryopted['fngraph'](arvalues);
+        }
+        console.timeEnd('Render chart');
+
+        // render datatable
+        console.time('Render datatable');
+        if (queryopted['fnfilldatatable']) {
+          queryopted['fnfilldatatable'](arvalues);
+        }
+        else {
+          filldatatable(arvalues);
+        }
+        console.timeEnd('Render datatable');
+
+        // stop load anim
+        $(".se-pre-con").fadeOut("slow");
+      }, 0);
+    }
+
+    // common function for fnfilldatatable
+    function filldatatable(querydata) {
+
+      // convert array to datatable columns
+      function makedtcolumns(arcolumns) {
+        var dtcolumns = [];
+        for (let i in arcolumns) {
+          dtcolumns.push({title: arcolumns[i], data: arcolumns[i]});
+        }
+        return dtcolumns;
+      }
+
       var tblusac = $('#tbluseractivity');
       if ($.fn.DataTable.isDataTable('#tbluseractivity')) {
         // destroy previous datatable instance
         tblusac.dataTable().api().destroy();
         tblusac.empty(); // empty in case the columns change
       }
-      console.timeEnd('Destroy datatable');
 
-      // set filters or render output
-      if (queryopted.fnsetfilters) {
-        queryopted.fnsetfilters();
+      // reinitialize datatable
+      if (querydata && querydata.length) {
+        var dtoptions = Object.assign({}, dtoptionsbase); // clone dtoptionsbase
+        dtoptions['data'] = querydata;
+        dtoptions['columns'] = makedtcolumns(Object.keys(querydata[0]));
+        tblusac.DataTable(dtoptions);
       }
-      else {
+    }
+
+    // wrapper to run function asyncronously
+    function runasync(func) {
+
+      // start load anim
+      $(".se-pre-con").css('display', 'initial');
+
+      // use setTimeout to make async function call
+      setTimeout(function() {
+
+        // call main function
+        func();
+
+        // stop load anim
+        $(".se-pre-con").fadeOut("slow");
+      }, 0);
+    }
+
+    window.onload = function() {
+      // console.log("window.onload");
+
+      // add alasql user defined function
+      alasql.fn.parseInt = function(x) { return parseInt(x); }
+      alasql.fn.isoWeek = function(d) { return moment(d).isoWeek(); }
+      alasql.fn.isoWeekYear = function(d) { return moment(d).isoWeekYear(); }
+      alasql.fn.YEAR = function(d) { return moment(d).year(); };
+      alasql.fn.MONTH = function(d) { return moment(d).month()+1; }
+
+      // Animate loader off screen
+      $(".se-pre-con").fadeOut("slow");
+
+      // change loader animation
+      $(".se-pre-con").addClass("noimg")
+
+      var t0, t1;
+      // var dtcolumns = [];
+      // for (let i in jsondata['useractivities']['columns']) {
+      //   dtcolumns.push({title: jsondata['useractivities']['columns'][i]});
+      // }
+
+      fill_options($('#selectsql'), config['selectqry']);
+
+      // on change, requery datatable source data
+      $('#selectsql').change(function(event) {
+        var selectedval = this.options[this.selectedIndex].value;
+        var queryopted = config['selectqry'][selectedval];
+
+        // hide filters
+        $('#blockfilter .form-group').each(function() {
+          $(this).hide();
+          $('#filter_note').show();
+        });
+
+        // clear previous output
+        runasync(function() {
+
+          // remove previous chart
+          console.time('Destroy chart');
+          if ($("#graphuseractivity").highcharts()) {
+            $("#graphuseractivity").highcharts().destroy()
+          }
+          console.timeEnd('Destroy chart');
+
+          // remove previous datatable
+          console.time('Destroy datatable');
+          var tblusac = $('#tbluseractivity');
+          if ($.fn.DataTable.isDataTable('#tbluseractivity')) {
+            // destroy previous datatable instance
+            tblusac.dataTable().api().destroy();
+            tblusac.empty(); // empty in case the columns change
+          }
+          console.timeEnd('Destroy datatable');
+
+          // set filters or render output
+          if (queryopted.fnsetfilters) {
+            queryopted.fnsetfilters();
+          }
+          else {
+            renderoutput(queryopted);
+          }
+        });
+
+      });
+
+
+      // console.log('dtcolumns', dtcolumns);
+      // console.log("DataTable init time start.");
+      // t0 = performance.now();
+      // $('#tbluseractivity').DataTable(dtoptions);
+      // t1 = performance.now();
+      // console.log("DataTable init time end: " + (t1 - t0) + " milliseconds.");
+
+      // db = new SQL.Database();
+      // var tblua = 'useractivities';
+      // db.run("CREATE TABLE "+tblua+' ('+jsondata['useractivities']['columns'].join(', ')+');');
+      // sqlinsert = [];
+      // console.log("sqlite insert time start.");
+      // t0 = performance.now();
+      // for (let i in jsondata['useractivities']['data']) {
+      //   // db.run("INSERT INTO useractivities VALUES (?,?,?,?);", [jsondata['useractivities']['data'][0], jsondata['useractivities']['data'][1], jsondata['useractivities']['data'][2], jsondata['useractivities']['data'][3]]);
+      //   db.run("INSERT INTO useractivities VALUES (?,?,?,?);", jsondata['useractivities']['data'][i]);
+      //   if (i%1000==0) {console.log('i',i);}
+      //   // sqlinsert.push("INSERT INTO useractivities VALUES (\'"+jsondata['useractivities']['data'][i][0]+'\',\''+jsondata['useractivities']['data'][i][1]+'\',\''+jsondata['useractivities']['data'][i][2]+'\',\''+jsondata['useractivities']['data'][i][3]+'\');');
+      // }
+      // // db.run(sqlinsert.join());
+      // t1 = performance.now();
+      // console.log("sqlite insert time end: " + (t1 - t0) + " milliseconds.");
+      // res = db.exec("SELECT * FROM useractivities;");
+
+      function array2alasql(arraydata) {
+        // convert arraydata to alasql data
+        alasqldata = [];
+        for (let i in arraydata['data']) {
+          alasqldata[i] = [];
+          a = {};
+          for (let i2 in arraydata['columns']) {
+            a[arraydata['columns'][i2]] = arraydata['data'][i][i2];
+          }
+          alasqldata[i] = a;
+        }
+        return alasqldata;
+      }
+
+      alasql("CREATE TABLE usac ("+jsondata['useractivities']['columns'].join(', ')+')');
+      alasql.tables.usac.data = array2alasql(jsondata['useractivities']);
+
+      alasql("CREATE TABLE user ("+jsondata['user']['columns'].join(', ')+')');
+      alasql.tables.user.data = array2alasql(jsondata['user']);
+
+      // for first run, trigger event handler to initialize datatable
+      $('#selectsql').trigger({
+        type: 'change',
+        firstrun: true
+      });
+
+      $('#btnfiltersubmit').on('click', function(event) {
+        var qryidx = $('#selectsql').val();
+        var queryopted = config['selectqry'][qryidx];
+        if (queryopted.fnbuildsqlfiltered) {
+          queryopted.fnbuildsqlfiltered();
+        }
         renderoutput(queryopted);
-      }
-    });
+      });
 
-  });
-
-
-  // console.log('dtcolumns', dtcolumns);
-  // console.log("DataTable init time start.");
-  // t0 = performance.now();
-  // $('#tbluseractivity').DataTable(dtoptions);
-  // t1 = performance.now();
-  // console.log("DataTable init time end: " + (t1 - t0) + " milliseconds.");
-
-  // db = new SQL.Database();
-  // var tblua = 'useractivities';
-  // db.run("CREATE TABLE "+tblua+' ('+jsondata['useractivities']['columns'].join(', ')+');');
-  // sqlinsert = [];
-  // console.log("sqlite insert time start.");
-  // t0 = performance.now();
-  // for (let i in jsondata['useractivities']['data']) {
-  //   // db.run("INSERT INTO useractivities VALUES (?,?,?,?);", [jsondata['useractivities']['data'][0], jsondata['useractivities']['data'][1], jsondata['useractivities']['data'][2], jsondata['useractivities']['data'][3]]);
-  //   db.run("INSERT INTO useractivities VALUES (?,?,?,?);", jsondata['useractivities']['data'][i]);
-  //   if (i%1000==0) {console.log('i',i);}
-  //   // sqlinsert.push("INSERT INTO useractivities VALUES (\'"+jsondata['useractivities']['data'][i][0]+'\',\''+jsondata['useractivities']['data'][i][1]+'\',\''+jsondata['useractivities']['data'][i][2]+'\',\''+jsondata['useractivities']['data'][i][3]+'\');');
-  // }
-  // // db.run(sqlinsert.join());
-  // t1 = performance.now();
-  // console.log("sqlite insert time end: " + (t1 - t0) + " milliseconds.");
-  // res = db.exec("SELECT * FROM useractivities;");
-
-  function array2alasql(arraydata) {
-    // convert arraydata to alasql data
-    alasqldata = [];
-    for (let i in arraydata['data']) {
-      alasqldata[i] = [];
-      a = {};
-      for (let i2 in arraydata['columns']) {
-        a[arraydata['columns'][i2]] = arraydata['data'][i][i2];
-      }
-      alasqldata[i] = a;
-    }
-    return alasqldata;
-  }
-
-  alasql("CREATE TABLE usac ("+jsondata['useractivities']['columns'].join(', ')+')');
-  alasql.tables.usac.data = array2alasql(jsondata['useractivities']);
-
-  alasql("CREATE TABLE user ("+jsondata['user']['columns'].join(', ')+')');
-  alasql.tables.user.data = array2alasql(jsondata['user']);
-
-  // for first run, trigger event handler to initialize datatable
-  $('#selectsql').trigger({
-    type: 'change',
-    firstrun: true
-  });
-
-  $('#btnfiltersubmit').on('click', function(event) {
-    var qryidx = $('#selectsql').val();
-    var queryopted = config['selectqry'][qryidx];
-    if (queryopted.fnbuildsqlfiltered) {
-      queryopted.fnbuildsqlfiltered();
-    }
-    renderoutput(queryopted);
-  });
-
-};
+    };
 
 </script>
 {% endblock extra_script %}
