@@ -1893,6 +1893,7 @@ icon-style
 
 #composerCart.panel>.list-group .list-group-item{
     border-radius: 16px;
+    margin-right: 5px;
 }
 
 .list-group-inline-chips{
@@ -1969,6 +1970,14 @@ nav.filter li a {
 
 .ico-gp:before {
     content: "\f0d5";
+}
+
+/* ---------------------------------------------- /*
+ * Navbar on Map View
+/* ---------------------------------------------- */
+
+@media screen and (max-width: 768px){
+    
 }
 
 /* Upload Layers

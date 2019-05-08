@@ -299,6 +299,35 @@
                                         {% with request.resolver_match.view_name as url_name %}
                                         <li class="{% if url_name == 'home' %}active{% endif %}"><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
                                         {% endwith %}
+                                        <li class="dropdown dropdown-toggle {% if 'maps' in request.path_info %}active{% endif %} hide">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Interactive Maps" %}
+                                                <i class="fa fa-angle-down fa-lg"></i>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a href="{% url "maps_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Explore Maps" %}</a>
+                                                </li>
+                                                <li> <a href="{% url "new_map" %}">{% trans "Create Map" %}</a></li>
+                                            </ul>
+                                        </li>
+
+                                        <li class="dropdown dropdown-toggle {% if url_name == 'dashboard_detail' %}active{% endif %} hide">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Dashboard" %}
+                                                <i class="fa fa-angle-down fa-lg"></i>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                {% for dash in dashboard_page_menu %}
+                                                    {% if dash.child %}
+                                                    {% else %}
+                                                        <li>
+                                                            <a href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">{{dash.title}}</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+
+                                        
                                         <li class="{% if 'layers' in request.path_info %}active{% endif %}"><a href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Layers" %}</a></li>
                                         <li class="{% if 'documents' in request.path_info %}active{% endif %}"><a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a></li>
                                         <li class="{% if 'maps' in request.path_info %}active{% endif %}"><a href="{% url 'maps_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Interactive Maps" %}</a></li>
@@ -750,6 +779,11 @@
             };
         </script>
         <script type="text/javascript" src="{% url "lang" %}"></script>
+
+        <script>
+            // Add responsive class on profile image
+            $(".profile-image img").addClass("img-responsive");
+        </script>
 
         <div class="modal fade" style="width: 100%; height: 100%;" id="_resource_uploading" data-backdrop="static" data-keyboard="false" aria-hidden="true">
             <div class="modal-dialog">
