@@ -38,7 +38,7 @@
                 <resource-cart data-facet-type="{{ facet_type }}"></resource-cart>
                 {% include 'search/_set_permission_btn_group.html' %}
                 <div class="row">
-                    <div class="col-md-10"><span style="font-size: 34px;" ng-bind="total_counts + ' {{ facet_type | title }} found'"></span></div>
+                    <div class="col-md-12"><span ng-bind="'Total : ' + total_counts + ' {{ facet_type | title }}'" class="pull-right"></span></div>
                     <div class="col-md-2"></div>
                 </div>
                 <div class="row">

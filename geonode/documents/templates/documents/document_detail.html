@@ -40,11 +40,22 @@
                     {% include "base/_resourcebase_contact_snippet.html" %}
 
                     <div class="pull-right">
-                        {% if "change_resourcebase" in perms_list  or "change_resourcebase_metadata" in perms_list %}
-                            <button class="btn btn-default btn-md" data-toggle="modal" data-target="#edit-map">{% trans "Edit Map" %}</button>
+                        {% if "change_resourcebase_metadata" in perms_list or "change_resourcebase" in perms_list or "delete_resourcebase" in perms_list %}
+                            <button class="btn btn-default btn-md" data-toggle="modal" data-target="#edit-document" id="edit_coba">{% trans "Edit Document" %}</button>
                         {% endif %}
-
-                        <a href="{% url "map_view" resource.id %}" class="btn btn-primary btn-md">{% trans "View Map" %}</a>
+                        {% if "download_resourcebase" in perms_list %}
+                            {% if resource.extension|lower in imgtypes and resource.doc_file %}
+                            <a target="_blank" href="{% url "document_download" resource.id %}" class="btn btn-primary btn-md">{% trans "Download Document" %}</a>
+                            {% elif resource.doc_file %}
+                            <a target="_blank" href="{% url "document_download" resource.id %}" class="btn btn-primary btn-md">{% trans "Download Document" %}</a>
+                            {% elif  resource.doc_url %}
+                            <a target="_blank" href="{{ resource.doc_url }}" class="btn btn-primary btn-md">{% trans "Download Document" %}</a>
+                            {%  endif %}
+                        {% else %}
+                            {% if request.user.is_authenticated %}
+                            <button class="btn btn-primary btn-md" id="request-download">{% trans "Request Download" %}</button>
+                            {%  endif %}
+                        {%  endif %}
                     </div>
                 </div>
             </div>
@@ -54,7 +65,7 @@
                 {% if resource.extension|lower in imgtypes and resource.doc_file %}
                 <div id="embedded_map">
                     <a style="text-decoration:none;" href="{% url "document_download" resource.id %}" target="_blank">
-                        <img src="{% url "document_download" resource.id %}" width='500' class="img-responsive" />
+                        <img src="{% url "document_download" resource.id %}" width="100%" class="img-responsive" />
                     </a>
                 </div>
                 {% elif resource.doc_file %}
@@ -66,7 +77,7 @@
                 {%  endif %}
             {%  endif %}
 
-            <div class="tabOne g-margin-t-35--xs">
+            <div class="tabOne g-margin-t-35--xs g-margin-b-35--xs g-margin-b-0--lg">
                 <div class="documents-actions">
                     {% include "_actions.html" %}
                 </div>

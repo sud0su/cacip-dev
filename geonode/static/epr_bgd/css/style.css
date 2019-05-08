@@ -392,7 +392,8 @@ Shortcode Content
         }
 
     .navbar-default {
-        background    : #333333 !important;
+        /* background    : #333333 !important; */
+        background    : #037CF5;
         padding       : 10px 0;
         border        : none;
         border-radius: 0;
@@ -458,7 +459,7 @@ Shortcode Content
     left: 0;
     top: 0;
     z-index: 999;
-    background: #fff !important;
+    /* background: #fff !important; */
     padding: 10px 0 !important;
     box-shadow: 0 2px 5px rgba(0,0,0,.1);
     -webkit-transition : all .5s ease-in-out;
@@ -694,14 +695,19 @@ Shortcode Content
 
 
 .header-top .top-contact li.get-a-quote a{
-    padding: 0;
     display: inline-block;
-    background: #3ea8f4;
+    /* background: #3ea8f4; */
     color: #fff;
 }
 
 .header-top .top-contact li.get-a-quote a:hover{
     opacity: .8;
+}
+
+.header-top .top-contact li.get-a-quote{
+    padding: 0 15px;
+    background: #3ea8f4;
+    color: #fff;
 }
 
 /* Media Queries */
@@ -1854,7 +1860,48 @@ icon-style
     margin: 0;
     text-align: center;
     top: 65%;
-    }
+}
+
+/* ---------------------------------------------- /*
+ * Permission Select2 on Layer, Map, Document
+/* ---------------------------------------------- */
+
+.select2-container, .select2-focused, .select2-input {
+    width: 100% !important;
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+    border-radius: 16px;
+    line-height: 21px;
+    color: rgba(0, 0, 0, 0.6);
+    border: none;
+    background-image: none;
+    font-size: 13px;
+}
+
+.select2-container-multi .select2-search-choice-close {
+    top: 8px;
+}
+
+/* ---------------------------------------------- /*
+ * Permission List Group on Layer List, Map List, Document List
+/* ---------------------------------------------- */
+
+#composerCart .list-group{
+    padding: 15px;
+}
+
+#composerCart.panel>.list-group .list-group-item{
+    border-radius: 16px;
+}
+
+.list-group-inline-chips{
+    display: inline-block;
+    background-color: #ddd;
+    padding: 0;
+    padding-left: 15px;
+    line-height: 30px;
+}
 
 /* ---------------------------------------------- /*
  * Filter on Layer List, Map List, Document List
@@ -1898,6 +1945,11 @@ nav.filter li a {
     border-bottom: 1px solid #eeeeee;
     cursor: pointer;
     padding: 5px 10px;
+}
+
+.resourcebase-snippet .card-image img,
+.resourcebase-snippet img.img-list-view{
+    width: 100%;
 }
 
 /* ---------------------------------------------- /*

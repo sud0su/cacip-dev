@@ -81,9 +81,26 @@ jQuery(function ($) {
 
     }());
 
+    // ------------------------------------------------------------------
+    // jQuery for Carousel Swipe
+    // ------------------------------------------------------------------
+    (function(){
+        $('.carousel').bcSwipe({ threshold: 50 });
+    }());
+
 }); // JQuery end
 
 
 $(document).on('click', '.m-menu .dropdown-menu', function(e) {
   e.stopPropagation();
 })
+
+// ------------------------------------------------------------------
+// Fixing Menu on Interactive Maps
+// ------------------------------------------------------------------
+$(window).load(function(){
+    if($("#ext-comp-1012").length){
+        console.log('ada');
+        $("#wrap").append($("#ext-comp-1012"));
+    }
+});

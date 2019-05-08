@@ -21,7 +21,13 @@
                                 title="Select">
                                 <i class="fa" ng-class="cart.getFaClass(item.id)" aria-hidden="true"></i>
                             </button>
-                            <a href="{{ item.detail_url }}">
+                            <a ng-if="item.detail_url.indexOf('/maps/') > -1" href="{{ item.detail_url }}/view">
+                                <img class="img-responsive center-block" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
+                            </a>
+                            <a ng-if="item.detail_url.indexOf('/documents/') > -1" href="{{ item.detail_url }}">
+                                <img class="img-responsive center-block" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
+                            </a>
+                            <a ng-if="item.detail_url.indexOf('/layers/') > -1" href="{{ item.detail_url }}">
                                 <img class="img-responsive center-block" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
                             </a>
                         </div>
@@ -80,12 +86,21 @@
                     <div class="card">
                         <div class="row">
                             <div class="col-xs-5 col-sm-3 col-md-3 col-lg-3">
-                                <a href="{{ item.detail_url }}">
-                                    <img class="img-responsive center-block" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
+                                <a ng-if="item.detail_url.indexOf('/maps/') > -1" href="{{ item.detail_url }}/view">
+                                    <img class="img-responsive center-block img-list-view" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
+                                </a>
+                                <a ng-if="item.detail_url.indexOf('/documents/') > -1" href="{{ item.detail_url }}">
+                                    <img class="img-responsive center-block img-list-view" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
+                                </a>
+                                <a ng-if="item.detail_url.indexOf('/layers/') > -1" href="{{ item.detail_url }}">
+                                    <img class="img-responsive center-block img-list-view" ng-src="{{ item.thumbnail_url }}" alt="{{ item.title }} thumbnail" />
                                 </a>
                             </div>
                             <div class="col-xs-7 col-sm-9 col-md-9 col-lg-9">
                                 <div class="card-content resourcebase-content-list">
+                                    {% endverbatim %}
+                                    {% if "change_resourcebase_metadata" in perms_list or "change_resourcebase" in perms_list or "delete_resourcebase" in perms_list %}
+                                    {% verbatim %}
                                     <button type="button" 
                                         class="btn btn-default btn-circle pull-right"
                                         ng-if="cart"
@@ -95,6 +110,9 @@
                                         title="Select">
                                         <i class="fa" ng-class="cart.getFaClass(item.id)" aria-hidden="true"></i>
                                     </button>
+                                    {% endverbatim %}
+                                    {% endif %}
+                                    {% verbatim %}
                                     <p class="text-uppercase g-font-size-14--xs g-font-weight--700 g-color--primary g-letter-spacing--2 g-margin-b-0--xs">
                                         <span ng-if="item.store_type == 'remoteStore'">Remote Service&nbsp;</span>
                                         <span ng-if="item.store_type == 'dataStore'" >Vector&nbsp;</span>
