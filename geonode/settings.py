@@ -1019,6 +1019,7 @@ LOCKDOWN_GEONODE = True
 AUTH_EXEMPT_URLS += (
     '^/$',
     '/account/signup/',
+    '^/autocomplete/ResourceBaseAutocomplete',
 )
 
 # A tuple of hosts the proxy can send requests to.
