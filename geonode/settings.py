@@ -1017,7 +1017,7 @@ LOCKDOWN_GEONODE = True
 # Add additional paths (as regular expressions) that don't require
 # authentication.
 AUTH_EXEMPT_URLS += (
-    '/',
+    '^/$',
     '/account/signup/',
 )
 
