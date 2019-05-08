@@ -24,9 +24,6 @@
             
         });
 
-        // Append the set permission btn group
-        $(".container-tools-set").append($("#tools_set"));
-
         // Stick the Filter bar on scroll
         $(window).scroll(function(e){
             if ($(this).scrollTop() > 200){
@@ -37,4 +34,10 @@
             }
         });
     });
+
+    $(window).load(function(){
+        // Append the set permission btn group after everything has loaded
+        $(".container-tools-set").append($("#tools_set"));
+    });
+
 </script>
