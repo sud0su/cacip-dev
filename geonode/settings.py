@@ -1016,7 +1016,8 @@ LOCKDOWN_GEONODE = True
 
 # Add additional paths (as regular expressions) that don't require
 # authentication.
-AUTH_EXEMPT_URLS = (
+AUTH_EXEMPT_URLS += (
+    '/',
     '/account/signup/',
 )
 
@@ -1661,8 +1662,7 @@ if USE_WORLDMAP:
     SOLR_URL = os.getenv('SOLR_URL', 'http://localhost:8983/solr/hypermap/select/')
     MAPPROXY_URL = os.getenv('MAPPROXY_URL', 'http://localhost:8001')
 
-from geonode.local_settings import *  # flake8: noqa
-# try:
-# except ImportError:
-#     print 
-#     pass
+try:
+    from geonode.local_settings import *  # flake8: noqa
+except ImportError:
+    pass
