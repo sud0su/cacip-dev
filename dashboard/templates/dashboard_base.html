@@ -18,17 +18,9 @@
 {% endblock %}
 
 {% block middle %} 
-    <nav class="red darken-3 breadcrumb-universal">
-        <div class="nav-wrapper">
-            <div class="col s12">
-				<!-- <a href="#" class="breadcrumb">{% trans "Dashboard" %}</a> -->
-                {% block dashboard_breadcrumb %} 
-                {% endblock dashboard_breadcrumb %}
-            </div>
-        </div>
-    </nav>
-	<div style="padding:0 18px;">
-		{% block dashboard_content %}{% endblock %}
-	</div>
+	{% block dashboard_breadcrumb %} 
+	{% endblock dashboard_breadcrumb %}
+	
+	{% block dashboard_content %}{% endblock %}
 	{{ block.super }}
 {% endblock middle %}

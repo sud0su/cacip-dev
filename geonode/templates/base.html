@@ -299,63 +299,31 @@
                                         {% with request.resolver_match.view_name as url_name %}
                                         <li class="{% if url_name == 'home' %}active{% endif %}"><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
                                         {% endwith %}
-                                        <li class="dropdown hide">
-                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                                                aria-haspopup="true" aria-expanded="false">Dropdown <span
-                                                    class="caret"></span></a>
-                                            <ul class="dropdown-menu">
-                                                <li><a href="#">Action</a></li>
-                                                <li><a href="#">Another action</a></li>
-                                                <li><a href="#">Something else here</a></li>
-                                                <li role="separator" class="divider"></li>
-                                                <li><a href="#">Separated link</a></li>
-                                                <li role="separator" class="divider"></li>
-                                                <li><a href="#">One more separated link</a></li>
-                                                <li class="dropdown-submenu">
-                                                    <a class="test" tabindex="-1" href="#">New dropdown <span class="caret"></span></a>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a tabindex="-1" href="#">2nd level dropdown</a></li>
-                                                        <li><a tabindex="-1" href="#">2nd level dropdown</a></li>
-                                                        <li class="dropdown-submenu">
-                                                        <a class="test" href="#">Another dropdown <span class="caret"></span></a>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a href="#">3rd level dropdown</a></li>
-                                                            <li><a href="#">3rd level dropdown</a></li>
-                                                        </ul>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li class="dropdown dropdown-toggle {% if 'maps' in request.path_info %}active{% endif %} hide">
-                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Interactive Maps" %}
-                                                <i class="fa fa-angle-down fa-lg"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a href="{% url "maps_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Explore Maps" %}</a>
-                                                </li>
-                                                <li> <a href="{% url "new_map" %}">{% trans "Create Map" %}</a></li>
-                                            </ul>
-                                        </li>
-
-                                        <li class="dropdown dropdown-toggle {% if url_name == 'dashboard_detail' %}active{% endif %} hide">
-                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Dashboard" %}
-                                                <i class="fa fa-angle-down fa-lg"></i>
+                                        <li class="dropdown {% if url_name == 'dashboard_detail' %}active{% endif %}">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                {% trans "Dashboard" %} <i class="fa fa-angle-down fa-lg"></i>
                                             </a>
                                             <ul class="dropdown-menu">
                                                 {% for dash in dashboard_page_menu %}
                                                     {% if dash.child %}
+                                                        <li class="dropdown-submenu">
+                                                            <a class="test" tabindex="-1" href="#">{{dash.title}} <i class="fa fa-angle-right fa-lg pull-right" style="line-height: 28px;"></i></a>
+                                                            <ul class="dropdown-menu">
+                                                                {% for dash_sub in dash.child %}
+                                                                    <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page={{dash_sub.name}}{{add_link}}">{{dash_sub.title}}</a></li>
+                                                                {% endfor %}
+                                                                <li><a tabindex="-1" href="#">2nd level dropdown</a></li>
+                                                            </ul>
+                                                        </li>
                                                     {% else %}
                                                         <li>
                                                             <a href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">{{dash.title}}</a>
                                                         </li>
                                                     {% endif %}
                                                 {% endfor %}
+                                                <li class="hide"><a href="#">One more separated link</a></li>
                                             </ul>
                                         </li>
-
-                                        
                                         <li class="{% if 'layers' in request.path_info %}active{% endif %}"><a href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Layers" %}</a></li>
                                         <li class="{% if 'documents' in request.path_info %}active{% endif %}"><a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a></li>
                                         <li class="{% if 'maps' in request.path_info %}active{% endif %}"><a href="{% url 'maps_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Interactive Maps" %}</a></li>

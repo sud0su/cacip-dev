@@ -88,6 +88,18 @@ jQuery(function ($) {
         $('.carousel').bcSwipe({ threshold: 50 });
     }());
 
+    // ------------------------------------------------------------------
+    // jQuery for multilevel dropdown
+    // ------------------------------------------------------------------
+
+    (function(){
+        $('.dropdown-submenu a').on("click", function(e){
+            // $(this).next('ul').toggle();
+            e.stopPropagation();
+            e.preventDefault();
+        });
+    }());
+
 }); // JQuery end
 
 

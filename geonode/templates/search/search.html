@@ -6,32 +6,53 @@
 
 {% block body_class %}search{% endblock %}
 
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>{% trans "Search" %} <span ng-if="text_query != ''">:</span> <span ng-bind="text_query"></span></h2>
+                    {% block add_on_btn %}
+                    {% endblock add_on_btn %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+{% endblock middle %}
+
 {% block body_outer %}
-  <div class="page-header">
-    <h2>{% trans "Search" %} <span ng-if="text_query != ''">:</span> <span ng-bind="text_query"></span></h2>
-  </div>
-  {% with include_type_filter='true' %}
-  {% with header='Type' %}
-  {% with filter='type__in' %}
-  {% include "search/_search_content.html" %}
-  {% endwith %}
-  {% endwith %}
-  {% endwith %}
+    <div class="page-header hide">
+        <h2>{% trans "Search" %} <span ng-if="text_query != ''">:</span> <span ng-bind="text_query"></span></h2>
+    </div>
+    {% with include_type_filter='true' %}
+        {% with header='Type' %}
+            {% with filter='type__in' %}
+                {% include "search/_search_content.html" %}
+            {% endwith %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
+
+{% block modal %}
+    {% include "_bulk_permissions_form.html" %}
 {% endblock %}
 
 {% block extra_script %}
-{{ block.super }}
-  {% if GEONODE_SECURITY_ENABLED %}
-    {% include "_permissions_form_js.html" %}
-  {% endif %}
-  <script type="text/javascript">
-    {% if HAYSTACK_SEARCH %}
-    SEARCH_URL = '{% url 'api_get_search' api_name='api' resource_name='base' %}'
-    {% else %}
-    SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='base' %}'
+    {{ block.super }}
+    {% if GEONODE_SECURITY_ENABLED %}
+        {% include "_permissions_form_js.html" %}
     {% endif %}
-  </script>
-  {% with include_spatial='true' %}
-  {% include 'search/search_scripts.html' %}
-  {% endwith %}
+    <script type="text/javascript">
+        {% if HAYSTACK_SEARCH %}
+        SEARCH_URL = '{% url 'api_get_search' api_name='api' resource_name='base' %}'
+        {% else %}
+        SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='base' %}'
+        {% endif %}
+    </script>
+    {% with include_spatial='true' %}
+        {% include 'search/search_scripts.html' %}
+    {% endwith %}
+    {% include 'base/_resourcebase_script.html' %}
 {% endblock extra_script %}
