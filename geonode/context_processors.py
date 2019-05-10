@@ -25,6 +25,8 @@ from django.contrib.sites.models import Site
 
 from geonode.notifications_helper import has_notifications
 
+# [EPR-BGD01]
+from dashboard.enumerations import DASHBOARD_META
 
 def resource_urls(request):
     """Global values to pass to templates"""
@@ -212,5 +214,6 @@ def resource_urls(request):
                                                 )
 
         defaults['HYPERMAP_REGISTRY_URL'] = settings.HYPERMAP_REGISTRY_URL
+        defaults['DASHBOARD_META'] = DASHBOARD_META
 
     return defaults
