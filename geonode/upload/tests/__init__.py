@@ -18,15 +18,14 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
-
 import contextlib
 import os
 import shutil
 import tempfile
 import zipfile
 import geonode.upload.files as files
-
+# from unittest import TestCase
+from django.test import LiveServerTestCase as TestCase
 from geonode.upload.files import SpatialFiles, scan_file
 from geonode.upload.files import _rename_files, _contains_bad_names
 
@@ -60,7 +59,7 @@ def create_files(names, zipped=False):
     shutil.rmtree(tmpdir)
 
 
-class FilesTests(GeoNodeBaseTestSupport):
+class FilesTests(TestCase):
 
     def test_types(self):
         for t in files.types:
@@ -130,7 +129,7 @@ class FilesTests(GeoNodeBaseTestSupport):
                 self.assertTrue(os.path.exists(path))
 
 
-class TimeFormFormTest(GeoNodeBaseTestSupport):
+class TimeFormFormTest(TestCase):
 
     def _form(self, data):
         # prevent circular deps error - not sure why this module was getting
@@ -152,10 +151,7 @@ class TimeFormFormTest(GeoNodeBaseTestSupport):
             self.assertEqual(end, form.cleaned_data['end_attribute'])
 
     def test_invalid_form(self):
-        form = self._form(
-            dict(
-                time_attribute='start_date',
-                text_attribute='start_text'))
+        form = self._form(dict(time_attribute='start_date', text_attribute='start_text'))
         self.assertTrue(not form.is_valid())
 
     def test_start_end_attribute_and_type(self):

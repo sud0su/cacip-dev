@@ -20,14 +20,13 @@
 
 """unit tests for geonode.upload.utils module"""
 
-from geonode.tests.base import GeoNodeBaseTestSupport
-
+from django.test import TestCase
 from lxml import etree
 
 from geonode.upload import utils
 
 
-class UtilsTestCase(GeoNodeBaseTestSupport):
+class UtilsTestCase(TestCase):
 
     def test_pages(self):
         self.assertIn("kml-overlay", utils._pages)

@@ -33,5 +33,4 @@ class PeopleAppConfig(NotificationsAppConfigBase):
     def ready(self):
         super(PeopleAppConfig, self).ready()
 
-
 default_app_config = 'geonode.people.PeopleAppConfig'

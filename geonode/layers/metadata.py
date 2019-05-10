@@ -32,7 +32,6 @@ from geonode import GeoNodeException
 from owslib.csw import CswRecord
 from owslib.iso import MD_Metadata
 from owslib.fgdc import Metadata
-from django.utils import timezone
 
 LOGGER = logging.getLogger(__name__)
 
@@ -64,7 +63,7 @@ def set_metadata(xml):
     else:
         raise RuntimeError('Unsupported metadata format')
     if not vals.get("date"):
-        vals["date"] = datetime.datetime.now(timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M:%S")
+        vals["date"] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     return [identifier, vals, regions, keywords]
 

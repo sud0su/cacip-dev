@@ -64,7 +64,7 @@ class MapCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         request = self.request
-        if request and 'access_token' in request.session:
+        if 'access_token' in request.session:
             access_token = request.session['access_token']
         else:
             access_token = None
@@ -84,9 +84,10 @@ class MapCreateView(CreateView):
                 request, mapid, 'base.view_resourcebase', _PERMISSION_MSG_VIEW)
 
             if snapshot is None:
-                config = map_obj.viewer_json(request)
+                config = map_obj.viewer_json(request.user, access_token)
             else:
-                config = snapshot_config(snapshot, map_obj, request)
+                config = snapshot_config(snapshot, map_obj, request.user,
+                                         access_token)
             # list all required layers
             map_layers = MapLayer.objects.filter(
                 map_id=mapid).order_by('stack_order')
@@ -198,7 +199,7 @@ class MapCreateView(CreateView):
                             visibility=True
                         )
 
-                if bbox and len(bbox) >= 4:
+                if bbox is not None:
                     minx, miny, maxx, maxy = [float(coord) for coord in bbox]
                     x = (minx + maxx) / 2
                     y = (miny + maxy) / 2
@@ -235,9 +236,10 @@ class MapCreateView(CreateView):
                 map_obj.handle_moderated_uploads()
 
                 if snapshot is None:
-                    config = map_obj.viewer_json(request)
+                    config = map_obj.viewer_json(request.user, access_token)
                 else:
-                    config = snapshot_config(snapshot, map_obj, request)
+                    config = snapshot_config(snapshot, map_obj, request.user,
+                                             access_token)
 
                 config['fromLayer'] = True
                 context = {
@@ -284,10 +286,16 @@ class MapDetailView(DetailView):
         map_obj = _resolve_map(
             request, mapid, 'base.view_resourcebase', _PERMISSION_MSG_VIEW)
 
-        if snapshot is None:
-            config = map_obj.viewer_json(request)
+        if 'access_token' in request.session:
+            access_token = request.session['access_token']
         else:
-            config = snapshot_config(snapshot, map_obj, request)
+            access_token = None
+
+        if snapshot is None:
+            config = map_obj.viewer_json(request.user, access_token)
+        else:
+            config = snapshot_config(snapshot, map_obj, request.user,
+                                     access_token)
         # list all required layers
         layers = Layer.objects.all()
         map_layers = MapLayer.objects.filter(
@@ -324,10 +332,16 @@ class MapEmbedView(DetailView):
         map_obj = _resolve_map(
             request, mapid, 'base.view_resourcebase', _PERMISSION_MSG_VIEW)
 
-        if snapshot is None:
-            config = map_obj.viewer_json(request)
+        if 'access_token' in request.session:
+            access_token = request.session['access_token']
         else:
-            config = snapshot_config(snapshot, map_obj, request)
+            access_token = None
+
+        if snapshot is None:
+            config = map_obj.viewer_json(request.user, access_token)
+        else:
+            config = snapshot_config(snapshot, map_obj, request.user,
+                                     access_token)
         # list all required layers
         map_layers = MapLayer.objects.filter(
             map_id=mapid).order_by('stack_order')
@@ -367,12 +381,19 @@ class MapEditView(UpdateView):
                                'base.view_resourcebase',
                                _PERMISSION_MSG_VIEW)
 
+        if 'access_token' in request.session:
+            access_token = request.session['access_token']
+        else:
+            access_token = None
+
         if snapshot is None:
-            config = map_obj.viewer_json(request)
+            config = map_obj.viewer_json(request.user,
+                                         access_token)
         else:
             config = snapshot_config(snapshot,
                                      map_obj,
-                                     request)
+                                     request.user,
+                                     access_token)
 
         layers = Layer.objects.all()
         map_layers = MapLayer.objects.filter(
@@ -442,9 +463,7 @@ class MapUpdateView(UpdateView):
                 body = ''
 
             try:
-                # Call the base implementation first to get a context
-                context = super(UpdateView, self).get_context_data(**kwargs)
-                map_obj.update_from_viewer(body, context=context)
+                map_obj.update_from_viewer(body)
             except ValueError as e:
                 return self.render_to_response(str(e), status=400)
             else:
@@ -504,7 +523,7 @@ def map_download_qlr(request, mapid):
         if j_layer["service"] is None:
             j_layers.remove(j_layer)
             continue
-        if (len([_l for _l in j_layers if _l == j_layer])) > 1:
+        if (len([l for l in j_layers if l == j_layer])) > 1:
             j_layers.remove(j_layer)
 
     map_layers = []
@@ -593,13 +612,13 @@ def set_thumbnail_map(request, mapid):
         return HttpResponse('Bad Request')
 
     map_layers = MapLayer.objects.filter(map__id=mapid)
-    local_layers = [_l for _l in map_layers if _l.local]
+    local_layers = [l for l in map_layers if l.local]
 
     layers = {}
     for layer in local_layers:
         try:
-            _l = Layer.objects.get(typename=layer.name)
-            layers[_l.name] = _l
+            l = Layer.objects.get(typename=layer.name)
+            layers[l.name] = l
         except Layer.DoesNotExist:
             msg = 'No Layer found for typename: {0}'.format(layer.name)
             logger.debug(msg)

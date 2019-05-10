@@ -35,7 +35,7 @@
 {% if user == profile %}
   {% for group in profile.group_list_all %}
   <div ng-if="group.logo != ''" class="col-xs-1 pull-right group-logo">
-    <a href="{{ group.get_absolute_url }}" ><img src="{% get_media_prefix %}{{ group.logo }}" alt="{{ group.title }}" /></a>
+    <a href="{{ group.get_absolute_url }}" ><img src="/uploaded/{{ group.logo }}" alt="{{ group.title }}" /></a>
   </div>
   <!-- <div class="col-xs-6 col-md-8">
     <h5>
@@ -47,7 +47,7 @@
 {% else %}
   {% for group in profile.group_list_public %}
   <div ng-if="group.logo != ''" class="col-xs-1 pull-right group-logo">
-    <a href="{{ group.get_absolute_url }}" ><img src="{% get_media_prefix %}{{ group.logo }}" alt="{{ group.title }}" /></a>
+    <a href="{{ group.get_absolute_url }}" ><img src="/uploaded/{{ group.logo }}" alt="{{ group.title }}" /></a>
   </div>
   <!-- <div class="col-xs-6 col-md-8">
     <h5>
@@ -156,9 +156,12 @@
     </ul>
     <ul class="list-group">
       <li class="list-group-item"><a href="{% url "geonode.invitations:geonode-send-invite" %}"><i class="fa fa-edit"></i> {% trans "Invite Users" %}</a></li>
-      {% if user.is_superuser or user.is_staff %}
-          <li class="list-group-item"><a href="{% url "proxy" %}?url={{ OGC_SERVER.default.LOCATION }}"><i class="fa fa-gears"></i> {% trans "GeoServer" %}</a></li>
-          <li class="list-group-item"><a href="{% url "admin:index" %}"><i class="fa fa-cog"></i> {% trans "Admin" %}</a></li>
+      {% if user.is_superuser %}
+      <li class="list-group-item"><a href="{% url "services" %}?limit={{ CLIENT_RESULTS_LIMIT }}"><i class="fa fa-globe"></i> {% trans "Remote Services" %}</a></li>
+      <li class="list-group-item"><a href="{% url "proxy" %}?url={{ GEOSERVER_LOCAL_URL }}web"><i class="fa fa-gears"></i> {% trans "GeoServer" %}</a></li>
+      {% endif %}
+      {% if user.is_staff %}
+      <li class="list-group-item"><a href="{% url "admin:index" %}"><i class="fa fa-cog"></i> {% trans "Admin" %}</a></li>
       {% endif %}
     </ul>
   {% else %}

@@ -18,25 +18,21 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
-
 import os
 import datetime
 import dj_database_url
 import gisdata
 import mock
-import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 from geonode.geoserver.signals import gs_catalog
 from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
 
 from .models import Database
-
-logger = logging.getLogger(__name__)
 
 """
 How to run the tests
@@ -73,13 +69,13 @@ def mocked_get_today():
     return datetime.date(YEAR, MONTH, 1)
 
 
-class DatastoreShardsCoreTest(GeoNodeBaseTestSupport):
+class DatastoreShardsCoreTest(TestCase):
     """
     Test the datastore_shards application.
     """
+    fixtures = ['initial_data.json', 'bobby']
 
     def setUp(self):
-        super(DatastoreShardsCoreTest, self).setUp()
         # set temporary settings to use a postgis datastore
         settings.DATASTORE_URL = 'postgis://geonode:geonode@localhost:5432/datastore'
         postgis_db = dj_database_url.parse(settings.DATASTORE_URL, conn_max_age=600)
@@ -90,7 +86,6 @@ class DatastoreShardsCoreTest(GeoNodeBaseTestSupport):
         settings.SHARD_PREFIX = SHARD_PREFIX
 
     def tearDown(self):
-        super(GeoNodeBaseTestSupport, self).tearDown()
         # move to original settings
         settings.OGC_SERVER['default']['DATASTORE'] = ''
         del settings.DATABASES['datastore']
@@ -104,7 +99,7 @@ class DatastoreShardsCoreTest(GeoNodeBaseTestSupport):
         owner = get_user_model().objects.get(username="bobby")
         layers_to_upload = ('layer_01', 'layer_02', 'layer_03', 'layer_04', 'layer_05')
         for layer in layers_to_upload:
-            logger.debug('Uploading layer %s...' % layer)
+            print 'Uploading layer %s...' % layer
             saved_layer = file_upload(
                 os.path.join(gisdata.VECTOR_DATA, 'san_andres_y_providencia_poi.shp'),
                 name=layer,

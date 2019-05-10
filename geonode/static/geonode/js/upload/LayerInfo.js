@@ -65,11 +65,10 @@ define(function (require, exports) {
      */
     LayerInfo.prototype.findFileType = function (file) {
         var i, type, res;
-        var extensions = this.getExtensions();
         $.each(fileTypes, function (name, type) {
-            if (type.isType(file, extensions)) {
+            if (type.isType(file)) {
                 res = {type: type, file: file};
-                // return false;
+                return false;
             }
         });
         return res;
@@ -84,19 +83,14 @@ define(function (require, exports) {
         var self = this;
         $.each(this.files, function (idx, file) {
             var results = self.findFileType(file);
-
-            // if we find the type of the file, we also find the "main" file
+            // if we find the type of the file, we also find the "main"
+            // file
             if (results) {
-                if (results.type.main == 'kml') {
-                   // Assume the kml file always as main one
-                   self.type = results.type;
-                   self.main = results.file;
-                } else if ((results.type.main == 'xml' || results.type.main == 'sld') &&
-                        self.main != undefined) {
-                   // Do not assume the metadata or sld file as main one
+                // Avoid assuming the metadata file as main one
+                if ((results.type.main == 'xml' || results.type.main == 'sld') && self.main != undefined) {
                    self.type = self.type;
                    self.main = self.main;
-               } else if ((self.type == undefined) || (self.type != undefined && self.type.main != 'kml')) {
+                } else {
                    self.type = results.type;
                    self.main = results.file;
                 }
@@ -328,14 +322,6 @@ define(function (require, exports) {
     };
 
     LayerInfo.prototype.doResume = function (event) {
-        $(this).text('Done').attr('disabled','disabled');
-        var id = (new Date()).getTime();
-        /* ****
-         * AF: Switching those two below allows to open a new window instead of redirecting
-         *     the active one.
-         * ****/
-	    // var newWin = window.open(window.location.href,
-        //        id, "toolbar=1,scrollbars=1,location=0,statusbar=0,menubar=1,resizable=1,width=1100,height=800,left = 240,top = 100");
         common.make_request({
             url: event.data.url,
             async: true,
@@ -348,21 +334,9 @@ define(function (require, exports) {
             },
             success: function (resp, status) {
                 if(resp.url && resp.input_required){
-                    /* ****
-                     * AF: Switching those two below allows to open a new window instead of redirecting
-                     *     the active one.
-                     * ****/
                     window.location = resp.url;
-                    /* newWin.location = resp.url;
-                    newWin.focus(); */
                 }else {
-                    /* ****
-                     * AF: Switching those two below allows to open a new window instead of redirecting
-                     *     the active one.
-                     * ****/
                     window.location = resp.redirect_to;
-                    /* newWin.location = resp.redirect_to;
-                    newWin.focus(); */
                 }
             },
         });
@@ -467,7 +441,7 @@ define(function (require, exports) {
         } else if (resp.status === "incomplete") {
             var id = common.parseQueryString(resp.url).id;
             var element = 'next_step_' + id
-            var a = '<a id="' + element + '" class="btn btn-primary" target="_blank">Continue</a>';
+            var a = '<a id="' + element + '" class="btn btn-primary" target="_new">Continue</a>';
             var msg = '<p>' + gettext('Files are ready to be ingested!')
 
             if (resp.redirect_to.indexOf('time') !== -1 || resp.url.indexOf('time') !== -1) {

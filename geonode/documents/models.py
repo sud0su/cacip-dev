@@ -127,13 +127,10 @@ def get_related_documents(resource):
 
 def get_related_resources(document):
     if document.links:
-        try:
-            return [
-                link.content_type.get_object_for_this_type(id=link.object_id)
-                for link in document.links.all()
-            ]
-        except BaseException:
-            return []
+        return [
+            link.content_type.get_object_for_this_type(id=link.object_id)
+            for link in document.links.all()
+        ]
     else:
         return []
 
@@ -191,9 +188,8 @@ def post_save_document(instance, *args, **kwargs):
 
     if instance.doc_file:
         name = "Hosted Document"
-        site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
         url = '%s%s' % (
-            site_url,
+            settings.SITEURL[:-1],
             reverse('document_download', args=(instance.id,)))
     elif instance.doc_url:
         name = "External Document"

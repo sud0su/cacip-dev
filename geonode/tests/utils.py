@@ -18,8 +18,6 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
-
 import contextlib
 import copy
 import urllib
@@ -27,6 +25,7 @@ import urllib2
 
 from django.core.management import call_command
 from django.db.models import signals
+from django.test import TestCase
 from django.core import mail
 from django.conf import settings
 
@@ -101,10 +100,9 @@ def check_layer(uploaded):
     assert len(uploaded.name) > 0, msg
 
 
-class TestSetAttributes(GeoNodeBaseTestSupport):
+class TestSetAttributes(TestCase):
 
     def setUp(self):
-        super(TestSetAttributes, self).setUp()
         # Load users to log in as
         call_command('loaddata', 'people_data', verbosity=0)
 
@@ -121,7 +119,7 @@ class TestSetAttributes(GeoNodeBaseTestSupport):
         disconnected_post_save = signals.post_save.disconnect(geoserver_post_save, sender=Layer)
 
         # Create dummy layer to attach attributes to
-        _l = Layer.objects.create(
+        l = Layer.objects.create(
             name='dummy_layer',
             bbox_x0=-180,
             bbox_x1=180,
@@ -144,13 +142,13 @@ class TestSetAttributes(GeoNodeBaseTestSupport):
         expected_results = copy.deepcopy(attribute_map)
 
         # set attributes for resource
-        set_attributes(_l, attribute_map)
+        set_attributes(l, attribute_map)
 
         # 2 items in attribute_map should translate into 2 Attribute instances
-        self.assertEquals(_l.attributes.count(), len(expected_results))
+        self.assertEquals(l.attributes.count(), len(expected_results))
 
         # The name and type should be set as provided by attribute map
-        for a in _l.attributes:
+        for a in l.attributes:
             self.assertIn([a.attribute, a.attribute_type], expected_results)
 
 
@@ -161,8 +159,7 @@ if has_notifications:
     from pinax.notifications.engine import send_all
     from pinax.notifications.models import NoticeQueueBatch
 
-    class NotificationsTestsHelper(GeoNodeBaseTestSupport):
-
+    class NotificationsTestsHelper(TestCase):
         """
         Helper class for notification tests
         This provides:

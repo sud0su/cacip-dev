@@ -17,9 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
-
-from geonode.tests.base import GeoNodeBaseTestSupport
-
 import os
 import urlparse
 import unittest
@@ -35,6 +32,7 @@ import requests
 from django.conf import settings
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.test import LiveServerTestCase
 
 from geonode import qgis_server
 from geonode.decorators import on_ogc_backend
@@ -45,9 +43,10 @@ from geonode.qgis_server.helpers import validate_django_settings, \
     style_remove_url
 
 
-class HelperTest(GeoNodeBaseTestSupport):
+class HelperTest(LiveServerTestCase):
 
-    fixtures = ['initial_data.json', 'people_data.json']
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_validate_settings(self):
@@ -185,9 +184,7 @@ class HelperTest(GeoNodeBaseTestSupport):
         if qml_styles:
             expected_style_names = ['default', 'new_style']
             actual_style_names = [s.name for s in qml_styles]
-            self.assertEqual(
-                set(expected_style_names),
-                set(actual_style_names))
+            self.assertEqual(set(expected_style_names), set(actual_style_names))
 
         # Get new style
         style_url = style_get_url(uploaded, 'new_style', internal=True)

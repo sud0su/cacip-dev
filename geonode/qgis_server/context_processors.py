@@ -56,6 +56,5 @@ def qgis_server_urls(request):
                         'MOSAIC_ENABLED',
                         False),
     )
-
     defaults['style_upload_form'] = QGISLayerStyleUploadForm()
     return defaults

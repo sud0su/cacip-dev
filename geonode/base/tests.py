@@ -18,15 +18,13 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
-
+from django.test import TestCase
 from geonode.base.models import ResourceBase
 
 
-class ThumbnailTests(GeoNodeBaseTestSupport):
+class ThumbnailTests(TestCase):
 
     def setUp(self):
-        super(ThumbnailTests, self).setUp()
         self.rb = ResourceBase.objects.create()
 
     def test_initial_behavior(self):

@@ -18,10 +18,6 @@
 #
 #########################################################################
 
-from .base import GeoNodeLiveTestSupport
-
-import timeout_decorator
-
 import os
 import json
 import datetime
@@ -38,13 +34,14 @@ from lxml import etree
 from urlparse import urljoin
 
 from django.conf import settings
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
+from django.test import LiveServerTestCase as TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles.templatetags import staticfiles
 from django.contrib.auth import get_user_model
 # from guardian.shortcuts import assign_perm
+from django.test.testcases import LiveServerTestCase
 from geonode.base.populate_test_data import reconnect_signals, all_public
 from tastypie.test import ResourceTestCaseMixin
 
@@ -53,11 +50,11 @@ from geonode.qgis_server.models import QGISServerLayer
 from geoserver.catalog import FailedRequestError
 
 # from geonode.security.models import *
-from geonode.contrib import geotiffio
 from geonode.decorators import on_ogc_backend
-from geonode.base.models import TopicCategory, Link
+from geonode.base.models import TopicCategory
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
+from geonode.documents.models import Document
 from geonode import GeoNodeException, geoserver, qgis_server
 from geonode.layers.utils import (
     upload,
@@ -76,8 +73,6 @@ from geonode.utils import check_ogc_backend
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
-LOCAL_TIMEOUT = 300
-
 LOGIN_URL = "/accounts/login/"
 
 logger = logging.getLogger("south").setLevel(logging.INFO)
@@ -95,7 +90,6 @@ def zip_dir(basedir, archivename):
                 absfn = os.path.join(root, fn)
                 zfn = absfn[len(basedir)+len(os.sep):]  # XXX: relative path
                 z.write(absfn, zfn)
-
 
 """
  HOW TO RUN THE TESTS
@@ -141,13 +135,48 @@ $ geonode createsuperuser
 """
 
 
-class NormalUserTest(GeoNodeLiveTestSupport):
+class GeoNodeCoreTest(TestCase):
+
+    """Tests geonode.security app/module
+    """
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
+
+
+class GeoNodeProxyTest(TestCase):
+
+    """Tests geonode.proxy app/module
+    """
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
+
+
+class NormalUserTest(TestCase):
 
     """
     Tests GeoNode functionality for non-administrative users
     """
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
+
     def test_layer_upload(self):
         """ Try uploading a layer and verify that the user can administrate
         his own layer despite not being a site administrator.
@@ -176,14 +205,21 @@ class NormalUserTest(GeoNodeLiveTestSupport):
             saved_layer.delete()
 
 
-class GeoNodeMapTest(GeoNodeLiveTestSupport):
+class GeoNodeMapTest(TestCase):
 
+    """Tests geonode.maps app/module
     """
-    Tests geonode.maps app/module
-    """
+
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
 
     # geonode.maps.utils
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+
     def test_raster_upload(self):
         """Test that the wcs links are correctly created for a raster"""
         filename = os.path.join(gisdata.GOOD_DATA, 'raster/test_grid.tif')
@@ -199,7 +235,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             uploaded.delete()
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_zipped_files(self):
         """Test that the zipped files is created for raster."""
         filename = os.path.join(gisdata.GOOD_DATA, 'raster/test_grid.tif')
@@ -214,7 +249,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             # Clean up and completely delete the layer
             uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_layer_upload_bbox(self):
         """Test that the bbox format is correct
 
@@ -255,7 +289,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             # Clean up and completely delete the layer
             uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_layer_upload(self):
         """Test that layers can be uploaded to running GeoNode/GeoServer
         """
@@ -342,7 +375,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             layer_name = layers[layer]
             Layer.objects.get(name=layer_name).delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_extension_not_implemented(self):
         """Verify a GeoNodeException is returned for not compatible extensions
         """
@@ -358,7 +390,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             #        (GeoNodeException, type(e)))
             # assert e is GeoNodeException, msg
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_layer_upload_metadata(self):
         """Test uploading a layer with XML metadata"""
         uploaded = None
@@ -416,14 +447,15 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                     'None',
                     'Expected specific constraint from uploaded layer XML metadata')
 
-                from django.utils import timezone
-                date = datetime.datetime(2010, 8, 3, 0, 0)
-                date.replace(tzinfo=timezone.get_current_timezone())
-                today = date.today()
-                todoc = uploaded.date.today()
-                self.assertEquals((today.day, today.month, today.year),
-                                  (todoc.day, todoc.month, todoc.year),
-                                  'Expected specific date from uploaded layer XML metadata')
+                self.assertEqual(
+                    uploaded.date,
+                    datetime.datetime(
+                        2010,
+                        8,
+                        3,
+                        0,
+                        0),
+                    'Expected specific date from uploaded layer XML metadata')
 
                 # Set
                 from geonode.layers.metadata import set_metadata
@@ -439,12 +471,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                 uploaded.metadata_xml = thelayer_metadata
                 regions_resolved, regions_unresolved = resolve_regions(regions)
                 self.assertIsNotNone(regions_resolved)
-        except GeoNodeException as e:
-            # layer have projection file, but has no valid srid
-            self.assertEqual(
-                str(e),
-                "Invalid Layers. "
-                "Needs an authoritative SRID in its CRS to be accepted")
         # except:
         #     # Sometimes failes with the message:
         #     # UploadError: Could not save the layer air_runways,
@@ -455,7 +481,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             if uploaded:
                 uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_layer_zip_upload_metadata(self):
         """Test uploading a layer with XML metadata"""
         uploaded = None
@@ -518,14 +543,15 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                         'None',
                         'Expected specific constraint from uploaded layer XML metadata')
 
-                    from django.utils import timezone
-                    date = datetime.datetime(2010, 8, 3, 0, 0)
-                    date.replace(tzinfo=timezone.get_current_timezone())
-                    today = date.today()
-                    todoc = uploaded.date.today()
-                    self.assertEquals((today.day, today.month, today.year),
-                                      (todoc.day, todoc.month, todoc.year),
-                                      'Expected specific date from uploaded layer XML metadata')
+                    self.assertEqual(
+                        uploaded.date,
+                        datetime.datetime(
+                            2010,
+                            8,
+                            3,
+                            0,
+                            0),
+                        'Expected specific date from uploaded layer XML metadata')
 
                     # Set
                     from geonode.layers.metadata import set_metadata
@@ -551,7 +577,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             if uploaded:
                 uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_shapefile(self):
         """Test Uploading a good shapefile
         """
@@ -565,7 +590,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             # Clean up and completely delete the layer
             uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_bad_shapefile(self):
         """Verifying GeoNode complains about a shapefile without .prj
         """
@@ -573,16 +597,15 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
         try:
             # with self.assertRaises(GeoNodeException):
             thefile = file_upload(thefile, overwrite=True)
-        except GeoNodeException as e:
+        except GeoNodeException, e:
             self.assertEqual(str(e), "Invalid Projection. Layer is missing CRS!")
         finally:
             # Clean up and completely delete the layer
             try:
                 thefile.delete()
-            except BaseException:
+            except:
                 pass
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_tiff(self):
         """Uploading a good .tiff
         """
@@ -594,7 +617,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             # Clean up and completely delete the layer
             uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_repeated_upload(self):
         """Upload the same file more than once
         """
@@ -620,7 +642,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
     # geonode.maps.views
 
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_layer_delete_from_geoserver(self):
         """Verify that layer is correctly deleted from GeoServer
         """
@@ -661,7 +682,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                 store=tif_store))
 
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_delete_layer(self):
         """Verify that the 'delete_layer' pre_delete hook is functioning
         """
@@ -711,7 +731,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             assert shp_layer_gn_info is None
 
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_geoserver_cascading_delete(self):
         """Verify that the helpers.cascading_delete() method is working properly
         """
@@ -736,10 +755,9 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
 
             # Verify that the styles were deleted
             for style in styles:
-                if style and style.name:
-                    s = gs_cat.get_style(style.name, workspace=settings.DEFAULT_WORKSPACE) or \
-                        gs_cat.get_style(style.name)
-                    assert s is None
+                s = gs_cat.get_style(style.name, workspace=settings.DEFAULT_WORKSPACE) or \
+                    gs_cat.get_style(style.name)
+                assert s is None
 
             # Verify that the store was deleted
             ds = gs_cat.get_store(store_name)
@@ -749,7 +767,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             shp_layer.delete()
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_qgis_server_cascading_delete(self):
         """Verify that QGIS Server layer deleted and cascaded."""
         # Upload a Shapefile
@@ -801,7 +818,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
         # verify that cache path gets deleted
         self.assertFalse(os.path.exists(qgis_layer.cache_path))
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_keywords_upload(self):
         """Check that keywords can be passed to file_upload
         """
@@ -826,7 +842,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             # Clean up and completely delete the layers
             uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_empty_bbox(self):
         """Regression-test for failures caused by zero-width bounding boxes"""
         thefile = os.path.join(gisdata.VECTOR_DATA, 'single_point.shp')
@@ -840,7 +855,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             # Clean up and completely delete the layers
             uploaded.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_layer_replace(self):
         """Test layer replace functionality
         """
@@ -924,13 +938,9 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                 self.assertEquals(response_dict['success'], True)
                 # Get a Layer object for the newly created layer.
                 new_vector_layer = Layer.objects.get(pk=vector_layer.pk)
+                # FIXME(Ariel): Check the typename does not change.
 
-                # Test the replaced layer metadata is equal to the original layer
-                self.assertEqual(vector_layer.name, new_vector_layer.name)
-                self.assertEqual(vector_layer.title, new_vector_layer.title)
-                self.assertEqual(vector_layer.alternate, new_vector_layer.alternate)
-
-                # Test the replaced layer bbox is indeed different from the original layer
+                # Test the replaced layer is indeed different from the original layer
                 self.assertNotEqual(vector_layer.bbox_x0, new_vector_layer.bbox_x0)
                 self.assertNotEqual(vector_layer.bbox_x1, new_vector_layer.bbox_x1)
                 self.assertNotEqual(vector_layer.bbox_y0, new_vector_layer.bbox_y0)
@@ -958,12 +968,11 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                     raster_layer.delete()
                 if new_vector_layer:
                     new_vector_layer.delete()
-            except BaseException:
+            except:
                 # tb = traceback.format_exc()
                 # logger.warning(tb)
                 pass
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_importlayer_mgmt_command(self):
         """Test layer import management command
         """
@@ -981,7 +990,6 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             self.assertIsNotNone(lyr)
             self.assertEqual(lyr.name, "test_san_andres_y_providencia_administrative")
             self.assertEqual(lyr.title, "Test San Andres y Providencia Administrative")
-
             default_keywords = [
                 u'import',
                 u'san andreas',
@@ -1004,10 +1012,17 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
             lyr.delete()
 
 
-class GeoNodePermissionsTest(GeoNodeLiveTestSupport):
+class GeoNodePermissionsTest(TestCase):
+    """Tests GeoNode permissions and its integration with GeoServer
     """
-    Tests GeoNode permissions and its integration with GeoServer
-    """
+
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
 
     """
     AF: This test must be refactored. Opening an issue for that.
@@ -1122,7 +1137,6 @@ xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.
     """
 
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_unpublished(self):
         """Test permissions on an unpublished layer
         """
@@ -1157,10 +1171,7 @@ xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.
 
         # with settings disabled
         with self.settings(RESOURCE_PUBLISHING=True):
-            layer = file_upload(thefile,
-                                overwrite=True,
-                                is_approved=False,
-                                is_published=False)
+            layer = file_upload(thefile, overwrite=True)
             layer.set_default_permissions()
             check_layer(layer)
 
@@ -1192,13 +1203,19 @@ xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.
                 layer.delete()
 
 
-class GeoNodeThumbnailTest(GeoNodeLiveTestSupport):
+class GeoNodeThumbnailTest(TestCase):
 
-    """
-    Tests thumbnails behavior for layers and maps.
+    """Tests thumbnails behavior for layers and maps.
     """
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
+
     def test_layer_thumbnail(self):
         """Test the layer save method generates a thumbnail link
         """
@@ -1222,7 +1239,6 @@ class GeoNodeThumbnailTest(GeoNodeLiveTestSupport):
             # Cleanup
             saved_layer.delete()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_map_thumbnail(self):
         """Test the map save method generates a thumbnail link
         """
@@ -1253,13 +1269,19 @@ class GeoNodeThumbnailTest(GeoNodeLiveTestSupport):
             saved_layer.delete()
 
 
-class GeoNodeMapPrintTest(GeoNodeLiveTestSupport):
+class GeoNodeMapPrintTest(TestCase):
 
-    """
-    Tests geonode.maps print
+    """Tests geonode.maps print
     """
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
+
     def testPrintProxy(self):
         """ Test the PrintProxyMiddleware if activated.
             It should respect the permissions on private layers.
@@ -1330,7 +1352,7 @@ class GeoNodeMapPrintTest(GeoNodeLiveTestSupport):
                     'layout': 'A4 portrait',
                     'mapTitle': 'test',
                     'outputFilename': 'print',
-                    'srs': getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857'),
+                    'srs': getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913'),
                     'units': 'm'}
 
                 self.client.post(print_url, post_payload)
@@ -1345,14 +1367,20 @@ class GeoNodeMapPrintTest(GeoNodeLiveTestSupport):
             pass
 
 
-class GeoNodeGeoServerSync(GeoNodeLiveTestSupport):
+class GeoNodeGeoServerSync(TestCase):
 
+    """Tests GeoNode/GeoServer syncronization
     """
-    Tests GeoNode/GeoServer syncronization
-    """
+
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
 
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_set_attributes_from_geoserver(self):
         """Test attributes syncronization
         """
@@ -1382,29 +1410,26 @@ class GeoNodeGeoServerSync(GeoNodeLiveTestSupport):
                     attribute.description,
                     '%s_description' % attribute.attribute
                 )
-
-            links = Link.objects.filter(resource=layer.resourcebase_ptr)
-            self.assertIsNotNone(links)
-            self.assertTrue(len(links) > 7)
-
-            original_data_links = [ll for ll in links if 'original' == ll.link_type]
-            self.assertEquals(len(original_data_links), 1)
-
-            resp = self.client.get(original_data_links[0].url)
-            self.assertEquals(resp.status_code, 200)
         finally:
             # Clean up and completely delete the layers
             layer.delete()
 
 
-class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
+class GeoNodeGeoServerCapabilities(TestCase):
 
+    """Tests GeoNode/GeoServer GetCapabilities per layer, user, category and map
     """
-    Tests GeoNode/GeoServer GetCapabilities per layer, user, category and map
-    """
+
+    def setUp(self):
+        call_command('loaddata', 'initial_data', verbosity=0)
+        call_command('loaddata', 'people_data', verbosity=0)
+
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
 
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_capabilities(self):
         """Test capabilities
         """
@@ -1449,7 +1474,7 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
             resp = self.client.get(url)
             layercap = etree.fromstring(resp.content)
             rootdoc = etree.ElementTree(layercap)
-            layernodes = rootdoc.findall('./[Name]')
+            layernodes = rootdoc.findall('.//Capability/Layer/Layer')
             layernode = layernodes[0]
 
             self.assertEquals(1, len(layernodes))
@@ -1460,10 +1485,10 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
             resp = self.client.get(url)
             layercap = etree.fromstring(resp.content)
             rootdoc = etree.ElementTree(layercap)
-            layernodes = rootdoc.findall('./[Name]')
+            layernodes = rootdoc.findall('.//Capability/Layer/Layer')
 
             # norman has 2 layers
-            self.assertEquals(1, len(layernodes))
+            self.assertEquals(2, len(layernodes))
 
             # the norman two layers are named layer1 and layer2
             count = 0
@@ -1472,17 +1497,17 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
                     count += 1
                 elif layernode.find('Name').text == layer2.name:
                     count += 1
-            self.assertEquals(1, count)
+            self.assertEquals(2, count)
 
             # 2. test capabilities_category
             url = reverse('capabilities_category', args=[category.identifier])
             resp = self.client.get(url)
             layercap = etree.fromstring(resp.content)
             rootdoc = etree.ElementTree(layercap)
-            layernodes = rootdoc.findall('./[Name]')
+            layernodes = rootdoc.findall('.//Capability/Layer/Layer')
 
             # category is in two layers
-            self.assertEquals(1, len(layernodes))
+            self.assertEquals(2, len(layernodes))
 
             # the layers for category are named layer1 and layer3
             count = 0
@@ -1491,7 +1516,7 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
                     count += 1
                 elif layernode.find('Name').text == layer3.name:
                     count += 1
-            self.assertEquals(1, count)
+            self.assertEquals(2, count)
 
             # 3. test for a map
             # TODO
@@ -1503,11 +1528,16 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
 
 
 class LayersStylesApiInteractionTests(
-        ResourceTestCaseMixin, GeoNodeLiveTestSupport):
+        ResourceTestCaseMixin, LiveServerTestCase):
+
     """Test Layers"""
+
+    fixtures = ['initial_data.json', 'bobby']
 
     def setUp(self):
         super(LayersStylesApiInteractionTests, self).setUp()
+
+        call_command('loaddata', 'people_data', verbosity=0)
 
         self.layer_list_url = reverse(
             'api_dispatch_list',
@@ -1523,8 +1553,11 @@ class LayersStylesApiInteractionTests(
         self.layer = file_upload(filename)
         all_public()
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
-    @on_ogc_backend(geoserver.BACKEND_PACKAGE)
+    def tearDown(self):
+        Layer.objects.all().delete()
+        Map.objects.all().delete()
+        Document.objects.all().delete()
+
     def test_layer_interaction(self):
         """Layer API interaction check."""
         layer_id = self.layer.id
@@ -1576,8 +1609,6 @@ class LayersStylesApiInteractionTests(
 
         self.assertEqual(obj, prev_obj)
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
-    @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     def test_style_interaction(self):
         """Style API interaction check."""
 
@@ -1637,7 +1668,6 @@ class LayersStylesApiInteractionTests(
         # should include body field
         self.assertTrue('body' in obj and obj['body'])
 
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_add_delete_styles(self):
         """Style API Add/Delete interaction."""
@@ -1654,6 +1684,8 @@ class LayersStylesApiInteractionTests(
         self.assertValidJSONResponse(resp)
         objects = self.deserialize(resp)['objects']
 
+        self.assertEqual(len(objects), 1)
+
         # Fetch default style
         layer_detail_url = reverse(
             'api_dispatch_detail',
@@ -1667,14 +1699,8 @@ class LayersStylesApiInteractionTests(
         self.assertValidJSONResponse(resp)
         obj = self.deserialize(resp)
         # Take default style url from Layer detail info
-
         default_style_url = obj['default_style']
-        try:
-            resp = self.api_client.get(default_style_url)
-            if resp.status_code != 200:
-                return
-        except BaseException:
-            return
+        resp = self.api_client.get(default_style_url)
         self.assertValidJSONResponse(resp)
         obj = self.deserialize(resp)
         style_body = obj['body']
@@ -1760,70 +1786,3 @@ class LayersStylesApiInteractionTests(
         meta = self.deserialize(resp)['meta']
 
         self.assertEqual(meta['total_count'], 0)
-
-
-class GeoTIFFIOTest(GeoNodeLiveTestSupport):
-    """
-    Tests integration of geotiff.io
-    """
-
-    def testLink(self):
-        thefile = os.path.join(gisdata.RASTER_DATA, 'test_grid.tif')
-        uploaded = file_upload(thefile, overwrite=True)
-        access_token = "8FYB137y87sdfb8b1l8ybf7dsbf"
-
-        # changing settings for this test
-        geotiffio.settings.GEOTIFF_IO_ENABLED = True
-        geotiffio.settings.GEOTIFF_IO_BASE_URL = "http://app.geotiff.io"
-
-        url = geotiffio.create_geotiff_io_url(uploaded, access_token)
-        expected = (
-            'http://app.geotiff.io?url='
-            'http%3A//localhost%3A8000/gs/wcs%3F'
-            'service%3DWCS'
-            '%26format%3Dimage%252Ftiff'
-            '%26request%3DGetCoverage'
-            '%26srs%3DEPSG%253A4326'
-            '%26version%3D2.0.1'
-            '%26coverageid%3Dgeonode%253Atest_grid'
-            '%26access_token%3D8FYB137y87sdfb8b1l8ybf7dsbf')
-        self.assertTrue(url, expected)
-
-        # Clean up and completely delete the layer
-        uploaded.delete()
-
-    def testNoLinkForVector(self):
-        thefile = os.path.join(
-            gisdata.VECTOR_DATA,
-            "san_andres_y_providencia_poi.shp")
-        uploaded = file_upload(thefile, overwrite=True)
-        access_token = None
-        created = geotiffio.create_geotiff_io_url(uploaded, access_token)
-        self.assertEqual(created, None)
-
-        # Clean up and completely delete the layer
-        uploaded.delete()
-
-    def testNoAccessToken(self):
-        thefile = os.path.join(gisdata.RASTER_DATA, 'test_grid.tif')
-        uploaded = file_upload(thefile, overwrite=True)
-        access_token = None
-
-        # changing settings for this test
-        geotiffio.settings.GEOTIFF_IO_ENABLED = True
-        geotiffio.settings.GEOTIFF_IO_BASE_URL = "http://app.geotiff.io"
-
-        url = geotiffio.create_geotiff_io_url(uploaded, access_token)
-        expected = (
-            'http://app.geotiff.io?url='
-            'http%3A//localhost%3A8000/gs/wcs%3F'
-            'service%3DWCS'
-            '%26format%3Dimage%252Ftiff'
-            '%26request%3DGetCoverage'
-            '%26srs%3DEPSG%253A4326'
-            '%26version%3D2.0.1'
-            '%26coverageid%3Dgeonode%253Atest_grid')
-        self.assertTrue(url, expected)
-
-        # Clean up and completely delete the layer
-        uploaded.delete()

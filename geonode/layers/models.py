@@ -21,11 +21,12 @@
 import uuid
 import logging
 
+from datetime import datetime
+
 from django.db import models
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.core.files.storage import FileSystemStorage
@@ -108,7 +109,7 @@ class Style(models.Model, PermissionLevelMixin):
             layer = self.layer_styles.first()
             """:type: Layer"""
             return layer.get_self_resource()
-        except BaseException:
+        except:
             return None
 
 
@@ -126,22 +127,21 @@ class Layer(ResourceBase):
 
     # internal fields
     objects = LayerManager()
-    workspace = models.CharField(_('Workspace'), max_length=128)
-    store = models.CharField(_('Store'), max_length=128)
-    storeType = models.CharField(_('Storetype'), max_length=128)
-    name = models.CharField(_('Name'), max_length=128)
-    typename = models.CharField(_('Typename'), max_length=128, null=True, blank=True)
+    workspace = models.CharField(max_length=128)
+    store = models.CharField(max_length=128)
+    storeType = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
+    typename = models.CharField(max_length=128, null=True, blank=True)
 
-    is_mosaic = models.BooleanField(_('Is mosaic?'), default=False)
-    has_time = models.BooleanField(_('Has time?'), default=False)
-    has_elevation = models.BooleanField(_('Has elevation?'), default=False)
+    is_mosaic = models.BooleanField(default=False)
+    has_time = models.BooleanField(default=False)
+    has_elevation = models.BooleanField(default=False)
     time_regex = models.CharField(
-        _('Time regex'),
         max_length=128,
         null=True,
         blank=True,
         choices=TIME_REGEX)
-    elevation_regex = models.CharField(_('Elevation regex'), max_length=128, null=True, blank=True)
+    elevation_regex = models.CharField(max_length=128, null=True, blank=True)
 
     default_style = models.ForeignKey(
         Style,
@@ -158,9 +158,6 @@ class Layer(ResourceBase):
 
     def is_vector(self):
         return self.storeType == 'dataStore'
-
-    def get_upload_session(self):
-        return self.upload_session
 
     @property
     def display_type(self):
@@ -209,14 +206,6 @@ class Layer(ResourceBase):
     @property
     def attributes(self):
         return self.attribute_set.exclude(attribute='the_geom').order_by('display_order')
-
-    # layer geometry type.
-    @property
-    def gtype(self):
-        # return attribute type without 'gml:' and 'PropertyType'
-        if self.attribute_set.filter(attribute='the_geom').exists():
-            return self.attribute_set.get(attribute='the_geom').attribute_type[4:-12]
-        return None
 
     def get_base_file(self):
         """Get the shp or geotiff file for this layer.
@@ -338,7 +327,6 @@ class UploadSession(models.Model):
 
     """Helper class to keep track of uploads.
     """
-    resource = models.ForeignKey(ResourceBase, blank=True, null=True)
     date = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     processed = models.BooleanField(default=False)
@@ -349,9 +337,6 @@ class UploadSession(models.Model):
     def successful(self):
         return self.processed and self.errors is None
 
-    def __str__(self):
-        return u'%s' % self.resource or self.date
-
 
 class LayerFile(models.Model):
 
@@ -361,7 +346,7 @@ class LayerFile(models.Model):
     name = models.CharField(max_length=255)
     base = models.BooleanField(default=False)
     file = models.FileField(
-        upload_to='layers/%Y/%m/%d',
+        upload_to='layers',
         storage=FileSystemStorage(
             base_url=settings.LOCAL_MEDIA_URL),
         max_length=255)
@@ -485,7 +470,7 @@ class Attribute(models.Model):
         null=True,
         blank=True,
         default='NA')
-    last_stats_updated = models.DateTimeField(_('last modified'), default=now, help_text=_(
+    last_stats_updated = models.DateTimeField(_('last modified'), default=datetime.now, help_text=_(
         'date when attribute statistics were last updated'))  # passing the method itself, not
 
     objects = AttributeManager()
@@ -599,7 +584,6 @@ def pre_delete_layer(instance, sender, **kwargs):
     OverallRating.objects.filter(
         content_type=ct,
         object_id=instance.id).delete()
-
     default_style = instance.default_style
     for style in instance.styles.all():
         if style.layer_styles.all().count() == 1:
@@ -619,14 +603,18 @@ def post_delete_layer(instance, sender, **kwargs):
         return
 
     from geonode.maps.models import MapLayer
-    logger.debug(
-        "Going to delete associated maplayers for [%s]", instance.name)
-    MapLayer.objects.filter(
-        name=instance.alternate,
-        ows_url=instance.ows_url).delete()
+    if instance.alternate:
+        logger.debug(
+            "Going to delete associated maplayers for [%s]",
+            instance.alternate.encode('utf-8'))
+        MapLayer.objects.filter(
+            name=instance.alternate,
+            ows_url=instance.ows_url).delete()
 
-    logger.debug(
-        "Going to delete the default style for [%s]", instance.name)
+    if instance.alternate:
+        logger.debug(
+            "Going to delete the default style for [%s]",
+            instance.alternate.encode('utf-8'))
 
     if instance.default_style and Layer.objects.filter(
             default_style__id=instance.default_style.id).count() == 0:
@@ -636,7 +624,6 @@ def post_delete_layer(instance, sender, **kwargs):
         if instance.upload_session:
             for lf in instance.upload_session.layerfile_set.all():
                 lf.file.delete()
-            instance.upload_session.delete()
     except UploadSession.DoesNotExist:
         pass
 

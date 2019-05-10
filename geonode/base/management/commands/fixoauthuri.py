@@ -23,9 +23,6 @@ from oauth2_provider.models import Application
 from oauth2_provider.generators import generate_client_id, generate_client_secret
 from geonode.people.models import Profile
 
-from geonode import geoserver, qgis_server  # noqa
-from geonode.utils import check_ogc_backend
-
 
 class Command(BaseCommand):
     """Creates or updates the oauth2 Application
@@ -36,11 +33,10 @@ class Command(BaseCommand):
         from django.conf import settings
         client_id = None
         client_secret = None
-        if check_ogc_backend(geoserver.BACKEND_PACKAGE):
+        if 'geonode.geoserver' in settings.INSTALLED_APPS:
             from geonode.geoserver.helpers import ogc_server_settings
-            redirect_uris = '%s\n%s' % (ogc_server_settings.LOCATION, ogc_server_settings.public_url)
             if Application.objects.filter(name='GeoServer').exists():
-                Application.objects.filter(name='GeoServer').update(redirect_uris=redirect_uris)
+                Application.objects.filter(name='GeoServer').update(redirect_uris=ogc_server_settings.public_url)
                 app = Application.objects.filter(name='GeoServer')[0]
                 client_id = app.client_id
                 client_secret = app.client_secret
@@ -49,7 +45,7 @@ class Command(BaseCommand):
                 client_secret = generate_client_secret()
                 Application.objects.create(
                     skip_authorization=True,
-                    redirect_uris=redirect_uris,
+                    redirect_uris=ogc_server_settings.public_url,
                     name='GeoServer',
                     authorization_grant_type='authorization-code',
                     client_type='confidential',

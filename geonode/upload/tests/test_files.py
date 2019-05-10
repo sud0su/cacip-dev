@@ -20,12 +20,12 @@
 
 """unit tests for geonode.upload.files module"""
 
-from geonode.tests.base import GeoNodeBaseTestSupport
+from django.test import TestCase
 
 from geonode.upload import files
 
 
-class FilesTestCase(GeoNodeBaseTestSupport):
+class FilesTestCase(TestCase):
 
     def test_scan_hint_kml_ground_overlay(self):
         result = files.get_scan_hint(["kml", "other"])

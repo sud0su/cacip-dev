@@ -17,15 +17,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
-
-from geonode.tests.base import GeoNodeBaseTestSupport
-
 import os
 import urlparse
 from imghdr import what
 
 import gisdata
 from django.core.management import call_command
+from django.test import LiveServerTestCase
 from geonode import qgis_server
 from geonode.qgis_server.models import QGISServerLayer, QGISServerStyle
 from geonode.decorators import on_ogc_backend
@@ -33,9 +31,10 @@ from geonode.decorators import on_ogc_backend
 from geonode.layers.models import Layer
 
 
-class TestManagementCommands(GeoNodeBaseTestSupport):
+class TestManagementCommands(LiveServerTestCase):
 
-    fixtures = ['initial_data.json', 'people_data.json']
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_import_layers(self):

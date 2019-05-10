@@ -32,8 +32,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from django.conf import settings
         name = getattr(settings, 'SITENAME', 'GeoNode')
-        site_url = getattr(settings, 'SITEURL')
-        url = site_url.rstrip('/') if site_url.startswith('http') else site_url
+        url = getattr(settings, 'SITEURL')
+
         parsed = urlsplit(url)
 
         site = Site.objects.get_current()

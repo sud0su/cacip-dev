@@ -339,41 +339,15 @@ def get_resolution(filename):
 
 def get_bbox(filename):
     """Return bbox in the format [xmin,xmax,ymin,ymax]."""
-    from django.contrib.gis.gdal import DataSource, SRSException
+    from django.contrib.gis.gdal import DataSource
     srid = None
     bbox_x0, bbox_y0, bbox_x1, bbox_y1 = None, None, None, None
 
     if is_vector(filename):
-        y_min = -90
-        y_max = 90
-        x_min = -180
-        x_max = 180
         datasource = DataSource(filename)
         layer = datasource[0]
         bbox_x0, bbox_y0, bbox_x1, bbox_y1 = layer.extent.tuple
-        srs = layer.srs
-        try:
-            if not srs:
-                raise GeoNodeException('Invalid Projection. Layer is missing CRS!')
-            srs.identify_epsg()
-        except SRSException:
-            pass
-        epsg_code = srs.srid
-        # can't find epsg code, then check if bbox is within the 4326 boundary
-        if epsg_code is None and (x_min <= bbox_x0 <= x_max and
-                                  x_min <= bbox_x1 <= x_max and
-                                  y_min <= bbox_y0 <= y_max and
-                                  y_min <= bbox_y1 <= y_max):
-            # set default epsg code
-            epsg_code = '4326'
-        elif epsg_code is None:
-            # otherwise, stop the upload process
-            raise GeoNodeException(
-                "Invalid Layers. "
-                "Needs an authoritative SRID in its CRS to be accepted")
-
-        # eliminate default EPSG srid as it will be added when this function returned
-        srid = epsg_code if epsg_code else '4326'
+        srid = layer.srs.srid if layer.srs else 'EPSG:4326'
     elif is_raster(filename):
         gtif = gdal.Open(filename)
         gt = gtif.GetGeoTransform()
@@ -401,7 +375,7 @@ def get_bbox(filename):
         bbox_y0 = min(ext[0][1], ext[2][1])
         bbox_x1 = max(ext[0][0], ext[2][0])
         bbox_y1 = max(ext[0][1], ext[2][1])
-        srid = srs.GetAuthorityCode(None) if srs else '4326'
+        srid = srs.GetAuthorityCode(None) if srs else 'EPSG:4326'
 
     return [bbox_x0, bbox_x1, bbox_y0, bbox_y1, "EPSG:%s" % str(srid)]
 
@@ -419,8 +393,6 @@ def file_upload(filename,
                 skip=True,
                 overwrite=False,
                 charset='UTF-8',
-                is_approved=True,
-                is_published=True,
                 metadata_uploaded_preserve=False,
                 metadata_upload_form=False):
     """Saves a layer in GeoNode asking as little information as possible.
@@ -451,7 +423,7 @@ def file_upload(filename,
     # Create a name from the title if it is not passed.
     if name is None:
         name = slugify(title).replace('-', '_')
-    elif not overwrite:
+    else:
         name = slugify(name)  # assert that name is slugified
 
     if license is not None:
@@ -466,16 +438,13 @@ def file_upload(filename,
             license = None
 
     if category is not None:
-        try:
-            categories = TopicCategory.objects.filter(
-                Q(identifier__iexact=category) |
-                Q(gn_description__iexact=category))
-            if len(categories) == 1:
-                category = categories[0]
-            else:
-                category = None
-        except BaseException:
-            pass
+        categories = TopicCategory.objects.filter(
+            Q(identifier__iexact=category) |
+            Q(gn_description__iexact=category))
+        if len(categories) == 1:
+            category = categories[0]
+        else:
+            category = None
 
     # Generate a name that is not taken if overwrite is False.
     valid_name = get_valid_layer_name(name, overwrite)
@@ -500,10 +469,11 @@ def file_upload(filename,
 
     # by default, if RESOURCE_PUBLISHING=True then layer.is_published
     # must be set to False
-    if not overwrite:
-        if settings.RESOURCE_PUBLISHING or settings.ADMIN_MODERATE_UPLOADS:
-            is_approved = False
-            is_published = False
+    is_approved = True
+    is_published = True
+    if settings.RESOURCE_PUBLISHING or settings.ADMIN_MODERATE_UPLOADS:
+        is_approved = False
+        is_published = False
 
     defaults = {
         'upload_session': upload_session,
@@ -526,9 +496,7 @@ def file_upload(filename,
     if 'xml' in files:
         with open(files['xml']) as f:
             xml_file = f.read()
-
         defaults['metadata_uploaded'] = True
-
         defaults['metadata_uploaded_preserve'] = metadata_uploaded_preserve
 
         # get model properties from XML
@@ -536,7 +504,6 @@ def file_upload(filename,
 
         if defaults['metadata_uploaded_preserve']:
             defaults['metadata_xml'] = xml_file
-
             defaults['uuid'] = identifier
 
         for key, value in vals.items():
@@ -547,7 +514,6 @@ def file_upload(filename,
                     identifier=value.lower(),
                     defaults={'description': '', 'gn_description': value})
                 key = 'category'
-
                 defaults[key] = value
             else:
                 defaults[key] = value
@@ -581,24 +547,21 @@ def file_upload(filename,
     layer = None
     with transaction.atomic():
         try:
-            if overwrite:
-                try:
-                    layer = Layer.objects.get(name=valid_name)
-                except Layer.DoesNotExist:
-                    layer = None
-            if not layer:
-                if not metadata_upload_form:
-                    layer, created = Layer.objects.get_or_create(
-                        name=valid_name,
-                        workspace=settings.DEFAULT_WORKSPACE,
-                        defaults=defaults
-                    )
-                elif identifier:
-                    layer, created = Layer.objects.get_or_create(
-                        uuid=identifier,
-                        defaults=defaults
-                    )
-        except BaseException:
+            if not metadata_upload_form:
+                layer, created = Layer.objects.get_or_create(
+                    name=valid_name,
+                    defaults=defaults
+                )
+            elif identifier:
+                layer, created = Layer.objects.get_or_create(
+                    uuid=identifier,
+                    defaults=defaults
+                )
+            else:
+                layer = Layer.objects.get(alternate=title)
+                created = False
+                overwrite = True
+        except:
             raise
 
     # Delete the old layers if overwrite is true
@@ -606,39 +569,30 @@ def file_upload(filename,
     # process the layer again after that by
     # doing a layer.save()
     if not created and overwrite:
+        if layer.upload_session:
+            layer.upload_session.layerfile_set.all().delete()
+        if upload_session:
+            layer.upload_session = upload_session
+
         # update with new information
+        db_layer = Layer.objects.filter(id=layer.id)
+
         defaults['upload_session'] = upload_session
-
         defaults['title'] = defaults.get('title', None) or layer.title
-
         defaults['abstract'] = defaults.get('abstract', None) or layer.abstract
-
         defaults['bbox_x0'] = defaults.get('bbox_x0', None) or layer.bbox_x0
-
         defaults['bbox_x1'] = defaults.get('bbox_x1', None) or layer.bbox_x1
-
         defaults['bbox_y0'] = defaults.get('bbox_y0', None) or layer.bbox_y0
-
         defaults['bbox_y1'] = defaults.get('bbox_y1', None) or layer.bbox_y1
-
         defaults['is_approved'] = defaults.get(
-            'is_approved', is_approved) or layer.is_approved
-
+            'is_approved', None) or layer.is_approved
         defaults['is_published'] = defaults.get(
-            'is_published', is_published) or layer.is_published
-
+            'is_published', None) or layer.is_published
         defaults['license'] = defaults.get('license', None) or layer.license
-
         defaults['category'] = defaults.get('category', None) or layer.category
 
-        try:
-            Layer.objects.filter(id=layer.id).update(**defaults)
-            layer.refresh_from_db()
-        except Layer.DoesNotExist:
-            import traceback
-            tb = traceback.format_exc()
-            logger.error(tb)
-            raise
+        db_layer.update(**defaults)
+        layer.refresh_from_db()
 
         # Pass the parameter overwrite to tell whether the
         # geoserver_post_save_signal should upload the new file or not
@@ -646,13 +600,8 @@ def file_upload(filename,
 
         # Blank out the store if overwrite is true.
         # geoserver_post_save_signal should upload the new file if needed
-        layer.store = '' if overwrite else layer.store
+        layer.store = ''
         layer.save()
-
-        if upload_session:
-            upload_session.resource = layer
-            upload_session.processed = True
-            upload_session.save()
 
         # set SLD
         # if 'sld' in files:
@@ -689,13 +638,17 @@ def file_upload(filename,
     to_update = {}
     if defaults.get('title', title) is not None:
         to_update['title'] = defaults.get('title', title)
+
     if defaults.get('abstract', abstract) is not None:
         to_update['abstract'] = defaults.get('abstract', abstract)
+
     if defaults.get('date', date) is not None:
         to_update['date'] = defaults.get('date',
                                          datetime.strptime(date, '%Y-%m-%d %H:%M:%S') if date else None)
+
     if defaults.get('license', license) is not None:
         to_update['license'] = defaults.get('license', license)
+
     if defaults.get('category', category) is not None:
         to_update['category'] = defaults.get('category', category)
 

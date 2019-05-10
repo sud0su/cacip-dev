@@ -18,8 +18,6 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
-
 import StringIO
 import json
 import os
@@ -33,7 +31,9 @@ from lxml import etree
 import gisdata
 from django.conf import settings
 from django.contrib.staticfiles.templatetags import staticfiles
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.test import LiveServerTestCase, TestCase
 
 from geonode import qgis_server
 from geonode.decorators import on_ogc_backend
@@ -42,9 +42,10 @@ from geonode.maps.models import Map
 from geonode.qgis_server.helpers import wms_get_capabilities_url, style_list
 
 
-class DefaultViewsTest(GeoNodeBaseTestSupport):
+class DefaultViewsTest(TestCase):
 
-    fixtures = ['initial_data.json', 'people_data.json']
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_default_context(self):
@@ -65,9 +66,10 @@ class DefaultViewsTest(GeoNodeBaseTestSupport):
         self.assertIn('MOSAIC_ENABLED', context)
 
 
-class QGISServerViewsTest(GeoNodeBaseTestSupport):
+class QGISServerViewsTest(LiveServerTestCase):
 
-    fixtures = ['initial_data.json', 'people_data.json']
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_ogc_specific_layer(self):
@@ -417,9 +419,10 @@ class QGISServerViewsTest(GeoNodeBaseTestSupport):
         layer2.delete()
 
 
-class QGISServerStyleManagerTest(GeoNodeBaseTestSupport):
+class QGISServerStyleManagerTest(LiveServerTestCase):
 
-    fixtures = ['initial_data.json', 'people_data.json']
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
 
     def data_path(self, path):
         project_root = os.path.abspath(settings.PROJECT_ROOT)
@@ -529,9 +532,10 @@ class QGISServerStyleManagerTest(GeoNodeBaseTestSupport):
         layer.delete()
 
 
-class ThumbnailGenerationTest(GeoNodeBaseTestSupport):
+class ThumbnailGenerationTest(LiveServerTestCase):
 
-    fixtures = ['initial_data.json', 'people_data.json']
+    def setUp(self):
+        call_command('loaddata', 'people_data', verbosity=0)
 
     @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_thumbnail_links(self):

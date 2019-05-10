@@ -33,4 +33,3 @@ In this section, you will find information about every component of GeoNode, suc
     developers/settings
     browsers
     developers/geosites
-    worldmap

@@ -18,6 +18,8 @@
 #
 #########################################################################
 
+import datetime
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
@@ -26,7 +28,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
 from django.db.models import signals
-from django.utils.timezone import now
 
 from taggit.managers import TaggableManager
 from guardian.shortcuts import get_objects_for_group
@@ -34,8 +35,8 @@ from guardian.shortcuts import get_objects_for_group
 
 class GroupCategory(models.Model):
     slug = models.SlugField(max_length=255, unique=True, null=False, blank=False)
-    name = models.CharField(_("Name"), max_length=255, unique=True, null=False, blank=False)
-    description = models.TextField(_("Description"), null=True, default=None, blank=True)
+    name = models.CharField(max_length=255, unique=True, null=False, blank=False)
+    description = models.TextField(null=True, default=None, blank=True)
 
     class Meta:
         verbose_name_plural = _('Group Categories')
@@ -90,7 +91,7 @@ class GroupProfile(models.Model):
         choices=GROUP_CHOICES,
         help_text=access_help_text)
     last_modified = models.DateTimeField(auto_now=True)
-    categories = models.ManyToManyField(GroupCategory, verbose_name=_("Categories"), blank=True, related_name='groups')
+    categories = models.ManyToManyField(GroupCategory, blank=True, related_name='groups')
     created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -199,7 +200,7 @@ class GroupMember(models.Model):
         (MANAGER, _("Manager")),
         (MEMBER, _("Member")),
     ])
-    joined = models.DateTimeField(default=now)
+    joined = models.DateTimeField(default=datetime.datetime.now)
 
 
 def group_pre_delete(instance, sender, **kwargs):

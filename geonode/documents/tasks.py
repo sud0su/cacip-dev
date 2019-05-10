@@ -19,8 +19,6 @@
 #########################################################################
 
 import os
-from os import access, R_OK
-from os.path import isfile
 
 from celery.app import shared_task
 from celery.utils.log import get_task_logger
@@ -28,10 +26,8 @@ from celery.utils.log import get_task_logger
 from geonode.documents.models import Document
 from geonode.documents.renderers import render_document
 from geonode.documents.renderers import generate_thumbnail_content
-from geonode.documents.renderers import doc_render_thumbnail
 from geonode.documents.renderers import ConversionError
 from geonode.documents.renderers import MissingPILError
-from django.conf import settings
 from django.core.files import File
 
 logger = get_task_logger(__name__)
@@ -57,22 +53,15 @@ def create_document_thumbnail(self, object_id):
     elif document.is_file():
         try:
             image_file = render_document(document.doc_file.path)
-            # image_file = doc_render_thumbnail(document, None)
             image_path = image_file.name
         except ConversionError as e:
             logger.debug("Could not convert document #{}: {}."
                          .format(object_id, e))
 
-    try:
-        if image_path:
-            assert isfile(image_path) and access(image_path, R_OK) and os.stat(image_path).st_size > 0
-    except (AssertionError, TypeError):
-        image_path = None
-
     if not image_path:
         image_path = document.find_placeholder()
 
-    if not image_path or not os.path.exists(image_path):
+    if not image_path:
         logger.debug("Could not find placeholder for document #{}"
                      .format(object_id))
         return

@@ -18,22 +18,17 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
+from django.test import TestCase
 
 from geonode.messaging import connection
 from geonode.messaging.consumer import Consumer
 
 
-class MessagingTest(GeoNodeBaseTestSupport):
+class MessagingTest(TestCase):
     """
     Tests geonode.messaging
     """
-
-    type = 'layer'
-
     def setUp(self):
-        super(MessagingTest, self).setUp()
-
         self.adm_un = "admin"
         self.adm_pw = "admin"
 
@@ -42,5 +37,5 @@ class MessagingTest(GeoNodeBaseTestSupport):
             try:
                 worker = Consumer(connection)
                 self.assertTrue(worker is not None)
-            except BaseException:
+            except:
                 self.fail("could not create a Consumer.")

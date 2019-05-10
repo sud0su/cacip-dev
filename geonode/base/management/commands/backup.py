@@ -31,57 +31,46 @@ import helpers
 from helpers import Config
 
 from requests.auth import HTTPBasicAuth
+from optparse import make_option
 from xmltodict import parse as parse_xml
 
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
-from geonode.utils import (designals,
-                           resignals,
-                           get_dir_time_suffix,
-                           zip_dir,
-                           copy_tree,
-                           chmod_tree)
+from geonode.utils import designals, resignals
 
 
 class Command(BaseCommand):
 
     help = 'Backup the GeoNode application data'
 
-    def add_arguments(self, parser):
-
-        # Named (optional) arguments
-        helpers.option(parser)
-
-        helpers.geoserver_option_list(parser)
-
-        parser.add_argument(
+    option_list = BaseCommand.option_list + Config.geoserver_option_list + (
+        Config.option,
+        make_option(
             '-i',
             '--ignore-errors',
             action='store_true',
             dest='ignore_errors',
             default=False,
-            help='Stop after any errors are encountered.')
-
-        parser.add_argument(
+            help='Stop after any errors are encountered.'),
+        make_option(
             '-f',
             '--force',
             action='store_true',
             dest='force_exec',
             default=False,
-            help='Forces the execution without asking for confirmation.')
-
-        parser.add_argument(
+            help='Forces the execution without asking for confirmation.'),
+        make_option(
             '--skip-geoserver',
             action='store_true',
             default=False,
-            help='Skips geoserver backup')
-
-        parser.add_argument(
+            help='Skips geoserver backup'),
+        make_option(
             '--backup-dir',
             dest='backup_dir',
-            help='Destination folder where to store the backup archive. It must be writable.')
+            type="string",
+            help='Destination folder where to store the backup archive. It must be writable.'))
 
     def create_geoserver_backup(self, settings, target_folder):
         # Create GeoServer Backup
@@ -167,7 +156,7 @@ class Command(BaseCommand):
                 if not os.path.exists(gs_data_folder):
                     os.makedirs(gs_data_folder)
 
-                copy_tree(gs_data_root, gs_data_folder)
+                helpers.copy_tree(gs_data_root, gs_data_folder)
                 print "Dumped GeoServer Uploaded Data from '"+gs_data_root+"'."
 
     def dump_geoserver_vector_data(self, config, settings, target_folder):
@@ -281,7 +270,7 @@ class Command(BaseCommand):
         if force_exec or helpers.confirm(prompt=message, resp=False):
 
             # Create Target Folder
-            dir_time_suffix = get_dir_time_suffix()
+            dir_time_suffix = helpers.get_dir_time_suffix()
             target_folder = os.path.join(backup_dir, dir_time_suffix)
             if not os.path.exists(target_folder):
                 os.makedirs(target_folder)
@@ -317,7 +306,7 @@ class Command(BaseCommand):
                 if not os.path.exists(media_folder):
                     os.makedirs(media_folder)
 
-                copy_tree(media_root, media_folder)
+                helpers.copy_tree(media_root, media_folder)
                 print "Saved Media Files from '"+media_root+"'."
 
                 # Store Static Root
@@ -326,7 +315,7 @@ class Command(BaseCommand):
                 if not os.path.exists(static_folder):
                     os.makedirs(static_folder)
 
-                copy_tree(static_root, static_folder)
+                helpers.copy_tree(static_root, static_folder)
                 print "Saved Static Root from '"+static_root+"'."
 
                 # Store Static Folders
@@ -341,18 +330,11 @@ class Command(BaseCommand):
                     if not os.path.exists(static_folder):
                         os.makedirs(static_folder)
 
-                    copy_tree(static_files_folder, static_folder)
+                    helpers.copy_tree(static_files_folder, static_folder)
                     print "Saved Static Files from '"+static_files_folder+"'."
 
                 # Store Template Folders
-                template_folders = []
-                try:
-                    template_folders = settings.TEMPLATE_DIRS
-                except:
-                    try:
-                        template_folders = settings.TEMPLATES[0]['DIRS']
-                    except:
-                        pass
+                template_folders = settings.TEMPLATE_DIRS
                 template_files_folders = os.path.join(target_folder, helpers.TEMPLATE_DIRS)
                 if not os.path.exists(template_files_folders):
                     os.makedirs(template_files_folders)
@@ -363,7 +345,7 @@ class Command(BaseCommand):
                     if not os.path.exists(template_folder):
                         os.makedirs(template_folder)
 
-                    copy_tree(template_files_folder, template_folder)
+                    helpers.copy_tree(template_files_folder, template_folder)
                     print "Saved Template Files from '"+template_files_folder+"'."
 
                 # Store Locale Folders
@@ -378,11 +360,11 @@ class Command(BaseCommand):
                     if not os.path.exists(locale_folder):
                         os.makedirs(locale_folder)
 
-                    copy_tree(locale_files_folder, locale_folder)
+                    helpers.copy_tree(locale_files_folder, locale_folder)
                     print "Saved Locale Files from '"+locale_files_folder+"'."
 
                 # Create Final ZIP Archive
-                zip_dir(target_folder, os.path.join(backup_dir, dir_time_suffix+'.zip'))
+                helpers.zip_dir(target_folder, os.path.join(backup_dir, dir_time_suffix+'.zip'))
 
                 # Clean-up Temp Folder
                 try:

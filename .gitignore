@@ -26,6 +26,7 @@ geonode/static/node_modules/
 node_modules/
 # Listing all of them instead of putting geonode/static/lib out of version control.
 geonode/local_settings.py
+geonode/local_settings.remote.py
 
 # Uploaded files
 geonode/uploaded

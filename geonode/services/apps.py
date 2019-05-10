@@ -26,5 +26,4 @@ class ServicesAppConfig(NotificationsAppConfigBase):
 
     def ready(self):
         """Connect relevant signals to their corresponding handlers"""
-        from .signals import (remove_harvest_job, post_save_service)  # noqa
         super(ServicesAppConfig, self).ready()

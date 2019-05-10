@@ -42,8 +42,7 @@ except ImportError:
     from django.utils import simplejson as json
 from django.utils.html import strip_tags
 from django.db.models import F
-from django.views.decorators.clickjacking import (xframe_options_exempt,
-                                                  xframe_options_sameorigin)
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
 from geonode.layers.models import Layer
@@ -73,9 +72,6 @@ from geonode import geoserver, qgis_server
 from geonode.base.views import batch_modify
 
 from requests.compat import urljoin
-
-# [EPR-BGD01]
-from matrix.views import savematrix
 
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
     # FIXME: The post service providing the map_status object
@@ -123,6 +119,7 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
     '''
     The view that show details of each map
     '''
+
     map_obj = _resolve_map(
         request,
         mapid,
@@ -137,10 +134,15 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
             popular_count=F('popular_count') + 1)
         savematrix(request=request, action='Map View Detail', resource=map_obj)
 
-    if snapshot is None:
-        config = map_obj.viewer_json(request)
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
     else:
-        config = snapshot_config(snapshot, map_obj, request)
+        access_token = None
+
+    if snapshot is None:
+        config = map_obj.viewer_json(request.user, access_token)
+    else:
+        config = snapshot_config(snapshot, map_obj, request.user, access_token)
 
     config = json.dumps(config)
     layers = MapLayer.objects.filter(map=map_obj.id)
@@ -161,15 +163,16 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
         'permissions_json': _perms_info_json(map_obj),
         "documents": get_related_documents(map_obj),
         'links': links,
-        'preview': getattr(
-            settings,
-            'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY',
-            'geoext'),
-        'crs': getattr(
-            settings,
-            'DEFAULT_MAP_CRS',
-            'EPSG:3857')
     }
+
+    context_dict["preview"] = getattr(
+        settings,
+        'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY',
+        'geoext')
+    context_dict["crs"] = getattr(
+        settings,
+        'DEFAULT_MAP_CRS',
+        'EPSG:900913')
 
     if settings.SOCIAL_ORIGINS:
         context_dict["social_links"] = build_social_links(request, map_obj)
@@ -297,7 +300,12 @@ def map_metadata(
             author_form = ProfileForm(prefix="author")
             author_form.hidden = True
 
-    config = map_obj.viewer_json(request)
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
+    else:
+        access_token = None
+
+    config = map_obj.viewer_json(request.user, access_token)
     layers = MapLayer.objects.filter(map=map_obj.id)
 
     metadata_author_groups = []
@@ -307,8 +315,7 @@ def map_metadata(
         try:
             all_metadata_author_groups = chain(
                 request.user.group_list_all(),
-                GroupProfile.objects.exclude(
-                    access="private").exclude(access="public-invite"))
+                GroupProfile.objects.exclude(access="private").exclude(access="public-invite"))
         except BaseException:
             all_metadata_author_groups = GroupProfile.objects.exclude(
                 access="private").exclude(access="public-invite")
@@ -341,7 +348,7 @@ def map_metadata(
         "category_form": category_form,
         "layers": layers,
         "preview": getattr(settings, 'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY', 'geoext'),
-        "crs": getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857'),
+        "crs": getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913'),
         "metadata_author_groups": metadata_author_groups,
         "GROUP_MANDATORY_RESOURCES": getattr(settings, 'GROUP_MANDATORY_RESOURCES', False),
     })
@@ -368,8 +375,11 @@ def map_remove(request, mapid, template='maps/map_remove.html'):
         return render(request, template, context={
             "map": map_obj
         })
+
     elif request.method == 'POST':
+
         if getattr(settings, 'SLACK_ENABLED', False):
+
             slack_message = None
             try:
                 from geonode.contrib.slack.utils import build_slack_message_map
@@ -406,11 +416,16 @@ def map_embed(
             'base.view_resourcebase',
             _PERMISSION_MSG_VIEW)
 
+        if 'access_token' in request.session:
+            access_token = request.session['access_token']
+        else:
+            access_token = None
+
         if snapshot is None:
-            config = map_obj.viewer_json(request)
+            config = map_obj.viewer_json(request.user, access_token)
         else:
             config = snapshot_config(
-                snapshot, map_obj, request)
+                snapshot, map_obj, request.user, access_token)
 
     return render(request, template, context={
         'config': json.dumps(config)
@@ -429,6 +444,7 @@ def map_embed_widget(request, mapid,
 
     :return: formatted code.
     """
+
     map_obj = _resolve_map(request,
                            mapid,
                            'base.view_resourcebase',
@@ -447,7 +463,7 @@ def map_embed_widget(request, mapid,
     else:
         map_bbox = llbbox_to_mercator([float(coord) for coord in map_bbox])
 
-    if map_bbox and len(map_bbox) >= 4:
+    if map_bbox is not None:
         minx, miny, maxx, maxy = [float(coord) for coord in map_bbox]
         x = (minx + maxx) / 2
         y = (miny + maxy) / 2
@@ -510,13 +526,13 @@ def add_layer(request):
     return map_view(request, str(map_obj.id), layer_name=layer_name)
 
 
-@xframe_options_sameorigin
 def map_view(request, mapid, snapshot=None, layer_name=None,
              template='maps/map_view.html'):
     """
     The view that returns the map composer opened to
     the map with the given map ID.
     """
+
     map_obj = _resolve_map(
         request,
         mapid,
@@ -526,10 +542,15 @@ def map_view(request, mapid, snapshot=None, layer_name=None,
     if request.user != map_obj.owner and not request.user.is_superuser:
         savematrix(request=request, action='Map View Geoexplorer', resource=map_obj)
 
-    if snapshot is None:
-        config = map_obj.viewer_json(request)
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
     else:
-        config = snapshot_config(snapshot, map_obj, request)
+        access_token = None
+
+    if snapshot is None:
+        config = map_obj.viewer_json(request.user, access_token)
+    else:
+        config = snapshot_config(snapshot, map_obj, request.user, access_token)
 
     if layer_name:
         config = add_layers_to_map_config(
@@ -551,8 +572,12 @@ def map_view_js(request, mapid):
         mapid,
         'base.view_resourcebase',
         _PERMISSION_MSG_VIEW)
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
+    else:
+        access_token = None
 
-    config = map_obj.viewer_json(request)
+    config = map_obj.viewer_json(request.user, access_token)
     return HttpResponse(
         json.dumps(config),
         content_type="application/javascript")
@@ -565,10 +590,16 @@ def map_json(request, mapid, snapshot=None):
             mapid,
             'base.view_resourcebase',
             _PERMISSION_MSG_VIEW)
+        if 'access_token' in request.session:
+            access_token = request.session['access_token']
+        else:
+            access_token = None
 
         return HttpResponse(
             json.dumps(
-                map_obj.viewer_json(request)))
+                map_obj.viewer_json(
+                    request.user,
+                    access_token)))
     elif request.method == 'PUT':
         if not request.user.is_authenticated():
             return HttpResponse(
@@ -587,17 +618,23 @@ def map_json(request, mapid, snapshot=None):
                 content_type="text/plain"
             )
         try:
-            map_obj.update_from_viewer(request.body, context={'request': request, 'mapId': mapid, 'map': map_obj})
-
+            map_obj.update_from_viewer(request.body)
             MapSnapshot.objects.create(
                 config=clean_config(
                     request.body),
                 map=map_obj,
                 user=request.user)
 
+            if 'access_token' in request.session:
+                access_token = request.session['access_token']
+            else:
+                access_token = None
+
             return HttpResponse(
                 json.dumps(
-                    map_obj.viewer_json(request)))
+                    map_obj.viewer_json(
+                        request.user,
+                        access_token)))
         except ValueError as e:
             return HttpResponse(
                 "The server could not understand the request." + str(e),
@@ -606,7 +643,6 @@ def map_json(request, mapid, snapshot=None):
             )
 
 
-@xframe_options_sameorigin
 def map_edit(request, mapid, snapshot=None, template='maps/map_edit.html'):
     """
     The view that returns the map composer opened to
@@ -618,10 +654,15 @@ def map_edit(request, mapid, snapshot=None, template='maps/map_edit.html'):
         'base.view_resourcebase',
         _PERMISSION_MSG_VIEW)
 
-    if snapshot is None:
-        config = map_obj.viewer_json(request)
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
     else:
-        config = snapshot_config(snapshot, map_obj, request)
+        access_token = None
+
+    if snapshot is None:
+        config = map_obj.viewer_json(request.user, access_token)
+    else:
+        config = snapshot_config(snapshot, map_obj, request.user, access_token)
 
     return render(request, template, context={
         'mapId': mapid,
@@ -679,12 +720,14 @@ def new_map(request, template='maps/map_new.html'):
 
 
 def new_map_json(request):
+
     if request.method == 'GET':
         map_obj, config = new_map_config(request)
         if isinstance(config, HttpResponse):
             return config
         else:
             return HttpResponse(config)
+
     elif request.method == 'POST':
         if not request.user.is_authenticated():
             return HttpResponse(
@@ -707,8 +750,7 @@ def new_map_json(request):
             body = ''
 
         try:
-            map_obj.update_from_viewer(body, context={'request': request, 'mapId': map_obj.id, 'map': map_obj})
-
+            map_obj.update_from_viewer(body)
             MapSnapshot.objects.create(
                 config=clean_config(body),
                 map=map_obj,
@@ -736,6 +778,11 @@ def new_map_config(request):
     '''
     DEFAULT_MAP_CONFIG, DEFAULT_BASE_LAYERS = default_map_config(request)
 
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
+    else:
+        access_token = None
+
     map_obj = None
     if request.method == 'GET' and 'copy' in request.GET:
         mapid = request.GET['copy']
@@ -746,7 +793,7 @@ def new_map_config(request):
         if request.user.is_authenticated():
             map_obj.owner = request.user
 
-        config = map_obj.viewer_json(request)
+        config = map_obj.viewer_json(request.user, access_token)
         map_obj.handle_moderated_uploads()
         del config['id']
     else:
@@ -759,7 +806,7 @@ def new_map_config(request):
 
         if 'layer' in params:
             map_obj = Map(projection=getattr(settings, 'DEFAULT_MAP_CRS',
-                                             'EPSG:3857'))
+                                             'EPSG:900913'))
             config = add_layers_to_map_config(
                 request, map_obj, params.getlist('layer'))
         else:
@@ -770,6 +817,10 @@ def new_map_config(request):
 def add_layers_to_map_config(
         request, map_obj, layer_names, add_base_layers=True):
     DEFAULT_MAP_CONFIG, DEFAULT_BASE_LAYERS = default_map_config(request)
+    if 'access_token' in request.session:
+        access_token = request.session['access_token']
+    else:
+        access_token = None
 
     bbox = []
     layers = []
@@ -778,6 +829,10 @@ def add_layers_to_map_config(
             layer = _resolve_layer(request, layer_name)
         except ObjectDoesNotExist:
             # bad layer, skip
+            continue
+
+        if not layer.is_published:
+            # invisible layer, skip inclusion
             continue
 
         if not request.user.has_perm(
@@ -830,7 +885,6 @@ def add_layers_to_map_config(
                                  layer.owner.last_name) if layer.owner.first_name or layer.owner.last_name else str(
             layer.owner)
         srs = getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857')
-        srs_srid = int(srs.split(":")[1]) if srs != "EPSG:900913" else 3857
         config["attribution"] = "<span class='gx-attribution-title'>%s</span>" % attribution
         config["format"] = getattr(
             settings, 'DEFAULT_LAYER_FORMAT', 'image/png')
@@ -846,7 +900,6 @@ def add_layers_to_map_config(
             "name": layer.alternate,
             "title": layer.title,
             "queryable": True,
-            "storeType": layer.storeType,
             "bbox": {
                 layer.srid: {
                     "srs": layer.srid,
@@ -856,19 +909,13 @@ def add_layers_to_map_config(
                     "srs": srs,
                     "bbox": decimal_encode(
                         bbox_to_projection([float(coord) for coord in layer_bbox] + [layer.srid, ],
-                                           target_srid=srs_srid)[:4])
+                                           target_srid=int(srs.split(":")[1]))[:4])
                 },
                 "EPSG:4326": {
                     "srs": "EPSG:4326",
                     "bbox": decimal_encode(bbox) if layer.srid == 'EPSG:4326' else
                     decimal_encode(bbox_to_projection(
                         [float(coord) for coord in layer_bbox] + [layer.srid, ], target_srid=4326)[:4])
-                },
-                "EPSG:900913": {
-                    "srs": "EPSG:900913",
-                    "bbox": decimal_encode(bbox) if layer.srid == 'EPSG:900913' else
-                    decimal_encode(bbox_to_projection(
-                        [float(coord) for coord in layer_bbox] + [layer.srid, ], target_srid=3857)[:4])
                 }
             },
             "srs": {
@@ -897,67 +944,35 @@ def add_layers_to_map_config(
                 [float(coord) for coord in layer_bbox] + [layer.srid, ], target_srid=4326)[:4])
         }
 
-        all_times = None
-        if check_ogc_backend(geoserver.BACKEND_PACKAGE):
-            from geonode.geoserver.views import get_capabilities
-            workspace, layername = layer.alternate.split(
-                ":") if ":" in layer.alternate else (None, layer.alternate)
-            # WARNING Please make sure to have enabled DJANGO CACHE as per
-            # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
-            wms_capabilities_resp = get_capabilities(
-                request, layer.id, tolerant=True)
-            if wms_capabilities_resp.status_code >= 200 and wms_capabilities_resp.status_code < 400:
-                wms_capabilities = wms_capabilities_resp.getvalue()
-                if wms_capabilities:
-                    import xml.etree.ElementTree as ET
-                    e = ET.fromstring(wms_capabilities)
-                    for atype in e.findall(
-                            "./[Name='%s']/Extent[@name='time']" % (layername)):
-                        dim_name = atype.get('name')
-                        if dim_name:
-                            dim_name = str(dim_name).lower()
-                            if dim_name == 'time':
-                                dim_values = atype.text
-                                if dim_values:
-                                    all_times = dim_values.split(",")
-                                    break
-            if all_times:
-                config["capability"]["dimensions"] = {
-                    "time": {
-                        "name": "time",
-                        "units": "ISO8601",
-                        "unitsymbol": None,
-                        "nearestVal": False,
-                        "multipleVal": False,
-                        "current": False,
-                        "default": "current",
-                        "values": all_times
-                    }
-                }
-
         if layer.storeType == "remoteStore":
             service = layer.remote_service
-            source_params = {}
-            if service.type in ('REST_MAP', 'REST_IMG'):
-                source_params = {
-                    "ptype": service.ptype,
-                    "remote": True,
-                    "url": service.service_url,
-                    "name": service.name,
-                    "title": "[R] %s" % service.title}
+            # Probably not a good idea to send the access token to every remote service.
+            # This should never match, so no access token should be
+            # sent to remote services.
+            ogc_server_url = urlparse.urlsplit(
+                ogc_server_settings.PUBLIC_LOCATION).netloc
+            service_url = urlparse.urlsplit(service.service_url).netloc
+
+            if access_token and ogc_server_url == service_url and 'access_token' not in service.service_url:
+                url = service.service_url + '?access_token=' + access_token
+            else:
+                url = service.service_url
             maplayer = MapLayer(map=map_obj,
                                 name=layer.alternate,
                                 ows_url=layer.ows_url,
                                 layer_params=json.dumps(config),
                                 visibility=True,
-                                source_params=json.dumps(source_params)
-            )
+                                source_params=json.dumps({
+                                    "ptype": service.ptype,
+                                    "remote": True,
+                                    "url": url,
+                                    "name": service.name,
+                                    "title": "[R] %s" % service.title}))
         else:
             ogc_server_url = urlparse.urlsplit(
                 ogc_server_settings.PUBLIC_LOCATION).netloc
             layer_url = urlparse.urlsplit(layer.ows_url).netloc
 
-            access_token = request.session['access_token'] if request and 'access_token' in request.session else None
             if access_token and ogc_server_url == layer_url and 'access_token' not in layer.ows_url:
                 url = layer.ows_url + '?access_token=' + access_token
             else:
@@ -973,7 +988,7 @@ def add_layers_to_map_config(
 
         layers.append(maplayer)
 
-    if bbox and len(bbox) >= 4:
+    if bbox is not None:
         minx, maxx, miny, maxy = [float(coord) for coord in bbox]
         x = (minx + maxx) / 2
         y = (miny + maxy) / 2
@@ -981,7 +996,7 @@ def add_layers_to_map_config(
         if getattr(
             settings,
             'DEFAULT_MAP_CRS',
-                'EPSG:3857') == "EPSG:4326":
+                'EPSG:900913') == "EPSG:4326":
             center = list((x, y))
         else:
             center = list(forward_mercator((x, y)))
@@ -1016,7 +1031,7 @@ def add_layers_to_map_config(
     else:
         layers_to_add = layers
     config = map_obj.viewer_json(
-        request, *layers_to_add)
+        request.user, access_token, *layers_to_add)
 
     config['fromLayer'] = True
     return config
@@ -1053,7 +1068,7 @@ def map_download(request, mapid, template='maps/map_download.html'):
             if j_layer["service"] is None:
                 j_layers.remove(j_layer)
                 continue
-            if (len([_l for _l in j_layers if _l == j_layer])) > 1:
+            if (len([l for l in j_layers if l == j_layer])) > 1:
                 j_layers.remove(j_layer)
         mapJson = json.dumps(j_map)
 
@@ -1096,9 +1111,9 @@ def map_download(request, mapid, template='maps/map_download.html'):
                 else:
                     # we need to add the layer only once
                     if len(
-                            [_l for _l in downloadable_layers if _l.name == lyr.name]) == 0:
+                            [l for l in downloadable_layers if l.name == lyr.name]) == 0:
                         downloadable_layers.append(lyr)
-    site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
+
     return render(request, template, context={
         "geoserver": ogc_server_settings.PUBLIC_LOCATION,
         "map_status": map_status,
@@ -1106,7 +1121,7 @@ def map_download(request, mapid, template='maps/map_download.html'):
         "locked_layers": locked_layers,
         "remote_layers": remote_layers,
         "downloadable_layers": downloadable_layers,
-        "site": site_url
+        "site": settings.SITEURL
     })
 
 
@@ -1142,10 +1157,10 @@ def map_wmc(request, mapid, template="maps/wmc.xml"):
         mapid,
         'base.view_resourcebase',
         _PERMISSION_MSG_VIEW)
-    site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
+
     return render(request, template, context={
         'map': map_obj,
-        'siteurl': site_url,
+        'siteurl': settings.SITEURL,
     }, content_type='text/xml')
 
 
@@ -1198,12 +1213,11 @@ def maplayer_attributes(request, layername):
         content_type="application/json")
 
 
-def snapshot_config(snapshot, map_obj, request):
+def snapshot_config(snapshot, map_obj, user, access_token):
     """
         Get the snapshot map configuration - look up WMS parameters (bunding box)
         for local GeoNode layers
     """
-
     # Match up the layer with it's source
     def snapsource_lookup(source, sources):
         for k, v in sources.iteritems():
@@ -1212,7 +1226,7 @@ def snapshot_config(snapshot, map_obj, request):
         return None
 
     # Set up the proper layer configuration
-    def snaplayer_config(layer, sources, request):
+    def snaplayer_config(layer, sources, user, access_token):
         cfg = layer.layer_config()
         src_cfg = layer.source_config()
         source = snapsource_lookup(src_cfg, sources)
@@ -1230,7 +1244,7 @@ def snapshot_config(snapshot, map_obj, request):
     snapshot = get_object_or_404(MapSnapshot, pk=decodedid)
     if snapshot.map == map_obj.map:
         config = json.loads(clean_config(snapshot.config))
-        layers = [_l for _l in config["map"]["layers"]]
+        layers = [l for l in config["map"]["layers"]]
         sources = config["sources"]
         maplayers = []
         for ordering, layer in enumerate(layers):
@@ -1242,15 +1256,16 @@ def snapshot_config(snapshot, map_obj, request):
                     config["sources"][
                         layer["source"]],
                     ordering))
-        # map_obj.map.layer_set.from_viewer_config(
-        # map_obj, layer, config["sources"][layer["source"]], ordering))
+#             map_obj.map.layer_set.from_viewer_config(
+# map_obj, layer, config["sources"][layer["source"]], ordering))
         config['map']['layers'] = [
             snaplayer_config(
-                _l,
+                l,
                 sources,
-                request) for _l in maplayers]
+                user,
+                access_token) for l in maplayers]
     else:
-        config = map_obj.viewer_json(request)
+        config = map_obj.viewer_json(user, access_token)
     return config
 
 
@@ -1383,11 +1398,10 @@ def map_metadata_detail(
             group = GroupProfile.objects.get(slug=map_obj.group.name)
         except GroupProfile.DoesNotExist:
             group = None
-    site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
     return render(request, template, context={
         "resource": map_obj,
         "group": group,
-        'SITEURL': site_url
+        'SITEURL': settings.SITEURL[:-1]
     })
 
 

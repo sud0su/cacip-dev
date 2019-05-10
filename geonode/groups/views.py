@@ -36,7 +36,6 @@ from django.views.generic import ListView
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
-from geonode.decorators import view_decorator, superuser_only
 
 from . import forms
 from . import models
@@ -45,7 +44,6 @@ from .models import GroupMember
 logger = logging.getLogger(__name__)
 
 
-@view_decorator(superuser_only, subclass=True)
 class GroupCategoryCreateView(CreateView):
     model = models.GroupCategory
     fields = ['name', 'description']
@@ -60,13 +58,12 @@ class GroupCategoryUpdateView(UpdateView):
     fields = ['name', 'description']
     template_name_suffix = '_update_form'
 
-
 group_category_create = GroupCategoryCreateView.as_view()
 group_category_detail = GroupCategoryDetailView.as_view()
 group_category_update = GroupCategoryUpdateView.as_view()
 
 
-@superuser_only
+@login_required
 def group_create(request):
     if request.method == "POST":
         form = forms.GroupForm(request.POST, request.FILES)

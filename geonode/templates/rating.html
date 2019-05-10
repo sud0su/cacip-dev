@@ -1,4 +1,3 @@
-{% load static from staticfiles %}
 <script type="text/javascript">
 $(function() {
     $('div.overall_rating').raty({
@@ -7,9 +6,9 @@ $(function() {
         score: function() {
           return $(this).attr('data-score');
         },
-        path: "{% static "lib/img/" %}"
+        path: "{{ STATIC_URL }}lib/img/"
     });
     var activeTab = $("[href='" + location.hash + "']");
     activeTab && activeTab.tab('show');
 });
-</script>
+</script>  

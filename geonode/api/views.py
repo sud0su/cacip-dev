@@ -30,10 +30,6 @@ from django.http import HttpResponse
 
 from guardian.models import Group
 
-from allauth.account.utils import user_field, user_email, user_username
-
-from ..utils import json_response
-
 
 def verify_access_token(key):
     try:
@@ -58,65 +54,6 @@ def get_client_ip(request):
     return ip
 
 
-def extract_headers(request):
-    """
-    Extracts headers from the Django request object
-    :param request: The current django.http.HttpRequest object
-    :return: a dictionary with OAuthLib needed headers
-    """
-    headers = request.META.copy()
-    if "wsgi.input" in headers:
-        del headers["wsgi.input"]
-    if "wsgi.errors" in headers:
-        del headers["wsgi.errors"]
-    if "HTTP_AUTHORIZATION" in headers:
-        headers["Authorization"] = headers["HTTP_AUTHORIZATION"]
-
-    return headers
-
-
-@csrf_exempt
-def user_info(request):
-    headers = extract_headers(request)
-    user = request.user
-
-    if not user:
-        out = {'success': False,
-               'status': 'error',
-               'errors': {'user': ['User is not authenticated']}
-               }
-        return json_response(out, status=401)
-
-    if 'Authorization' not in headers and 'Bearer' not in headers["Authorization"]:
-        out = {'success': False,
-               'status': 'error',
-               'errors': {'auth': ['No token provided.']}
-               }
-        return json_response(out, status=403)
-
-    groups = [group.name for group in user.groups.all()]
-    if user.is_superuser:
-        groups.append("admin")
-
-    user_info = json.dumps({
-        "sub": str(user.id),
-        "name": " ".join([user_field(user, 'first_name'), user_field(user, 'last_name')]),
-        "given_name": user_field(user, 'first_name'),
-        "family_name": user_field(user, 'last_name'),
-        "email": user_email(user),
-        "preferred_username": user_username(user),
-        "groups": groups
-    })
-
-    response = HttpResponse(
-        user_info,
-        content_type="application/json"
-    )
-    response['Cache-Control'] = 'no-store'
-    response['Pragma'] = 'no-cache'
-    return response
-
-
 @csrf_exempt
 def verify_token(request):
     """
@@ -137,12 +74,10 @@ def verify_token(request):
         )
     """
 
-    if (request.POST and 'token' in request.POST):
-        token = None
+    if (request.POST and request.POST['token']):
         try:
-            access_token = request.POST.get('token')
-            token = verify_access_token(access_token)
-        except Exception as e:
+            token = verify_access_token(request.POST['token'])
+        except Exception, e:
             return HttpResponse(
                 json.dumps({
                     'error': str(e)
@@ -151,33 +86,18 @@ def verify_token(request):
                 content_type="application/json"
             )
 
-        if token:
-            token_info = json.dumps({
+        return HttpResponse(
+            json.dumps({
                 'client_id': token.application.client_id,
-                'user_id': token.user.id,
-                'username': token.user.username,
                 'issued_to': token.user.username,
-                'access_token': access_token,
+                'user_id': token.user.id,
                 'email': token.user.email,
                 'verified_email': 'true',
                 'access_type': 'online',
                 'expires_in': (token.expires - timezone.now()).total_seconds() * 1000
-            })
-
-            response = HttpResponse(
-                token_info,
-                content_type="application/json"
-            )
-            response["Authorization"] = ("Bearer %s" % access_token)
-            return response
-        else:
-            return HttpResponse(
-                json.dumps({
-                    'error': 'No access_token from server.'
-                }),
-                status=403,
-                content_type="application/json"
-            )
+            }),
+            content_type="application/json"
+        )
 
     return HttpResponse(
         json.dumps({

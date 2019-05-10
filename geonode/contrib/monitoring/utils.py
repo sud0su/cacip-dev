@@ -41,10 +41,7 @@ from django.db.models.fields.related import RelatedField
 
 from geonode.contrib.monitoring.models import RequestEvent, ExceptionEvent
 
-
 GS_FORMAT = '%Y-%m-%dT%H:%M:%S'  # 2010-06-20T2:00:00
-
-log = logging.getLogger(__name__)
 
 
 class MonitoringFilter(logging.Filter):
@@ -76,14 +73,11 @@ class MonitoringHandler(logging.Handler):
         req = record.request
         resp = record.response
         if not req._monitoring.get('processed'):
-            try:
-                re = RequestEvent.from_geonode(self.service, req, resp)
-                req._monitoring['processed'] = re
-            except BaseException:
-                req._monitoring['processed'] = None
+            re = RequestEvent.from_geonode(self.service, req, resp)
+            req._monitoring['processed'] = re
         re = req._monitoring.get('processed')
 
-        if re and exc_info:
+        if exc_info:
             tb = traceback.format_exception(*exc_info)
             ExceptionEvent.add_error(self.service, exc_info[1], tb, request=re)
 
@@ -146,22 +140,19 @@ class GeoServerMonitorClient(object):
         doc = bs(resp.content)
         links = doc.find_all('a')
         for l in links:
-            # we're skipping this check, as gs can generate
-            # url with other base url
-            # if l.get('href').startswith(self.base_url):
-            href = self.get_href(l, format)
-            data = self.get_request(href, format=format)
-            if data:
-                yield data
-            else:
-                print("Skipping payload for {}".format(href))
+            if l.get('href').startswith(self.base_url):
+                href = self.get_href(l, format)
+                data = self.get_request(href, format=format)
+                if data:
+                    yield data
+                else:
+                    print("Skipping payload for {}".format(href))
 
     def get_request(self, href, format=format):
         username = settings.OGC_SERVER['default']['USER']
         password = settings.OGC_SERVER['default']['PASSWORD']
         r = requests.get(href, auth=HTTPBasicAuth(username, password))
         if r.status_code != 200:
-            log.warning('Invalid response for %s: %s', href, r)
             return
         data = None
         try:
@@ -170,8 +161,8 @@ class GeoServerMonitorClient(object):
             # traceback.print_exc()
             try:
                 data = etree.fromstring(r.content)
-            except Exception as err:
-                log.debug("Cannot parse xml contents for %s: %s", href, err, exc_info=err)
+            except Exception:
+                traceback.print_exc()
                 data = bs(r.content)
         if data and format != 'json':
             return self.to_json(data, format)
@@ -214,7 +205,7 @@ def align_period_start(start, interval):
     utc = pytz.utc
     day_start = datetime(*start.date().timetuple()[:6]).replace(tzinfo=utc)
     # timedelta
-    diff = (start.replace(tzinfo=utc) - day_start)
+    diff = (start - day_start)
     # seconds
     diff_s = diff.total_seconds()
     int_s = interval.total_seconds()

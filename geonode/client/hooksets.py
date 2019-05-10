@@ -17,10 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
 
 
 class GeoExtHookSet(object):
@@ -64,27 +60,13 @@ class GeoExtHookSet(object):
         return 'geoext/maps/map_geoexplorer.js'
 
     def map_embed_template(self, context=None):
-        return 'geoext/maps/map_geoexplorer_viewer.js'
+        return 'geoext/maps/map_geoexplorer.js'
 
     def map_download_template(self, context=None):
         return 'geoext/maps/map_geoexplorer.js'
 
-    # Map Persisting
-    def viewer_json(self, conf, context=None):
-        if not context:
-            context = {}
 
-        if isinstance(conf, basestring):
-            conf = json.loads(conf)
-        return conf
-
-    def update_from_viewer(self, conf, context=None):
-        conf = self.viewer_json(conf, context=context)
-        context['config'] = conf
-        return 'geoext/maps/map_geoexplorer.js'
-
-
-class LeafletHookSet(GeoExtHookSet):
+class LeafletHookSet(object):
 
     # Layers
     def layer_detail_template(self, context=None):
@@ -131,7 +113,7 @@ class LeafletHookSet(GeoExtHookSet):
         return 'leaflet/maps/map_embed.html'
 
 
-class ReactHookSet(GeoExtHookSet):
+class ReactHookSet(object):
 
     # Layers
     def layer_detail_template(self, context=None):
@@ -176,25 +158,3 @@ class ReactHookSet(GeoExtHookSet):
 
     def map_download_template(self, context=None):
         return 'geonode-client/map_view.html'
-
-
-class MaploomHookSet(GeoExtHookSet):
-
-    # Maps
-    def map_new_template(self, context=None):
-        return 'maploom/maps/maploom.html'
-
-    def map_view_template(self, context=None):
-        return 'maploom/maps/maploom.html'
-
-    def map_edit_template(self, context=None):
-        return 'maploom/maps/maploom.html'
-
-    def map_update_template(self, context=None):
-        return 'maploom/maps/maploom.html'
-
-    def map_embed_template(self, context=None):
-        return 'maploom/maps/maploom.html'
-
-    def map_download_template(self, context=None):
-        return 'maploom/maps/maploom.html'

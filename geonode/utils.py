@@ -204,37 +204,16 @@ def bbox_to_projection(native_bbox, target_srid=4326):
     box = native_bbox[:4]
     proj = native_bbox[-1]
     minx, maxx, miny, maxy = [float(a) for a in box]
-    try:
-        source_srid = int(proj.split(":")[1]) if proj and ':' in proj else int(proj)
-    except BaseException:
-        source_srid = target_srid
-
-    def _v(coord, x, source_srid=4326, target_srid=3857):
-        if source_srid == 4326 and target_srid != 4326:
-            if x and coord >= 180.0:
-                return 179.0
-            elif x and coord <= -180.0:
-                return -179.0
-
-            if not x and coord >= 90.0:
-                return 89.0
-            elif not x and coord <= -90.0:
-                return -89.0
-        return coord
-
+    source_srid = int(proj.split(":")[1])
     if source_srid != target_srid:
         try:
-            wkt = bbox_to_wkt(_v(minx, x=True, source_srid=source_srid, target_srid=target_srid),
-                              _v(maxx, x=True, source_srid=source_srid, target_srid=target_srid),
-                              _v(miny, x=False, source_srid=source_srid, target_srid=target_srid),
-                              _v(maxy, x=False, source_srid=source_srid, target_srid=target_srid),
-                              srid=source_srid)
+            wkt = bbox_to_wkt(minx, maxx, miny, maxy, srid=source_srid)
             poly = GEOSGeometry(wkt, srid=source_srid)
             poly.transform(target_srid)
             return tuple([str(x) for x in poly.extent]) + ("EPSG:%s" % poly.srid,)
         except BaseException:
             tb = traceback.format_exc()
-            logger.debug(tb)
+            logger.error(tb)
 
     return native_bbox
 
@@ -302,31 +281,22 @@ def layer_from_viewer_config(map_id, model, layer, source, ordering):
     layer_cfg["wrapDateLine"] = True
     layer_cfg["displayOutsideMaxExtent"] = True
 
-    source_cfg = dict(source) if source else {}
-    if source_cfg:
-        for k in ["url", "projection"]:
-            if k in source_cfg:
-                del source_cfg[k]
+    source_cfg = dict(source)
+    for k in ["url", "projection"]:
+        if k in source_cfg:
+            del source_cfg[k]
 
     # We don't want to hardcode 'access_token' into the storage
-    styles = []
     if 'capability' in layer_cfg:
-        _capability = layer_cfg['capability']
-        if 'styles' in _capability:
-            for style in _capability['styles']:
-                if 'name' in style:
-                    styles.append(style['name'])
+        capability = layer_cfg['capability']
+        if 'styles' in capability:
+            styles = capability['styles']
+            for style in styles:
                 if 'legend' in style:
                     legend = style['legend']
                     if 'href' in legend:
                         legend['href'] = re.sub(
                             r'\&access_token=.*', '', legend['href'])
-    if not styles and layer.get("styles", None):
-        for style in layer.get("styles", None):
-            if 'name' in style:
-                styles.append(style['name'])
-            else:
-                styles.append(style)
 
     _model = model(
         map_id=map_id,
@@ -334,7 +304,7 @@ def layer_from_viewer_config(map_id, model, layer, source, ordering):
         format=layer.get("format", None),
         name=layer.get("name", None),
         opacity=layer.get("opacity", 1),
-        styles=styles,
+        styles=layer.get("styles", None),
         transparent=layer.get("transparent", False),
         fixed=layer.get("fixed", False),
         group=layer.get('group', None),
@@ -351,7 +321,7 @@ def layer_from_viewer_config(map_id, model, layer, source, ordering):
 
 class GXPMapBase(object):
 
-    def viewer_json(self, request, *added_layers):
+    def viewer_json(self, user, access_token, *added_layers):
         """
         Convert this map to a nested dictionary structure matching the JSON
         configuration for GXP Viewers.
@@ -361,10 +331,6 @@ class GXPMapBase(object):
         configuration. These are not persisted; if you want to add layers you
         should use ``.layer_set.create()``.
         """
-
-        user = request.user if request else None
-        access_token = request.session['access_token'] if request and \
-            'access_token' in request.session else uuid.uuid1().hex
 
         if self.id and len(added_layers) == 0:
             cfg = cache.get("viewer_json_" +
@@ -418,7 +384,7 @@ class GXPMapBase(object):
             return cfg
 
         source_urls = [source['url']
-                       for source in sources.values() if source and 'url' in source]
+                       for source in sources.values() if 'url' in source]
 
         if 'geonode.geoserver' in settings.INSTALLED_APPS:
             if len(sources.keys(
@@ -432,7 +398,7 @@ class GXPMapBase(object):
         def _base_source(source):
             base_source = copy.deepcopy(source)
             for key in ["id", "baseParams", "title"]:
-                if base_source and key in base_source:
+                if key in base_source:
                     del base_source[key]
             return base_source
 
@@ -447,20 +413,18 @@ class GXPMapBase(object):
 
         # adding remote services sources
         from geonode.services.models import Service
-        from geonode.maps.models import Map
-        if not self.sender or isinstance(self.sender, Map):
-            index = int(max(sources.keys())) if len(sources.keys()) > 0 else 0
-            for service in Service.objects.all():
-                remote_source = {
-                    'url': service.service_url,
-                    'remote': True,
-                    'ptype': service.ptype,
-                    'name': service.name,
-                    'title': "[R] %s" % service.title
-                }
-                if remote_source['url'] not in source_urls:
-                    index += 1
-                    sources[index] = remote_source
+        index = int(max(sources.keys())) if len(sources.keys()) > 0 else 0
+        for service in Service.objects.all():
+            remote_source = {
+                'url': service.service_url,
+                'remote': True,
+                'ptype': 'gxp_wmscsource',
+                'name': service.name,
+                'title': "[R] %s" % service.title
+            }
+            if remote_source['url'] not in source_urls:
+                index += 1
+                sources[index] = remote_source
 
         config = {
             'id': self.id,
@@ -496,18 +460,14 @@ class GXPMapBase(object):
                       "_" +
                       str(0 if user is None else user.id), config)
 
-        # Client conversion if needed
-        from geonode.client.hooks import hookset
-        config = hookset.viewer_json(config, context={'request': request})
         return config
 
 
 class GXPMap(GXPMapBase):
 
-    def __init__(self, sender=None, projection=None, title=None, abstract=None,
+    def __init__(self, projection=None, title=None, abstract=None,
                  center_x=None, center_y=None, zoom=None):
         self.id = 0
-        self.sender = sender
         self.projection = projection
         self.title = title or DEFAULT_TITLE
         self.abstract = abstract or DEFAULT_ABSTRACT
@@ -621,7 +581,7 @@ class GXPLayer(GXPLayerBase):
 
 
 def default_map_config(request):
-    if getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857') == "EPSG:4326":
+    if getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913') == "EPSG:4326":
         _DEFAULT_MAP_CENTER = inverse_mercator(settings.DEFAULT_MAP_CENTER)
     else:
         _DEFAULT_MAP_CENTER = forward_mercator(settings.DEFAULT_MAP_CENTER)
@@ -629,7 +589,7 @@ def default_map_config(request):
     _default_map = GXPMap(
         title=DEFAULT_TITLE,
         abstract=DEFAULT_ABSTRACT,
-        projection=getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857'),
+        projection=getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913'),
         center_x=_DEFAULT_MAP_CENTER[0],
         center_y=_DEFAULT_MAP_CENTER[1],
         zoom=settings.DEFAULT_MAP_ZOOM
@@ -648,20 +608,24 @@ def default_map_config(request):
         _baselayer(
             lyr, idx) for idx, lyr in enumerate(
             settings.MAP_BASELAYERS)]
+    user = None
+    access_token = None
+    if request:
+        user = request.user
+        if 'access_token' in request.session:
+            access_token = request.session['access_token']
+        else:
+            u = uuid.uuid1()
+            access_token = u.hex
 
     DEFAULT_MAP_CONFIG = _default_map.viewer_json(
-        request, *DEFAULT_BASE_LAYERS)
+        user, access_token, *DEFAULT_BASE_LAYERS)
 
     return DEFAULT_MAP_CONFIG, DEFAULT_BASE_LAYERS
 
 
 _viewer_projection_lookup = {
     "EPSG:900913": {
-        "maxResolution": 156543.03390625,
-        "units": "m",
-        "maxExtent": [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
-    },
-    "EPSG:3857": {
         "maxResolution": 156543.03390625,
         "units": "m",
         "maxExtent": [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
@@ -942,10 +906,7 @@ def check_shp_columnnames(layer):
         inShapefile = unzip_file(inShapefile, '.shp', tempdir=tempdir)
 
     inDriver = ogr.GetDriverByName('ESRI Shapefile')
-    try:
-        inDataSource = inDriver.Open(inShapefile, 1)
-    except BaseException:
-        inDataSource = None
+    inDataSource = inDriver.Open(inShapefile, 1)
     if inDataSource is None:
         logger.warning('Could not open %s' % (inShapefile))
         return False, None, None
@@ -978,16 +939,8 @@ def check_shp_columnnames(layer):
                 charset)
 
             if not a.match(field_name):
-                # once the field_name contains Chinese, to use slugify_zh
-                has_ch = False
-                for ch in field_name:
-                    if u'\u4e00' <= ch <= u'\u9fff':
-                        has_ch = True
-                        break
-                if has_ch:
-                    new_field_name = slugify_zh(field_name, separator='_')
-                else:
-                    new_field_name = custom_slugify(field_name)
+                new_field_name = custom_slugify(field_name)
+
                 if not b.match(new_field_name):
                     new_field_name = '_' + new_field_name
                 j = 0
@@ -1086,7 +1039,7 @@ def set_attributes(
                         la.stddev = result['StandardDeviation']
                         la.sum = result['Sum']
                         la.unique_values = result['unique_values']
-                        la.last_stats_updated = datetime.datetime.now(timezone.get_current_timezone())
+                        la.last_stats_updated = datetime.datetime.now()
                     la.visible = ftype.find("gml:") != 0
                     la.display_order = iter
                     la.save()
@@ -1124,10 +1077,7 @@ def designals():
 
     for signalname in signalnames:
         if signalname in signals_store:
-            try:
-                signaltype = getattr(models.signals, signalname)
-            except BaseException:
-                continue
+            signaltype = getattr(models.signals, signalname)
             logger.debug("RETRIEVE: %s: %d" %
                          (signalname, len(signaltype.receivers)))
             signals_store[signalname] = []
@@ -1270,21 +1220,14 @@ def check_ogc_backend(backend_package):
     :return: bool
     :rtype: bool
     """
-    ogc_conf = settings.OGC_SERVER['default']
-    is_configured = ogc_conf.get('BACKEND') == backend_package
-
-    # Check environment variables
-    _backend = os.environ.get('BACKEND', None)
-    if _backend:
-        return backend_package == _backend and is_configured
-
     # Check exists in INSTALLED_APPS
     try:
         in_installed_apps = backend_package in settings.INSTALLED_APPS
+        ogc_conf = settings.OGC_SERVER['default']
+        is_configured = ogc_conf.get('BACKEND') == backend_package
         return in_installed_apps and is_configured
     except BaseException:
-        pass
-    return False
+        return False
 
 
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
@@ -1292,7 +1235,7 @@ if check_ogc_backend(geoserver.BACKEND_PACKAGE):
     http_client = httplib2.Http(
         cache=getattr(
             ogc_server_settings, 'CACHE', None), timeout=getattr(
-            ogc_server_settings, 'TIMEOUT', 1))
+            ogc_server_settings, 'TIMEOUT', 10))
 else:
     http_client = httplib2.Http(timeout=10)
 
@@ -1327,19 +1270,19 @@ def copy_tree(src, dst, symlinks=False, ignore=None):
                 if os.path.exists(d):
                     try:
                         os.remove(d)
-                    except BaseException:
+                    except:
                         try:
                             shutil.rmtree(d)
-                        except BaseException:
+                        except:
                             pass
                 try:
                     shutil.copytree(s, d, symlinks, ignore)
-                except BaseException:
+                except:
                     pass
             else:
                 try:
                     shutil.copy2(s, d)
-                except BaseException:
+                except:
                     pass
     except Exception:
         traceback.print_exc()

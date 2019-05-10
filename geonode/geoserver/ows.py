@@ -38,7 +38,7 @@ DEFAULT_EXCLUDE_FORMATS = ['PNG', 'JPEG', 'GIF', 'TIFF']
 def _wcs_get_capabilities():
     try:
         wcs_url = urljoin(settings.SITEURL, reverse('wcs_endpoint'))
-    except BaseException:
+    except:
         wcs_url = urljoin(ogc_settings.PUBLIC_LOCATION, 'ows')
     wcs_url += '&' if '?' in wcs_url else '?'
 
@@ -49,29 +49,26 @@ def _wcs_get_capabilities():
     })
 
 
-def _wcs_link(wcs_url, identifier, mime, srid=None, bbox=None):
-    wcs_params = {
+def _wcs_link(wcs_url, identifier, mime, srid, bbox):
+    return wcs_url + urllib.urlencode({
         'service': 'WCS',
         'request': 'GetCoverage',
         'coverageid': identifier,
         'format': mime,
         'version': '2.0.1',
-    }
-    if srid:
-        wcs_params['srs'] = srid
-    if bbox:
-        wcs_params['bbox'] = bbox
-    return wcs_url + urllib.urlencode(wcs_params)
+        'srs': srid,
+        'bbox': bbox,
+    })
 
 
-def wcs_links(wcs_url, identifier, bbox=None, srid=None):
+def wcs_links(wcs_url, identifier, bbox, srid):
     types = [
         ("x-gzip", _("GZIP"), "application/x-gzip"),
         ("geotiff", _("GeoTIFF"), "image/tiff"),
     ]
     output = []
     for ext, name, mime in types:
-        url = _wcs_link(wcs_url, identifier, mime, bbox=bbox, srid=srid)
+        url = _wcs_link(wcs_url, identifier, mime, srid, bbox)
         output.append((ext, name, mime, url))
     return output
 
@@ -79,7 +76,7 @@ def wcs_links(wcs_url, identifier, bbox=None, srid=None):
 def _wfs_get_capabilities():
     try:
         wfs_url = urljoin(settings.SITEURL, reverse('wfs_endpoint'))
-    except BaseException:
+    except:
         wfs_url = urljoin(ogc_settings.PUBLIC_LOCATION, 'ows')
     wfs_url += '&' if '?' in wfs_url else '?'
 
@@ -90,34 +87,30 @@ def _wfs_get_capabilities():
     })
 
 
-def _wfs_link(wfs_url, identifier, mime, extra_params, bbox=None, srid=None):
+def _wfs_link(wfs_url, identifier, mime, extra_params):
     params = {
         'service': 'WFS',
         'version': '1.0.0',
         'request': 'GetFeature',
         'typename': identifier,
-        'outputFormat': mime,
+        'outputFormat': mime
     }
-    if srid:
-        params['srs'] = srid
-    if bbox:
-        params['bbox'] = bbox
     params.update(extra_params)
     return wfs_url + urllib.urlencode(params)
 
 
-def wfs_links(wfs_url, identifier, bbox=None, srid=None):
+def wfs_links(wfs_url, identifier):
     types = [
         ("zip", _("Zipped Shapefile"), "SHAPE-ZIP", {'format_options': 'charset:UTF-8'}),
         ("gml", _("GML 2.0"), "gml2", {}),
         ("gml", _("GML 3.1.1"), "text/xml; subtype=gml/3.1.1", {}),
         ("csv", _("CSV"), "csv", {}),
         ("excel", _("Excel"), "excel", {}),
-        ("json", _("GeoJSON"), "json", {'srsName': srid or 'EPSG:4326'})
+        ("json", _("GeoJSON"), "json", {'srsName': 'EPSG:4326'})
     ]
     output = []
     for ext, name, mime, extra_params in types:
-        url = _wfs_link(wfs_url, identifier, mime, extra_params, bbox=bbox, srid=srid)
+        url = _wfs_link(wfs_url, identifier, mime, extra_params)
         output.append((ext, name, mime, url))
     return output
 
@@ -125,7 +118,7 @@ def wfs_links(wfs_url, identifier, bbox=None, srid=None):
 def _wms_get_capabilities():
     try:
         wms_url = urljoin(settings.SITEURL, reverse('wms_endpoint'))
-    except BaseException:
+    except:
         wms_url = urljoin(ogc_settings.PUBLIC_LOCATION, 'ows')
     wms_url += '&' if '?' in wms_url else '?'
 
@@ -136,21 +129,17 @@ def _wms_get_capabilities():
     })
 
 
-def _wms_link(wms_url, identifier, mime, height, width, srid=None, bbox=None):
-    wms_params = {
+def _wms_link(wms_url, identifier, mime, height, width, srid, bbox):
+    return wms_url + urllib.urlencode({
         'service': 'WMS',
         'request': 'GetMap',
         'layers': identifier,
         'format': mime,
         'height': height,
         'width': width,
-    }
-    if srid:
-        wms_params['srs'] = srid
-    if bbox:
-        wms_params['bbox'] = bbox
-
-    return wms_url + urllib.urlencode(wms_params)
+        'srs': srid,
+        'bbox': bbox,
+    })
 
 
 def wms_links(wms_url, identifier, bbox, srid, height, width):

@@ -18,17 +18,13 @@
 #
 #########################################################################
 
-from geonode.tests.base import GeoNodeBaseTestSupport
+from django.test import TestCase
 
 
-class TasksTest(GeoNodeBaseTestSupport):
-
+class TasksTest(TestCase):
     """
     Tests geonode.messaging
     """
-
     def setUp(self):
-        super(TasksTest, self).setUp()
-
         self.adm_un = "admin"
         self.adm_pw = "admin"

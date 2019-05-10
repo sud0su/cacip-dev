@@ -26,9 +26,6 @@ from threading import Timer
 from mimetypes import guess_type
 from urllib import pathname2url
 from tempfile import NamedTemporaryFile
-from celery.utils.log import get_task_logger
-
-logger = get_task_logger(__name__)
 
 
 class ConversionError(Exception):
@@ -118,66 +115,5 @@ def generate_thumbnail_content(image_path, size=(200, 150)):
         content = output.getvalue()
         output.close()
         return content
-    except BaseException:
-        return None
-
-def doc_render_thumbnail(doc, type_in):
-    from cStringIO import StringIO
-
-    #size = 200, 150
-    size = 600, 450
-
-    try:
-        from PIL import Image, ImageOps
-    except ImportError, e:
-        logger.error(
-            '%s: Pillow not installed, cannot generate thumbnails.' %
-            e)
-        return None
-
-    try:
-        # if wand is installed, than use it for pdf thumbnailing
-        from wand import image
     except:
-        wand_available = False
-    else:
-        wand_available = True
-
-    if wand_available and doc.extension and doc.extension.lower(
-    ) == 'pdf' and doc.doc_file:
-        logger.debug(
-            u'Generating a thumbnail for document: {0}'.format(
-                doc.title))
-        with image.Image(filename=doc.doc_file.path, resolution=150) as img:
-            # img.sample(*size)
-            img.compression_quality = 25
-            img.alpha_channel=False
-            img.type = 'truecolor'
-            if type_in == 'thumb':
-                img.transform(resize='x300')
-            output = NamedTemporaryFile(suffix='.{}'.format('jpg'))
-            img.format = 'jpeg'
-            img.save(file=output)
-            return output
-            # return img.make_blob('jpg')
-    elif doc.extension and doc.extension.lower() in IMGTYPES and doc.doc_file:
-
-        img = Image.open(doc.doc_file.path)
-        img = ImageOps.fit(img, size, Image.ANTIALIAS)
-    else:
-        filename = finders.find('documents/{0}-placeholder.png'.format(doc.extension), False) or \
-            finders.find('documents/generic-placeholder.png', False)
-
-        if not filename:
-            return None
-
-        img = Image.open(filename)
-
-    imgfile = StringIO()
-
-    try:
-        img.save(imgfile, format='JPG')
-    except:
-        img.save(imgfile, format='PNG')
-
-    return imgfile.getvalue()
+        return None

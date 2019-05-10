@@ -23,7 +23,6 @@ import pytz
 from datetime import datetime
 from dateutil.tz import tzlocal
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_noop as _
 
@@ -108,10 +107,7 @@ class Command(BaseCommand):
 
     def run_check(self, service, collector, since=None, until=None, force_check=None, format=None):
         utc = pytz.utc
-        try:
-            local_tz = pytz.timezone(datetime.now(tzlocal()).tzname())
-        except:
-            local_tz = pytz.timezone(settings.TIME_ZONE)
+        local_tz = pytz.timezone(datetime.now(tzlocal()).tzname())
         now = datetime.utcnow().replace(tzinfo=utc)
         Handler = get_for_service(service.service_type.name)
         try:
@@ -137,4 +133,3 @@ class Command(BaseCommand):
                 return collector.process(service, data_in, last_check, until)
             finally:
                 h.mark_as_checked()
-

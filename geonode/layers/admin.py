@@ -92,7 +92,7 @@ class LayerFileInline(admin.TabularInline):
 
 class UploadSessionAdmin(admin.ModelAdmin):
     model = UploadSession
-    list_display = ('resource', 'date', 'user', 'processed')
+    list_display = ('date', 'user', 'processed')
     inlines = [LayerFileInline]
 
 
