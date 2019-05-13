@@ -16,7 +16,7 @@ def savematrix(request=None, action='', resourcecode=settings.MATRIX_DEFAULT_MAP
     except Exception as identifier:
         logger.warning('_resolve_map() failed using resource_code=%s, check settings.MATRIX_DEFAULT_MAP_CODE'%(settings.MATRIX_DEFAULT_MAP_CODE))
     else:
-        if hasattr(request, 'user'):
+        if hasattr(request, 'user') and isinstance(request.user, Profile):
             user = request.user
         elif 'user' in request.GET:
             user = get_object_or_404(Profile, id=request.GET['user'])

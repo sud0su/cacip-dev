@@ -85,6 +85,9 @@ elif check_ogc_backend(qgis_server.BACKEND_PACKAGE):
     from geonode.qgis_server.helpers import ogc_server_settings
     from geonode.utils import http_client
 
+# [EPR-BGD01]
+from matrix.views import savematrix
+
 logger = logging.getLogger("geonode.maps.views")
 
 DEFAULT_MAPS_SEARCH_BATCH_SIZE = 10
