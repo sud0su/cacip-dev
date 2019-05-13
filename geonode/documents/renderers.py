@@ -26,7 +26,7 @@ from threading import Timer
 from mimetypes import guess_type
 from urllib import pathname2url
 from tempfile import NamedTemporaryFile
-
+from django.conf import settings
 
 class ConversionError(Exception):
     """Raise when conversion was unsuccessful."""
@@ -65,7 +65,8 @@ def render_document(document_path, extension="png"):
         temp_path = temp.name
 
     # spawn subprocess and render the document
-    output = NamedTemporaryFile(suffix='.{}'.format(extension))
+    output = NamedTemporaryFile(suffix='.{}'.format(extension),dir=settings.MEDIA_ROOT)
+    output.close()
     if settings.UNOCONV_ENABLE:
         timeout = None
         try:

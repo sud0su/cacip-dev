@@ -28,6 +28,7 @@ from geonode.documents.renderers import render_document
 from geonode.documents.renderers import generate_thumbnail_content
 from geonode.documents.renderers import ConversionError
 from geonode.documents.renderers import MissingPILError
+from django.conf import settings
 from django.core.files import File
 
 logger = get_task_logger(__name__)
@@ -90,6 +91,12 @@ def create_document_thumbnail(self, object_id):
     with open(os.path.join(upload_path, filenamePreview), 'w') as f:
         thumbnail = File(f)
         thumbnail.write(preview)
+
+    # delete temporary file
+    try:
+        os.remove(image_path)
+    except:
+        print("Error while deleting file ", image_path)
 
 
 @shared_task(bind=True, queue='cleanup')

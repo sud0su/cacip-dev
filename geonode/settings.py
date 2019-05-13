@@ -276,7 +276,7 @@ MAX_DOCUMENT_SIZE = int(os.getenv('MAX_DOCUMENT_SIZE ', '2'))  # MB
 # DOCUMENT_TYPE_MAP = {}
 # DOCUMENT_MIMETYPE_MAP = {}
 
-UNOCONV_ENABLE = strtobool(os.getenv('UNOCONV_ENABLE', 'False'))
+UNOCONV_ENABLE = strtobool(os.getenv('UNOCONV_ENABLE', 'True'))
 
 if UNOCONV_ENABLE:
     UNOCONV_EXECUTABLE = os.getenv('UNOCONV_EXECUTABLE', '/usr/bin/unoconv')
