@@ -282,6 +282,18 @@ def get_facet_title(value):
         return FACETS[value]
     return value
 
+@register.simple_tag(takes_context=True)
+def tag_get_facet_title(context, value):
+    """Converts a facet_type into a human readable string"""
+    if context['facet_type'] == 'documents':
+        from geonode.documents.enumerations import DOCUMENT_TYPE_SUBJECTS
+        subjects = dict(DOCUMENT_TYPE_SUBJECTS)
+        if value in subjects.keys():
+            return subjects[value]
+    elif value in FACETS.keys():
+        return FACETS[value]
+    return value
+
 
 @register.assignment_tag(takes_context=True)
 def get_current_path(context):

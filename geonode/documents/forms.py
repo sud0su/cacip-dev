@@ -113,14 +113,14 @@ class DocumentForm(ResourceBaseForm, DocumentFormMixin):
             'purpose',
             'regions',
             'supplemental_information',
-            'category'
+            'category',
+            'doc_type',
         ]
         exclude = ResourceBaseForm.Meta.exclude + (
             'content_type',
             'object_id',
             'doc_file',
             'extension',
-            'doc_type',
             'doc_url',
             'temporal_extent_start',
             'temporal_extent_end',

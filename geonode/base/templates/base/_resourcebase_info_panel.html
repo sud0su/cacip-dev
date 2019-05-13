@@ -167,6 +167,11 @@
     <dd>{{ resource.supplemental_information|truncatechars:160|escape|urlize|linebreaks|safe }}</dd>
     {% endif %}
 
+    {% if resource.doc_type %}
+    <dt>{% trans "Document Type" %}</dt>
+    <dd>{{ resource.get_doc_type_display }}</dd>
+    {% endif %}
+
     {% if resource.spatial_representation_type %}
     <dt>{% trans "Spatial Representation Type" %}</dt>
     <dd>{{ resource.spatial_representation_type }}</dd>

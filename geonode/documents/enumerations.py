@@ -51,6 +51,18 @@ DOCUMENT_TYPE_MAP = {
     'zip': 'archive',
 }
 
+DOCUMENT_TYPE_SUBJECTS = {
+    ('MAPS','Maps'),
+    ('RESP','Response Plans'),
+    ('FOCP','Focal Point Lists'),
+    ('PRES','Presentations'),
+    ('ASSR','Assessment Report'),
+    ('SREP','Situation Report (SitRep)'),
+    ('DASH','Dashboards'),
+    ('MEET','Meetings Minutes'),
+    ('UPEV','Upcoming Events'),
+}
+
 
 DOCUMENT_MIMETYPE_MAP = {
     'txt': 'text/plain',

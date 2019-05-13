@@ -34,7 +34,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from geonode.layers.models import Layer
 from geonode.base.models import ResourceBase, resourcebase_post_save, Link
-from geonode.documents.enumerations import DOCUMENT_TYPE_MAP, DOCUMENT_MIMETYPE_MAP
+from geonode.documents.enumerations import DOCUMENT_TYPE_MAP, DOCUMENT_MIMETYPE_MAP, DOCUMENT_TYPE_SUBJECTS
 from geonode.maps.signals import map_changed_signal
 from geonode.maps.models import Map
 from geonode.security.utils import remove_object_permissions
@@ -50,6 +50,8 @@ class Document(ResourceBase):
     A document is any kind of information that can be attached to a map such as pdf, images, videos, xls...
     """
 
+    doc_type_help_text = _('Document Type')
+
     doc_file = models.FileField(upload_to='documents',
                                 null=True,
                                 blank=True,
@@ -64,7 +66,13 @@ class Document(ResourceBase):
     datasource = models.CharField(max_length=128, blank=True, null=True)
     subtitle = models.CharField(max_length=128, blank=True, null=True)
 
-    doc_type = models.CharField(max_length=128, blank=True, null=True)
+    # doc_type = models.CharField(max_length=128, blank=True, null=True)
+    doc_type = models.CharField(
+        _('Document Type'),
+        max_length=128,
+        choices=DOCUMENT_TYPE_SUBJECTS,
+        default='MAPS',
+        help_text=doc_type_help_text)
 
     doc_url = models.URLField(
         blank=True,
@@ -147,7 +155,7 @@ def pre_save_document(instance, sender, **kwargs):
             doc_type = 'other'
         else:
             doc_type = doc_type_map.get(instance.extension, 'other')
-        instance.doc_type = doc_type
+        # instance.doc_type = doc_type
 
     elif instance.doc_url:
         if '.' in urlparse(instance.doc_url).path:
