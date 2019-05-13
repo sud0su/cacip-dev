@@ -11,8 +11,8 @@
                         {% include "search/_text_filter.html" %}
                     {% endif  %}
                 <div id="slide-pane">
-                    {% if SEARCH_FILTERS.H_KEYWORDS_ENABLED %}
-                        {% include "search/_h_keywords_filter.html" %}
+                    {% if SEARCH_FILTERS.REGION_ENABLED %}
+                        {% include "search/_region_filter.html" %}
                     {% endif %}
                     {% if SEARCH_FILTERS.T_KEYWORDS_ENABLED %}
                         {% include "search/_t_keywords_filter.html" %}
@@ -21,8 +21,8 @@
                         {% include "search/_type_filters.html" %}
                     {% endif %}
                     {% include "search/_general_filters.html" %}
-                    {% if SEARCH_FILTERS.REGION_ENABLED %}
-                        {% include "search/_region_filter.html" %}
+                    {% if SEARCH_FILTERS.H_KEYWORDS_ENABLED %}
+                        {% include "search/_h_keywords_filter.html" %}
                     {% endif %}
                     {% if SEARCH_FILTERS.EXTENT_ENABLED %}
                         {% include "search/_extent_filter.html" %}

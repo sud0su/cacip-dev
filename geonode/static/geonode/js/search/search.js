@@ -338,10 +338,8 @@
       }else{
         $scope.query.limit = val;
       }
-      console.log($scope.query.limit);
-      console.log($scope.total_counts);
+      query_api($scope.query);
     }
-    console.log($scope.query.limit);
 
 
     /*

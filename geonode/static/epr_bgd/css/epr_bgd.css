@@ -523,6 +523,7 @@ Shortcode Content
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-color: #F1F1F1;
+    cursor: pointer;
 }
 
 .treeview .list-group,
@@ -1460,6 +1461,7 @@ a.ui-state-focus,
 
 .card .card-content h2{
     font-size: 18px;
+    word-break: break-word;
 }
 
 .card-content .meta {
@@ -2168,6 +2170,7 @@ icon-style
 
 .select2-container, .select2-focused, .select2-input {
     width: 100% !important;
+    border: 1px solid #F1F1F1;
 }
 
 .select2-container-multi .select2-choices .select2-search-choice {
@@ -2252,7 +2255,8 @@ nav.filter li a {
     padding: 5px 10px;
 }
 
-nav.filter ul{
+nav.filter ul,
+.filter-content-container{
     max-height: 330px;
     overflow-y: auto;
     background-color: #fff;
@@ -2280,6 +2284,13 @@ nav.filter ul{
 
 .ico-gp:before {
     content: "\f0d5";
+}
+
+/* ---------------------------------------------- /*
+ * Layer Detail, Map Detail, Document Detail
+/* ---------------------------------------------- */
+.list-group-item-heading strong{
+    word-break: break-word;
 }
 
 /* ---------------------------------------------- /*
@@ -2328,7 +2339,14 @@ div#user_messages{
     width: 500px;
     margin-top: 10px;
     right: 50px;
-    z-index: 1;
+    z-index: 3;
+}
+
+@media screen and (max-width: 768px){
+    div#user_messages{
+        width: 300px;
+        right: 10px;
+    }
 }
 
 /* ---------------------------------------------- /*

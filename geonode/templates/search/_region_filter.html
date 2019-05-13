@@ -3,8 +3,8 @@
 <nav class="filter">
 
     <h4><a href="#" class="toggle toggle-nav"><i class="fa fa-chevron-right"></i>{% trans "Regions" %}</a></h4>
-    <ul class="nav closed" id="regions">
-        <li>
+    <div class="nav closed" id="regions">
+        <div class="g-margin-b-20--xs">
             <div class="input-group">
                 <input name="region_search_input" id="region_search_input" type="text"
                     placeholder="{% trans "Search by region" %}" class="form-control">
@@ -12,38 +12,39 @@
                     <button class="btn btn-primary" type="submit" id="region_search_btn"><i class="fa fa-search"></i></button>
                 </span>
             </div>
-        </li>
+        </div>
         {% verbatim %}
-        <li ng-repeat="region in regions">
-            <a data-value="{{ region.name }}" data-filter="regions__name__in"
-                ng-click="multiple_choice_listener($event)" class="{{region.active}}">{{ region.name }}
-                <span
-                    class="badge {% endverbatim %}{{ LANGUAGE_BIDI | yesno:'pull-left, pull-right' }}{% verbatim %}">{{ region.count }}</span>
-            </a>
-            <ul class="nav opened" ng-if="region.children.length > 0">
-                <li ng-repeat="item in region.children" ng-if="item.count > 0 || item.children.length > 0">
-                    <a style="" data-value="{{ item.name }}" data-filter="regions__name__in"
-                        ng-click="multiple_choice_listener($event)" class="{{item.active}}">
-                        <i ng-if="!item.show" class="glyphicon glyphicon-plus" ng-click="test($event)"></i>
-                        <i ng-if="item.show" class="glyphicon glyphicon-minus" ng-click="test($event)"></i>
-                        {{ item.name }}
-                        <span
-                            class="badge {% endverbatim %}{{ LANGUAGE_BIDI | yesno:'pull-left, pull-right' }}{% verbatim %}">{{ item.count }}</span>
-                    </a>
-                    <ul ng-show="item.show" class="nav" ng-if="item.children.length > 0">
-                        <li ng-repeat="entity in item.children" ng-if="entity.count > 0">
-                            <a style="" data-value="{{ entity.name }}" data-filter="regions__name__in"
-                                ng-click="multiple_choice_listener($event)"
-                                class="{{entity.active}}">{{ entity.name }}
-                                <span
-                                    class="badge {% endverbatim %}{{ LANGUAGE_BIDI | yesno:'pull-left, pull-right' }}{% verbatim %}">{{ entity.count }}</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
+        <div class="filter-content-container">
+            <div ng-repeat="region in regions" class="list-group">
+                <a data-value="{{ region.name }}" data-filter="regions__name__in"
+                    ng-click="multiple_choice_listener($event)" class="list-group-item {{region.active}}">{{ region.name }}
+                    <span class="badge {% endverbatim %}{{ LANGUAGE_BIDI | yesno:'pull-left, pull-right' }}{% verbatim %}">{{ region.count }}</span>
+                </a>
+                <div class="nav opened" ng-if="region.children.length > 0">
+                    <div ng-repeat="item in region.children" ng-if="item.count > 0 || item.children.length > 0" class="list-group">
+                        <a style="" data-value="{{ item.name }}" data-filter="regions__name__in"
+                            ng-click="multiple_choice_listener($event)" class="list-group-item {{item.active}}">
+                            <i ng-if="!item.show" class="glyphicon glyphicon-plus" ng-click="test($event)"></i>
+                            <i ng-if="item.show" class="glyphicon glyphicon-minus" ng-click="test($event)"></i>
+                            {{ item.name }}
+                            <span
+                                class="badge {% endverbatim %}{{ LANGUAGE_BIDI | yesno:'pull-left, pull-right' }}{% verbatim %}">{{ item.count }}</span>
+                        </a>
+                        <div ng-show="item.show" class="nav" ng-if="item.children.length > 0">
+                            <div ng-repeat="entity in item.children" ng-if="entity.count > 0" class="list-group">
+                                <a style="" data-value="{{ entity.name }}" data-filter="regions__name__in"
+                                    ng-click="multiple_choice_listener($event)"
+                                    class="list-group-item {{entity.active}}">{{ entity.name }}
+                                    <span
+                                        class="badge {% endverbatim %}{{ LANGUAGE_BIDI | yesno:'pull-left, pull-right' }}{% verbatim %}">{{ entity.count }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endverbatim %}
-    </ul>
+    </div>
 
 </nav>
