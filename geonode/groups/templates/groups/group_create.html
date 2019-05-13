@@ -5,30 +5,47 @@
 {% block head_title %}{% trans "Create Group" %}{% endblock %}
 {% block body_class %}groups create{% endblock %}
 
-{% block body %}
-    <div class="block">
-      <div class="col-md-10">
-        <h2 class="page-title">{% block body_page_title %}{% trans "Create a Group" %}{% endblock %}</h2>
-        {% if errors %}
-          <div id="errors">
-            {% for error in errors %}
-              <div>{{ error }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
-        <div>
-        <form class="uniForm" id="form" method="POST" action="" enctype="multipart/form-data">
-        {% csrf_token %}
-        <fieldset>
-            {{ form|as_bootstrap }}
-            <div class="form_block">
-                <input type="hidden" name="action" value="create" />
-                <input type="submit" class="btn btn-primary" value="{% block form_button %}{% trans 'Create' %}{% endblock %}"/>
-            </div>
-        </fieldset>
-    </form>
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>{% block body_page_title %}{% trans "Create a Group" %}{% endblock %}</h2>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+
+    <section class="contact-section white-bg">
+        <div class="container">
+            <div class="section-title text-center hide">
+                <h2>{% trans "Create a group to ... " %}</h2>
+            </div>
     
-{% endblock %}
+            <div class="contact-form mt-50">
+                {% if errors %}
+                <div id="errors">
+                    {% for error in errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div>
+                    <form class="uniForm" id="form" method="POST" action="" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset>
+                            {{ form|as_bootstrap }}
+                            <div class="form_block g-text-center--xs">
+                                <input type="hidden" name="action" value="create" />
+                                <input type="submit" class="btn btn-primary btn-lg"
+                                    value="{% block form_button %}{% trans 'Create' %}{% endblock %}" />
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div> <!-- contact-form -->
+        </div>
+    </section> <!-- contact-section -->
+{% endblock middle %}

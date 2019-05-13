@@ -1,8 +1,8 @@
 {% load i18n %}
 <div class="row" ng-controller="CartList">
     <div class="list-container">
-        <div id="filter_controller" style="display: none;">
-            <div class="col-md-3">
+        <div id="filter_controller" style="">
+            <div class="col-sm-4 col-md-3">
                 <div class="selections">
                     {% trans "Filters" %}
                     <a href="." id="clear-search" class="pull-right">{% trans "Clear" %}</a>
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div id="resource_list">
-            <div class="col-md-12">
+            <div class="col-sm-8 col-md-9">
                 <div class="filter-toolbar-container">
                     {% include "search/_filter_toolbar.html" %}
                 </div>
@@ -39,7 +39,6 @@
                 {% include 'search/_set_permission_btn_group.html' %}
                 <div class="row">
                     <div class="col-md-12"><span ng-bind="'Total : ' + total_counts + ' {{ facet_type | title }}'" class="pull-right"></span></div>
-                    <div class="col-md-2"></div>
                 </div>
                 <div class="row">
                     <div class="col-md-12 grid-spacer">

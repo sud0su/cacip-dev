@@ -10,25 +10,35 @@
     {{ block.super }}
 {% endblock %}
 
-{% block body %}
-  <div class="block">
-    <div class="col-md-8">
-      <h2 class="page-title">{% trans "Replace " %}{{ document.title }}</h2>
-      <div id="upload_form">
-        <form method="post" enctype="multipart/form-data" action="{% url "document_replace" document.id %}">
-          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
-          {{ form.errors }}
-          {% if document.doc_file %}
-            {{ form.doc_file }}
-          {% elif document.doc_url %}
-            {{ form.doc_url }}
-          {% endif %}
-          <section>
-            <button id="clear-button" type="reset" class="btn btn-default">{% trans "Clear" %}</button>
-            <button id="upload-button" type="submit" class="btn btn-danger" value="Update">{% trans "Replace Document" %}</button>
-          </section>
-        </form>
-      </div>
+{% block upload_doc_title %}
+    <h2>{% trans "Replace Static Map" %}</h2>
+{% endblock upload_doc_title %}
+
+{% block body_outer %}
+    <div class="block">
+        <div class="panel panel-default g-margin-t-45--xs g-margin-b-45--xs">
+            <div class="panel-body">
+                <h2 class="page-title text-center">{% trans "Replace " %}{{ document.title }}</h2>
+                <div class="col-md-8 col-md-push-2">
+                    <div id="upload_form">
+                        <form method="post" enctype="multipart/form-data" action="{% url "document_replace" document.id %}">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                            {{ form.errors }}
+                            {% if document.doc_file %}
+                                {{ form.doc_file }}
+                            {% elif document.doc_url %}
+                                {{ form.doc_url }}
+                            {% endif %}
+                            <section class="text-center">
+                                <button id="clear-button" type="reset" class="btn btn-default">{% trans "Clear" %}</button>
+                                <button id="upload-button" type="submit" class="btn btn-danger"
+                                    value="Update">{% trans "Replace Document" %}</button>
+                            </section>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
-  </div>
 {% endblock %}

@@ -6,8 +6,10 @@ jQuery(function ($) {
     // Preloader
     // -------------------------------------------------------------
     (function () {
-        $('#status').fadeOut();
-        $('#preloader').delay(200).fadeOut('slow');
+        $(window).load(function(){
+            $('#loading_pic').fadeOut();
+            $('#preloader').delay(200).fadeOut('slow');
+        });
     }());
 
 

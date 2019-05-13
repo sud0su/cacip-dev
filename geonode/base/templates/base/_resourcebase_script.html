@@ -17,9 +17,11 @@
         $( "#filter_btn" ).click(function() {
             $( "#filter_controller" ).toggle();
             if ($( "#resource_list>div" ).hasClass("col-md-9")) {
-                $( "#resource_list>div" ).toggleClass('col-md-9 col-md-12');
+                $(this).text("Show Filter");
+                $( "#resource_list>div" ).toggleClass('col-md-9 col-md-12 col-sm-8 col-sm-12');
             }else{
-                $( "#resource_list>div" ).toggleClass('col-md-12 col-md-9');
+                $(this).text("Hide Filter");
+                $( "#resource_list>div" ).toggleClass('col-md-12 col-md-9 col-sm-12 col-sm-8');
             }
             
         });

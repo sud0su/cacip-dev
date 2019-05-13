@@ -5,13 +5,31 @@
 
 {% block body_class %}data{% endblock %}
 
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {% block layer_upload_title %}
+                    <h2>{% trans "Upload Layer Metadata" %}</h2>
+                    {% endblock layer_upload_title %}
+                    {% block add_on_btn %}
+                    {% endblock add_on_btn %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+{% endblock middle %}
+
 {% block body_outer %}
-<div class="page-header">
-  <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Layers" %}</a>
-  <h2 class="page-title">{% trans "Upload Layer Metadata" %}</h2>
-</div>
-<div class="row">
-  {% block body %}{% endblock body %}
-  {% block sidebar %}{% endblock sidebar %}
-</div>
+    <div class="page-header">
+        <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Layers" %}</a>
+        <h2 class="page-title">{% trans "Upload Layer Metadata" %}</h2>
+    </div>
+    <div class="row">
+        {% block body %}{% endblock body %}
+        {% block sidebar %}{% endblock sidebar %}
+    </div>
 {% endblock body_outer %}

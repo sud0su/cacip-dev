@@ -1,29 +1,82 @@
 {% extends "geonode_base.html" %}
 {% load i18n %}
 
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>{% trans "Invite Users" %}</h2>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+
+    <section class="contact-section white-bg">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>{% trans "Feel free to invite any user to use our platform" %}</h2>
+            </div>
+    
+            <div class="contact-form mt-50">
+                <form id="invite-form" method="POST" action="{% url 'geonode.invitations:geonode-send-invite' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        <input type="text" name="email" id="id_email" value="{{ form.email.value }}" class="form-control"
+                            placeholder="{% trans 'Email' %}">
+                    </div>
+                    <div class="form-group">
+                        {% for error in form.email.errors %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                        {% endfor %}
+                        {% if error_message %}
+                        <div class="alert alert-warning">{{ error_message }}</div>
+                        {% endif %}
+                        {% if success_message %}
+                        <div class="alert alert-success">{{ success_message }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="g-text-center--xs">
+                        <input type="submit" value="{% trans "Submit" %}" class="btn btn-primary btn-lg generic-ajax-submit">
+                    </div>
+                </form>
+            </div> <!-- contact-form -->
+        </div>
+    </section> <!-- contact-section -->
+{% endblock middle %}
+
 {% block body_outer %}
-
-<div class="page-header">
-    <h2>{% trans "Invite Users" %}</h2>
+<div class="panel panel-default g-margin-t-45--xs g-margin-b-45--xs hide">
+    <div class="panel-body">
+        <div class="g-text-center--xs">
+            <h2 class="g-font-weight--400">{% trans "Invite Users" %}</h2>
+        </div>
+        
+        <form id="invite-form" method="POST" action="{% url 'geonode.invitations:geonode-send-invite' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                <input type="text" name="email" id="id_email" value="{{ form.email.value }}" class="form-control"
+                    placeholder="{% trans 'Email' %}">
+            </div>
+            <div class="form-group">
+                {% for error in form.email.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+                {% if error_message %}
+                <div class="alert alert-warning">{{ error_message }}</div>
+                {% endif %}
+                {% if success_message %}
+                <div class="alert alert-success">{{ success_message }}</div>
+                {% endif %}
+            </div>
+            <div class="g-text-center--xs">
+                <input type="submit" value="{% trans "Submit" %}" class="btn btn-primary btn-lg generic-ajax-submit">
+            </div>
+        </form>
+    </div>
 </div>
-
-<form id="invite-form" method="POST" action="{% url 'geonode.invitations:geonode-send-invite' %}">
-  {% csrf_token %}
-  <div class="form-group">
-      <label for="id_email">Email</label>
-      <input type="text" name="email" id="id_email" value="{{ form.email.value }}" class="form-control" placeholder="{% trans 'Email' %}">
-  </div>
-  <div class="form-group">
-    {% for error in form.email.errors %}
-      <div class="alert alert-danger">{{ error }}</div>
-    {% endfor %}
-    {% if error_message %}
-        <div class="alert alert-warning">{{ error_message }}</div>
-    {% endif %}
-    {% if success_message %}
-        <div class="alert alert-success">{{ success_message }}</div>
-    {% endif %}
-  </div>
-  <input type="submit" value="Submit" class="btn btn-primary generic-ajax-submit">
-</form>
 {% endblock %}

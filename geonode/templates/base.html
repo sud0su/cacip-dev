@@ -13,6 +13,8 @@
         <meta Http-Equiv="Expires" Content="0">
         <meta Http-Equiv="Pragma-directive: no-cache">
         <meta Http-Equiv="Cache-directive: no-cache">
+        <!-- Prevent Mobile Safari from automatically detecting phone numbers -->
+        <meta name="format-detection" content="telephone=no"> 
 
         <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
         {% block head %}
@@ -42,9 +44,10 @@
             <!-- Flat Icon -->
             <link href="{% static 'epr_bgd/lib/flaticon/flaticon.css' %}" rel="stylesheet">
             <!-- Global CSS -->
-            <link rel="stylesheet" href="http://keenthemes.com/preview/megakit/css/global/global.css">
+            <link rel="stylesheet" href="{% static 'epr_bgd/lib/global/global.css' %}">
+            <!-- <link rel="stylesheet" href="http://keenthemes.com/preview/megakit/css/global/global.css"> -->
             <!-- Custom CSS -->
-            <link href="{% static 'epr_bgd/css/style.css' %}" rel="stylesheet">
+            <link href="{% static 'epr_bgd/css/epr_bgd.css' %}" rel="stylesheet">
 
             {% block extra_head %}
             {% endblock %}
@@ -64,6 +67,13 @@
 
     <body class="{% block body_class %}{% endblock %}">
         <div id="main-wrapper">
+            <!-- Page Preloader -->
+            <div id="preloader">
+                <div id="loading_pic">
+                    <div class="status-mes">{% trans "Loading" %}</div>
+                </div>
+            </div>
+
             <div class="uc-mobile-menu-pusher">
                 <div class="content-wrapper">
                     <!-- Navbar -->
@@ -280,13 +290,26 @@
                             <div class="container">
                                 <!-- Brand and toggle get grouped for better mobile display -->
                                 <div class="navbar-header">
-                                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                                            data-target="#navbar-collapse-1">
+                                    <button type="button" class="navbar-toggle collapsed pull-left" data-toggle="collapse" data-target="#navbar-collapse-1">
                                         <span class="sr-only">Toggle navigation</span>
+                                        <i class="fa fa-navicon fa-lg g-color--white"></i>
+                                        <!-- <span class="icon-bar"></span>
                                         <span class="icon-bar"></span>
-                                        <span class="icon-bar"></span>
-                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span> -->
                                     </button>
+                                    <button type="button" class="navbar-toggle hide">
+                                        <i class="fa fa-search fa-lg g-color--white"></i>
+                                    </button>
+                                    <div class="search hide">
+                                        <form id="search" action="{% url "search" %}" >
+                                            <i class="fa fa-search"></i>
+                                            {% if HAYSTACK_SEARCH %}
+                                                <input id="search_input" type="text" placeholder="Search" name="q">
+                                            {% else %}
+                                                <input id="search_input" type="text" placeholder="Search" name="title__icontains">
+                                            {% endif %}
+                                        </form>
+                                    </div>
                                     <a class="navbar-brand" href="{% url 'home' %}">
                                         <img src="{% static 'epr_bgd/img/immap_logo/immap.png' %}" alt="" height="60px" class="hide">
                                     </a>
@@ -601,13 +624,13 @@
                                     </div>
                 
                                     <div class="col-md-3">
-                                        
                                         <h4 class="text-uppercase g-color--white g-font-weight--400">{% trans "Contact Information" %}</h4>
                                         <ul class="colorlib-footer-links">
-                                            <li>291 South 21th Street, <br> Suite 721 New York NY 10016</li>
-                                            <li><a href="tel://1234567920">+ 1235 2355 98</a></li>
-                                            <li><a href="mailto:info@yoursite.com">info@yoursite.com</a></li>
-                                            <li><a href="#">yoursite.com</a></li>
+                                            <li>Louis Parker<br>{% trans "iMMAP Cox's Bazar" %}</li>    
+                                            <li>{% trans "c/o UN World Food Programme" %}<br>{% trans "Shaibal Cottages" %}</li>
+                                            <li><a href="tel:+880-1309-313716">+880 1309 313716</a></li>
+                                            <li><a href="mailto:lparker@immap.org">lparker@immap.org</a></li>
+                                            <li><a href="https://immap.org" target="_blank">www.immap.org</a></li>
                                         </ul>
                                     </div>
                                 </div>

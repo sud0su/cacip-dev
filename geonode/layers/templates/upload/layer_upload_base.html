@@ -22,8 +22,8 @@
         }
 
         .active {
-            background-color: #cccccc;
-            font-weight: bold;
+            /* background-color: #cccccc;
+            font-weight: bold; */
         }
 
         .faqHeader {
@@ -161,7 +161,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
+                    {% block layer_upload_title %}
                     <h2>{% trans "Upload Layers" %}</h2>
+                    {% endblock layer_upload_title %}
                     {% block add_on_btn %}
                     {% endblock add_on_btn %}
                 </div>

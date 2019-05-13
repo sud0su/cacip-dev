@@ -1,33 +1,76 @@
 {% load i18n %}
-<li>
-  <div class="activity-item">
-    <p>
-      <span class="icon-activity {{ activity_class|default:'activity' }}"></span>
-      {% if object %}
-      <span class="thumb-activity"><img src="{{ object.thumbnail_url }}"></span>
-      {% endif %}
-      <a href="{{ actor.get_absolute_url }}">{{ username }}</a>
 
-      {{ verb|safe }}
-
-      {% if object %}
-        {% if object.get_absolute_url %}<a href="{{ object.get_absolute_url }}">{{ object }}</a>
-        {% else %}
-          {{ object_name }}
+<li class="media activity-item">
+    <div class="media-left">
+        {% if object %}
+        <a href="{{ object.get_absolute_url }}">
+            <img class="media-object g-width-150--xs" src="{{ object.thumbnail_url }}" alt="{{ object_name }}">
+        </a>
         {% endif %}
-      {% elif object_name %}
-        {{ object_name }}
-      {% endif %}
+    </div>
+    <div class="media-body">
+        <h4 class="media-heading">
+            <span class="hide">
+                John Doe <small><i>Posted on February 19, 2016</i></small>
+            </span>
+            <a href="{{ actor.get_absolute_url }}">{{ username }}</a>
 
-      {% if target %}
-        {{ preposition|default:"to" }}
-        {% if fragment %}
-          <a href="{{ target.get_absolute_url }}#{{ fragment }}">{{ target }}</a>
-        {% else %}
-          <a href="{{ target.get_absolute_url }}">{{ target }}</a>
-        {% endif %}
-      {% endif %}
-    </p>
-    <p class="activity-timestamp">{{ timestamp|timesince }} {% trans "ago" %}</p>
-  </div>
+            {{ verb|safe }}
+
+            {% if object %}
+                {% if object.get_absolute_url %}<a href="{{ object.get_absolute_url }}">{{ object }}</a>
+                {% else %}
+                    {{ object_name }}
+                {% endif %}
+            {% elif object_name %}
+                {{ object_name }}
+            {% endif %}
+
+            {% if target %}
+                {{ preposition|default:"to" }}
+                {% if fragment %}
+                    <a href="{{ target.get_absolute_url }}#{{ fragment }}">{{ target }}</a>
+                {% else %}
+                    <a href="{{ target.get_absolute_url }}">{{ target }}</a>
+                {% endif %}
+            {% endif %}
+        </h4>
+        <p>{{ timestamp|timesince }} {% trans "ago" %}</p>
+    </div>
+    <div class="media-right">
+        <span class="icon-activity {{ activity_class|default:'activity' }} btn btn-circle btn-primary"></span>
+    </div>
+</li>
+
+<li class="hide">
+    <div class="activity-item">
+        <p>
+            <span class="icon-activity {{ activity_class|default:'activity' }}"></span>
+            {% if object %}
+            <span class="thumb-activity"><img src="{{ object.thumbnail_url }}"></span>
+            {% endif %}
+            <a href="{{ actor.get_absolute_url }}">{{ username }}</a>
+
+            {{ verb|safe }}
+
+            {% if object %}
+                {% if object.get_absolute_url %}<a href="{{ object.get_absolute_url }}">{{ object }}</a>
+                {% else %}
+                    {{ object_name }}
+                {% endif %}
+            {% elif object_name %}
+                {{ object_name }}
+            {% endif %}
+
+            {% if target %}
+                {{ preposition|default:"to" }}
+                {% if fragment %}
+                    <a href="{{ target.get_absolute_url }}#{{ fragment }}">{{ target }}</a>
+                {% else %}
+                    <a href="{{ target.get_absolute_url }}">{{ target }}</a>
+                {% endif %}
+            {% endif %}
+        </p>
+        <p class="activity-timestamp">{{ timestamp|timesince }} {% trans "ago" %}</p>
+    </div>
 </li>

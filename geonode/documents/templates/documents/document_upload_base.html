@@ -13,7 +13,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h2>{% trans "Upload Static Maps" %}</h2>
+                    {% block upload_doc_title %}
+                        <h2>{% trans "Upload Static Maps" %}</h2>
+                    {% endblock upload_doc_title %}
                     {% block add_on_btn %}
                     {% endblock add_on_btn %}
                 </div>

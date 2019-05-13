@@ -13,29 +13,36 @@
     <link rel="stylesheet" href="{% static "lib/css/bootstrap-datetimepicker.min.css" %}?v={{ VERSION }}" />
 
     <style>
-        .xxs-font-size{
+        .xxs-font-size {
             font-size: 10px;
         }
-        textarea{
-            width:100%;
+
+        textarea {
+            width: 100%;
         }
-        select{
-            width:100%;
+
+        select {
+            width: 100%;
         }
-        .test-class{
+
+        .test-class {
             background-color: red;
         }
-        table{
-            table-layout:fixed;
+
+        table {
+            table-layout: fixed;
             width: 100%;
         }
-        td > input{
+
+        td>input {
             width: 100%;
         }
+
         h2.page-title {
             max-width: calc(100% - 300px);
         }
-        .input-empty{
+
+        .input-empty {
             border-color: red;
             border-style: double;
         }
@@ -45,20 +52,21 @@
             left: 0;
             right: 0;
         }
+
         .fancy-checkbox input[type="radio"],
         .fancy-checkbox input[type="checkbox"],
         .fancy-checkbox .checked {
             display: none;
         }
 
-        .fancy-checkbox input[type="radio"]:checked ~ .checked,
-        .fancy-checkbox input[type="checkbox"]:checked ~ .checked {
+        .fancy-checkbox input[type="radio"]:checked~.checked,
+        .fancy-checkbox input[type="checkbox"]:checked~.checked {
             display: inline-block;
-            color:red;
+            color: red;
         }
 
-        .fancy-checkbox input[type="radio"]:checked ~ .unchecked,
-        .fancy-checkbox input[type="checkbox"]:checked ~ .unchecked {
+        .fancy-checkbox input[type="radio"]:checked~.unchecked,
+        .fancy-checkbox input[type="checkbox"]:checked~.unchecked {
             display: none;
         }
 
@@ -66,17 +74,22 @@
         #id_resource-title {
             width: 100% !important;
         }
-        #edit-metadata .tab-pane > .panel-group >.panel.panel-default, #settings .panel-group > .panel.panel-default {
+
+        #edit-metadata .tab-pane>.panel-group>.panel.panel-default,
+        #settings .panel-group>.panel.panel-default {
             border: none;
         }
-        #mdeditor_form > div.tab-content > .tab-pane {
+
+        #mdeditor_form>div.tab-content>.tab-pane {
             min-height: 450px;
         }
+
         #metadata_update {
             min-height: 550px;
         }
 
-        .leaflet-container { /* all maps */
+        .leaflet-container {
+            /* all maps */
             height: 250px !important;
         }
 
@@ -87,6 +100,7 @@
         #regions_multiselect_container.content {
             position: absolute;
         }
+
         .fstControls {
             width: 100% !important;
         }
@@ -102,27 +116,48 @@
         .has-error .fstElement {
             border-color: red;
         }
+
         .treeview {
             max-height: 200px;
             overflow: auto;
             display: block;
-            width: 350px;
+            /* width: 350px; */
+            width: 100%;
         }
+
         .form-actions {
             text-align: right;
         }
     </style>
-{{ block.super }}
+
+    <style>
+        .lead{
+            text-align: center;
+        }
+    </style>
+
+    {{ block.super }}
 {% endblock head %}
 
 {% block title %} {{ block.super }} {% endblock %}
 
 {% block body_class %}data{% endblock body_class %}
 
-{% block body_outer %}
-    {% block body %}{% endblock body %}
-    {% block sidebar %}{% endblock sidebar %}
-{% endblock body_outer %}
+{% block middle %}
+    <section class="single-page-title single-page-title-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {% block metadata_title %}
+                    <h2>{% trans "Metadata" %}</h2>
+                    {% endblock metadata_title %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- .page-title -->
+    {{ block.super }}
+{% endblock middle %}
 
 {% block modal %}
     <div class="modal fade" style="width: 100%; height: 100%;" id="preview_errorDialog" data-backdrop="static" data-keyboard="false" aria-hidden="true">
