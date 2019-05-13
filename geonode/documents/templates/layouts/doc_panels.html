@@ -129,6 +129,13 @@
                                                                     {% endfor %}
                                                                 </select>
                                                             </div>
+                                                            <div class="col-lg-6 col-xs-12">
+                                                                <span>
+                                                                    <label for="{{ document_form.doc_type|id }}">{{ document_form.doc_type.label }}</label>
+                                                                </span>
+                                                                <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
+                                                                {{ document_form.doc_type }}
+                                                            </div>                                                        
                                                         </div>
                                                     </div>
                                                 </div>
