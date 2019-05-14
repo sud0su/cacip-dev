@@ -58,13 +58,13 @@ def build_dashboard_meta():
 	dashboard_apps = []
 	# menus = [{'title':_('Quick Overview'),'name':'main'},{'title':_('Baseline'),'name':'baseline'}]
 	menus = []
-	print 'INSTALLED_APPS', INSTALLED_APPS
+	# print 'INSTALLED_APPS', INSTALLED_APPS
 	for modname in [app for app in INSTALLED_APPS if app.startswith('dashboard.')]:
-		print 'modname', modname
+		# print 'modname', modname
 		module = importlib.import_module('%s.enumerations'%(modname))
 		try:
 			dashboard_meta = dict_ext(module.DASHBOARD_META)
-			print 'dashboard_meta', dashboard_meta
+			# print 'dashboard_meta', dashboard_meta
 		except Exception as e:
 			continue
 		else:
@@ -92,10 +92,10 @@ def build_dashboard_meta():
 		'DASHBOARD_APPS':dashboard_apps,
 	}
 
-	with open(os.path.join(STATICFILES_DIRS[0],'dashboard_meta.json'), 'w') as f:
-		f.write(json.dumps(DASHBOARD_META))
+	# with open(os.path.join(STATICFILES_DIRS[0],'dashboard_meta.json'), 'w') as f:
+	# 	f.write(json.dumps(DASHBOARD_META))
 
 	return DASHBOARD_META
 
 DASHBOARD_META = build_dashboard_meta()
-print DASHBOARD_META
+print 'DASHBOARD_META', DASHBOARD_META

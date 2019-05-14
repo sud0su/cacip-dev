@@ -327,7 +327,7 @@
                                                 {% trans "Dashboard" %} <i class="fa fa-angle-down fa-lg"></i>
                                             </a>
                                             <ul class="dropdown-menu">
-                                                {% for dash in dashboard_page_menu %}
+                                                {% for dash in DASHBOARD_META.DASHBOARD_PAGE_MENU %}
                                                     {% if dash.child %}
                                                         <li class="dropdown-submenu">
                                                             <a class="test" tabindex="-1" href="#">{{dash.title}} <i class="fa fa-angle-right fa-lg pull-right" style="line-height: 28px;"></i></a>

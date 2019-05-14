@@ -271,7 +271,7 @@
                             </a>
                             <div class="collapsible-body">
                                 <ul>
-                                    {% for dash in dashboard_page_menu %}
+                                    {% for dash in DASHBOARD_META.DASHBOARD_PAGE_MENU %}
                                         <li>
                                             <a class="waves-effect waves-blue" href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">
                                                 <i class="dashboard {{dash.name}}"></i>{{dash.title}}</a>
@@ -480,7 +480,7 @@
         </ul>
 
         <ul id="dropdown_dashboard" class="dropdown-content">
-            {% for dash in dashboard_page_menu %}
+            {% for dash in DASHBOARD_META.DASHBOARD_PAGE_MENU %}
             <li>
                 <a class="waves-effect" href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">{{dash.title}}</a>
             </li>

@@ -39,7 +39,7 @@ import datetime
 # from avatar.templatetags.avatar_tags import avatar_print_url
 from django.http import Http404
 
-# from .enumerations import DASHBOARD_TO_APP
+from .enumerations import DASHBOARD_META
 from pprint import pprint
 import importlib
 from geonode.utils import set_query_parameter, dict_ext, list_ext, JSONEncoderCustom, include_section
