@@ -53,14 +53,14 @@ DOCUMENT_TYPE_MAP = {
 
 DOCUMENT_TYPE_SUBJECTS = {
     ('MAPS','Maps'),
-    ('RESP','Response Plans'),
-    ('FOCP','Focal Point Lists'),
-    ('PRES','Presentations'),
+    ('RESP','Response Plan'),
+    ('FOCP','Focal Point List'),
+    ('PRES','Presentation'),
     ('ASSR','Assessment Report'),
     ('SREP','Situation Report (SitRep)'),
-    ('DASH','Dashboards'),
-    ('MEET','Meetings Minutes'),
-    ('UPEV','Upcoming Events'),
+    ('DASH','Dashboard'),
+    ('MEET','Meetings Minute'),
+    ('UPEV','Upcoming Event'),
 }
 
 
