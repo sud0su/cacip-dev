@@ -60,29 +60,32 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-xs-12 col-md-8">
             {% if "download_resourcebase" in perms_list %}
                 {% if resource.extension|lower in imgtypes and resource.doc_file %}
-      			<div id="embedded_map image-preview">
+      			<div id="embedded_map" class="image-preview">
                     <a style="text-decoration:none;" href="{% url "document_download" resource.id %}" target="_blank">
                         <img src="{% url "document_download" resource.id %}" width="100%" class="img-responsive" />
                     </a>
                 </div>
                 {% elif resource.doc_file %}
-		      <div class="embedded_map image-preview">
-		        <a href="{% url 'document_download' resource.id %}" target="_blank">
-		          <img src="{{ preview_url }}" style="width: 100%; height: 100%;">
-		        </a>
+		      <div class="embedded_map" class="image-preview">
+                    <a href="{% url 'document_download' resource.id %}" target="_blank">
+                        <img src="{{ preview_url }}" style="width: 100%; height: 100%;">
+                    </a>
 		      </div>
 		      {% elif resource.doc_url %}
-		      <p>
-		        <a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} document.</a> <small>({% trans 'External Resource' %})</small>
+                <p>
+                    <a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} document.</a>
+                    <small>({% trans 'External Resource' %})</small>
                 </p>
                 {% elif  resource.doc_url %}
-                <p><a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} document.</a>
-                    <small>({% trans 'External Resource' %})</small></p>
+                <p>
+                    <a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} document.</a>
+                    <small>({% trans 'External Resource' %})</small>
+                </p>
                 {%  endif %}
-            {%  endif %}
+            {% endif %}
 
             <div class="tabOne g-margin-t-35--xs g-margin-b-35--xs g-margin-b-0--lg">
                 <div class="documents-actions">

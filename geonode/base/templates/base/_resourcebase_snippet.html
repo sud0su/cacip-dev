@@ -55,10 +55,10 @@
                                     <a href="{{ item.detail_url }}#info">{{ item.date|date:'MMM d, y' }}</a>
                                 </div>
                                 <ul class="list-inline">
-                                    <li><a href="{{ item.detail_url }}"><i class="fa fa-eye"></i>{{ item.popular_count }}</a></li>
-                                    <li><a href="{{ item.detail_url }}#share"><i class="fa fa-share"></i>{{ item.share_count }}</a></li>
-                                    <li><a href="{{ item.detail_url }}#rate"><i class="fa fa-star"></i>{{ item.rating }}</a></li>
-                                    <li ng-if="item.group"><a href="/groups/group/{{ item.group }}/activity/"><i class="fa fa-group"></i>{{ item.group_name }}</a></li>
+                                    <li><a href="{{ item.detail_url }}"><i class="fa fa-eye"></i>&nbsp;{{ item.popular_count }}</a></li>
+                                    <li><a href="{{ item.detail_url }}#share"><i class="fa fa-share"></i>&nbsp;{{ item.share_count }}</a></li>
+                                    <li><a href="{{ item.detail_url }}#rate"><i class="fa fa-star"></i>&nbsp;{{ item.rating }}</a></li>
+                                    <li ng-if="item.group"><a href="/groups/group/{{ item.group }}/activity/"><i class="fa fa-group"></i>&nbsp;{{ item.group_name }}</a></li>
                                 </ul>
                                 <p>{{ item.abstract | limitTo: 300 }}{{ item.abstract.length  > 300 ? '...' : ''}}</p>
                                 <div ng-if="item.online && item.store_type == 'remoteStore'">

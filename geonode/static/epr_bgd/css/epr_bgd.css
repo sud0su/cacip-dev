@@ -493,6 +493,8 @@ Shortcode Content
     border-radius: 0;
     width: 100%;
     max-width: 100%;
+    overflow-y: auto;
+    max-height: 330px;
 }
 
 .header-top .yourlabs-autocomplete{
@@ -1401,6 +1403,12 @@ a.ui-state-focus,
     margin-left: 3px;
 }
 
+@media (max-width: 767px){
+    #filter_toolbar>div {
+        text-align: center;
+    }
+}
+
 .filter-toolbar-container{
     margin-bottom: 10px;
 }
@@ -1443,13 +1451,13 @@ a.ui-state-focus,
 
 @media (min-width: 768px){
     .card .card-content.resourcebase-content .description-content{
-        height: 260px;
+        height: 325px;
     }
 }
 
 @media (min-width: 992px){
     .card .card-content.resourcebase-content .description-content{
-        height: 200px;
+        height: 270px;
     }
 }
 
@@ -2267,6 +2275,13 @@ nav.filter ul,
     width: 100%;
 }
 
+@media screen and (min-width: 768px){
+    .resourcebase-snippet .card-image img{
+        height: 200px;
+        width: auto;
+    }
+}
+
 /* ---------------------------------------------- /*
  * Social Link on Layer Detail, Map Detail, Document Detail
 /* ---------------------------------------------- */
@@ -2291,6 +2306,11 @@ nav.filter ul,
 /* ---------------------------------------------- */
 .list-group-item-heading strong{
     word-break: break-word;
+}
+
+/* Modal of edit */
+.edit-modal>div{
+    min-height: 200px;
 }
 
 /* ---------------------------------------------- /*
