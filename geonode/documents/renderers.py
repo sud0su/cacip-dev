@@ -91,7 +91,7 @@ def render_document(document_path, extension="png"):
     return output
 
 
-def generate_thumbnail_content(image_path, size=(200, 150)):
+def generate_thumbnail_content(image_path, size=(300, 300)):
     """Generate thumbnail content from an image file.
 
     Return the entire content of the image file.
@@ -109,7 +109,8 @@ def generate_thumbnail_content(image_path, size=(200, 150)):
         target_width, target_height = size
 
         if source_width != target_width or source_width != target_height:
-            image = ImageOps.fit(image, size, Image.ANTIALIAS)
+            # image = ImageOps.fit(image, size, Image.ANTIALIAS)
+            image.thumbnail(size, Image.ANTIALIAS)
 
         output = StringIO()
         image.save(output, format='PNG')

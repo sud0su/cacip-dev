@@ -94,7 +94,8 @@ def create_document_thumbnail(self, object_id):
 
     # delete temporary file
     try:
-        os.remove(image_path)
+        if image_path != document.doc_file.path:
+            os.remove(image_path)
     except:
         print("Error while deleting file ", image_path)
 
