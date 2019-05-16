@@ -6,6 +6,8 @@
 
 {% block body_class %}layers explore{% endblock %}
 
+{% block extra_controller %}ng-controller="CartList"{% endblock %}
+
 {% block add_on_btn %}
     <a href="{% url "layer_upload" %}" class="btn btn-inverse pull-right">{% trans "Upload Layers" %}</a>
 {% endblock add_on_btn %}

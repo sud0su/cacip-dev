@@ -16,37 +16,44 @@
     <a href="{% url "document_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-inverse pull-right">{% trans "Explore Documents" %}</a>
 {% endblock add_on_btn %}
 
-{% block body %}
-    <div class="col-md-8">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <p class="no-margin">
-                    Allowed document types:
-                </p>
-                <p>
-                    {% for doc in ALLOWED_DOC_TYPES %}
-                    <span class="label label-default">.{{ doc }}</span>
-                    {% endfor %}
-                </p>
-                <form id="upload_form" method="post" enctype="multipart/form-data" action="{% url "document_upload" %}">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
-                    {{ form.as_p }}
-                    <button type="submit" id="upload-button" class="btn btn-danger">{% trans "Upload" %}</button>
-                </form>
+{% block body_outer %}
+    <div class="row g-margin-t-45--xs g-margin-b-45--xs">
+        <div class="col-md-8">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <p class="no-margin">
+                        Allowed document types:
+                    </p>
+                    <p>
+                        {% for doc in ALLOWED_DOC_TYPES %}
+                        <span class="label label-default">.{{ doc }}</span>
+                        {% endfor %}
+                    </p>
+                    <form id="upload_form" method="post" enctype="multipart/form-data" action="{% url "document_upload" %}">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                        {{ form.as_p }}
+                        <button type="submit" id="upload-button" class="btn btn-danger">{% trans "Upload" %}</button>
+                    </form>
+
+                    <!-- <div class="input-group">
+                        <input type="text" class="form-control" placeholder="{% trans "No file chosen" %}" style="height: 34px;"/>
+                        <input id="files" type="file" class="form-control" style="height: 34px;"/>
+                        <div class="input-group-btn">
+                            <label for="files" class="btn btn-default">{% trans "Choose File" %}</label>
+                            <input id="files" type="file" class="btn btn-default" style="visibility:hidden;" />
+                        </div>
+                    </div> -->
+
+                </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <h3>{% trans "Permissions"  %}</h3>
+            <form id="permission_form">
+                {% include "_permissions.html" %}
+            </form>
+        </div>
     </div>
-{% endblock %}
-
-{% block sidebar %}
-
-    <div class="col-md-4">
-        <h3>{% trans "Permissions"  %}</h3>
-        <form id="permission_form">
-            {% include "_permissions.html" %}
-        </form>
-    </div>
-
 {% endblock %}
 
 {% block extra_script %}
