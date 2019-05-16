@@ -52,7 +52,7 @@ DOCUMENT_TYPE_MAP = {
 }
 
 DOCUMENT_TYPE_SUBJECTS = {
-    ('MAPS','Maps'),
+    ('MAPS','Map'),
     ('RESP','Response Plan'),
     ('FOCP','Focal Point List'),
     ('PRES','Presentation'),
