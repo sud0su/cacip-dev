@@ -441,6 +441,7 @@ def geoserver_proxy(request,
         return path[len(full_prefix):]
 
     path = strip_prefix(request.get_full_path(), proxy_path)
+    do_style_update = re.match(r'^rest/workspaces/(?P<workspace>\w+)/styles$', downstream_path+path)
 
     access_token = None
     if 'access_token' in request.session:
@@ -495,7 +496,7 @@ def geoserver_proxy(request,
                         "You don't have permissions to change style for this layer"),
                     content_type="text/plain",
                     status=401)
-            elif downstream_path == 'rest/styles':
+            elif downstream_path == 'rest/styles' or do_style_update:
                 logger.info(
                     "[geoserver_proxy] Updating Style to ---> url %s" %
                     url.path)
