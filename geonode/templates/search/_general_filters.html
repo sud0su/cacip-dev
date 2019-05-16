@@ -9,8 +9,10 @@
                     <a data-value="{{ category.identifier }}" data-filter="category__identifier__in"
                         title="{{ category.gn_description }}" ng-click="multiple_choice_listener($event)"
                         class="list-group-item {{category.active}}">
-                        <div class="fa-stack fa-1g"><i class="fa fa-square-o fa-stack-2x"></i><i
-                                class="fa {{category.fa_class}} fa-stack-1x"></i></div>
+                        <div class="fa-stack fa-1g">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa {{category.fa_class}} fa-stack-1x"></i>
+                        </div>
                         {{ category.gn_description | limitTo: 20 }}{{ category.gn_description.length > 20 ? '...' : ''}}
                         <span class="badge pull-right">{{ category.layers_count }}</span>
                     </a>
@@ -22,8 +24,10 @@
                     <a data-value="{{ category.identifier }}" data-filter="category__identifier__in"
                         title="{{ category.gn_description }}" ng-click="multiple_choice_listener($event)"
                         class="list-group-item {{category.active}}">
-                        <div class="fa-stack fa-1g"><i class="fa fa-square-o fa-stack-2x"></i><i
-                                class="fa {{category.fa_class}} fa-stack-1x"></i></div>
+                        <div class="fa-stack fa-1g">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa {{category.fa_class}} fa-stack-1x"></i>
+                        </div>
                         {{ category.gn_description | limitTo: 20 }}{{ category.gn_description.length > 20 ? '...' : ''}}
                         <span class="badge pull-right">{{ category.count }}</span>
                     </a>
@@ -56,7 +60,7 @@
             <div class="form-group">
                 <div class="col-xs-12 col-md-6" id="date_start">
                     <label for="">{% trans "From:" %}</label>
-                    <input style="padding:0 15px;" value="yyyy-mm-dd" data-date-format="YYYY-MM-DD" type="text" class="datepicker form-control" placeholder="{% trans 'yyyy-mm-dd' %}" ng-model="date_query.date__gte">
+                    <input style="padding:0 15px;" value="yyyy-mm-dd" data-date-format="YYYY-MM-DD" type="text" class="datepicker ll-skin-melon form-control" placeholder="{% trans 'yyyy-mm-dd' %}" ng-model="date_query.date__gte">
                 </div>
                 <div class="col-xs-12 col-md-6" id="date_end">
                     <label for="">{% trans "To:" %}</label>

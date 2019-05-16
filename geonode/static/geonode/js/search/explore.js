@@ -1,8 +1,8 @@
 $(function() {
 
-    $(".datepicker").datetimepicker({
-        // autoclose:true
-        keepOpen:true
+    $(".datepicker").datepicker({
+        dateFormat: 'yy-mm-dd',
+        autoclose:true
     });
   
     $("#slide-pane a.toggle-pane").click(function(e) {
