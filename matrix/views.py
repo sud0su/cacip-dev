@@ -8,7 +8,7 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 
-def savematrix(request=None, action='', resourcecode=settings.MATRIX_DEFAULT_MAP_CODE, resource=None):
+def savematrix(request=None, action='', resourcecode=getattr(settings, 'MATRIX_DEFAULT_MAP_CODE', None), resource=None):
     try:
         if not resource:
             from geonode.maps.views import _resolve_map, _PERMISSION_MSG_VIEW
