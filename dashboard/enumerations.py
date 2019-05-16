@@ -36,7 +36,7 @@
 
 # EPR-BGD
 def build_dashboard_meta():
-	print 'def build_dashboard_meta() start'
+	# print 'def build_dashboard_meta() start'
 
 	from geonode.settings import INSTALLED_APPS, STATICFILES_DIRS
 
