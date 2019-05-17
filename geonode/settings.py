@@ -943,6 +943,7 @@ AUTH_EXEMPT_URLS += (
     '^/$',
     '/account/signup/',
     '^/autocomplete/ResourceBaseAutocomplete',
+    '^/api/documents/$',
 )
 
 # A tuple of hosts the proxy can send requests to.
@@ -1341,8 +1342,3 @@ INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
 
 # Choose thumbnail generator -- this is the default generator
 THUMBNAIL_GENERATOR = "geonode.layers.utils.create_gs_thumbnail_geonode"
-
-try:
-    from geonode.local_settings import *  # flake8: noqa
-except ImportError:
-    pass

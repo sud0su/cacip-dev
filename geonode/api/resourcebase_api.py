@@ -63,6 +63,8 @@ from .api import ThesaurusKeywordResource
 from .api import TopicCategoryResource, GroupResource
 from .api import FILTER_TYPES
 
+from geonode.documents.enumerations import DOCUMENT_TYPE_SUBJECTS
+
 if settings.HAYSTACK_SEARCH:
     from haystack.query import SearchQuerySet  # noqa
 
@@ -145,6 +147,7 @@ class CommonModelApi(ModelResource):
         'has_time',
         'is_approved',
         'is_published',
+        'doc_type',
     ]
 
     def build_filters(self, filters=None, ignore_bad_filters=False, **kwargs):
@@ -973,6 +976,8 @@ class DocumentResource(CommonModelApi):
             # Probe Remote Services
             formatted_obj['store_type'] = 'dataset'
             formatted_obj['online'] = True
+
+            formatted_obj['doc_type_long'] = dict(DOCUMENT_TYPE_SUBJECTS)[obj.doc_type]
 
             formatted_objects.append(formatted_obj)
         return formatted_objects

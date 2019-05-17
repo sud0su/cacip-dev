@@ -236,6 +236,7 @@ class RegionResource(TypeFilteredResource):
         filtering = {
             'name': ALL,
             'code': ALL,
+            'level': ALL,
         }
         if settings.API_INCLUDE_REGIONS_COUNT:
             serializer = CountJSONSerializer()
