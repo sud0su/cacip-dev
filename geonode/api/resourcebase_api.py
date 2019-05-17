@@ -147,7 +147,6 @@ class CommonModelApi(ModelResource):
         'has_time',
         'is_approved',
         'is_published',
-        'doc_type',
     ]
 
     def build_filters(self, filters=None, ignore_bad_filters=False, **kwargs):
@@ -945,6 +944,7 @@ class MapResource(CommonModelApi):
 class DocumentResource(CommonModelApi):
 
     """Documents API"""
+    VALUES = CommonModelApi.VALUES+['doc_type']
 
     def format_objects(self, objects):
         """

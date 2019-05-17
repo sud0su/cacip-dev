@@ -944,6 +944,7 @@ AUTH_EXEMPT_URLS += (
     '/account/signup/',
     '^/autocomplete/ResourceBaseAutocomplete',
     '^/api/documents/$',
+    '^/api/base/$',
 )
 
 # A tuple of hosts the proxy can send requests to.
