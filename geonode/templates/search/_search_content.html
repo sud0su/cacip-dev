@@ -35,9 +35,23 @@
                 <div class="filter-toolbar-container">
                     {% include "search/_filter_toolbar.html" %}
                 </div>
+                <div>
+                    <span ng-bind="'Total : ' + total_counts + ' {{ facet_type | title }}'" class="pull-left"></span>
+                    <div class="g-margin-b-20--xs text-right">
+                        {% if 'documents' in request.path %}
+                            <a href="{% url "document_upload" %}" class="btn btn-primary">{% trans "Upload Documents" %}</a>
+                        {% elif 'maps' in request.path %}
+                            {% if user.is_superuser %}
+                                <a href="{% url "new_map" %}" class="btn btn-primary">{% trans "Create a New Map" %}</a>
+                            {% endif %}
+                        {% elif 'layers' in request.path %}
+                            <a href="{% url "layer_upload" %}" class="btn btn-primary">{% trans "Upload Layers" %}</a>
+                        {% endif %}
+                    </div>
+                </div>
                 <resource-cart data-facet-type="{{ facet_type }}"></resource-cart>
                 {% include 'search/_set_permission_btn_group.html' %}
-                <div class="row">
+                <div class="row hide">
                     <div class="col-md-12"><span ng-bind="'Total : ' + total_counts + ' {{ facet_type | title }}'" class="pull-right"></span></div>
                 </div>
                 <div class="row">

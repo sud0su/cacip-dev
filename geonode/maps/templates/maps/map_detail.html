@@ -25,6 +25,10 @@
 
 {% block body_class %}maps{% endblock %}
 
+{% block breadcrumb %}
+    <li class="active">{{ resource.title }}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
   {% overall_rating resource "map" as map_rating %}
 
@@ -38,7 +42,7 @@
         <h2 class="page-title">{{ resource.title }}</h2>
     </div>
 
-    <div class="row g-margin-t-45--xs g-margin-b-45--xs">
+    <div class="row g-margin-t-25--xs g-margin-b-45--xs">
         <div class="col-xs-12 visible-xs-block visible-sm">
             <div class="panel panel-default">
                 <div class="panel-body">

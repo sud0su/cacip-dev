@@ -21,6 +21,13 @@
     <h2>{% trans "Upload Layer Style" %}</h2>
 {% endblock layer_upload_title %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ resource.get_absolute_url }}">{{ resource.title }}</a>
+    </li>
+    <li class="active">{% trans "Upload Layer Style" %}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
     <div class="page-header hide">
         <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right"

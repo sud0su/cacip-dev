@@ -20,6 +20,13 @@
     <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-inverse pull-right">{% trans "Explore Layers" %}</a>
 {% endblock add_on_btn %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ layer.get_absolute_url }}">{{ layer.title }}</a>
+    </li>
+    <li class="active">{% trans "Upload Layer Metadata" %}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
     <div class="page-header hide">
         <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right"

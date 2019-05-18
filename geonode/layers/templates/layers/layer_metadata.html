@@ -14,6 +14,13 @@
 
 {% block body_class %}data{% endblock body_class %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ layer.get_absolute_url }}">{{ layer.title }}</a>
+    </li>
+    <li class="active">{% trans "Metadata" %}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
     <div class="g-margin-t-35--xs" style="position: relative; min-height: 90px;">
         <h2 class="page-title">{% trans "Metadata" %}&nbsp;{% blocktrans with layer.title as layer_title %}for {{ layer_title }}{% endblocktrans %}</h2>

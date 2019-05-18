@@ -6,7 +6,7 @@
 {% block body_class %}documents{% endblock %}
 
 {% block middle %}
-    <section class="single-page-title single-page-title-about">
+    <section class="single-page-title single-page-title-about hide">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -20,6 +20,18 @@
         </div>
     </section>
     <!-- .page-title -->
+
+    <section class="breadcrumb-section">
+        <div class="container">
+            <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">
+                <li>
+                    <a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a>
+                </li>
+                {% block breadcrumb %}
+                {% endblock breadcrumb %}
+            </ol>
+        </div>
+    </section>
     {{ block.super }}
 {% endblock middle %}
 

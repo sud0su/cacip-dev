@@ -9,6 +9,13 @@
 
 {% block body_class %}data{% endblock body_class %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ document.get_absolute_url }}">{{ document.title }}</a>
+    </li>
+    <li class="active">{% trans "Metadata" %}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
 
     {{ block.super }}

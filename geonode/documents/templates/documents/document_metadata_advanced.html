@@ -13,6 +13,13 @@
     <h2>{% trans "Edit Metadata" %}</h2>
 {% endblock metadata_title %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ document.get_absolute_url }}">{{ document.title }}</a>
+    </li>
+    <li class="active">{% trans "Metadata Advanced" %}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
 
     {{ block.super }}
@@ -22,9 +29,9 @@
             class="btn btn-primary pull-right">{% trans "Explore Documents" %}</a>
         <h2 class="page-title">{% trans "Edit Metadata" %}</h2>
     </div>
-    <div class="row g-margin-t-45--xs g-margin-b-45--xs">
+    <div class="row g-margin-t-25--xs g-margin-b-45--xs">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body g-margin-t-45--xs">
                 <p class="lead g-font-weight--400">{% trans "Editing details for" %} {{ document.title }}</p>
                 <form id="metadata_update" class="form-horizontal" action="{% url "document_metadata" document.id %}" method="POST">
                     <div class="col-md-8 col-md-push-2">

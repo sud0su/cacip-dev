@@ -24,7 +24,7 @@
 {% endblock head %}
 
 {% block middle %}
-    <section class="single-page-title single-page-title-about">
+    <section class="single-page-title single-page-title-about hide">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -33,14 +33,46 @@
             </div>
         </div>
     </section>
+
+    <section class="breadcrumb-section">
+        <div class="container">
+            <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">
+                {% if 'documents' in request.path %}
+                    <li>
+                        <a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a>
+                    </li>
+                    <li>
+                        <a href="{{ resource.get_absolute_url }}">{{ resource.title }}</a>
+                    </li>
+                {% elif 'maps' in request.path %}
+                    <li>
+                        <a href="{% url 'maps_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Interactive Maps" %}</a>
+                    </li>
+                    <li>
+                        <a href="{{ resource.get_absolute_url }}">{{ resource.title }}</a>
+                    </li>
+                {% elif 'layers' in request.path %}
+                    <li>
+                        <a href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Layers" %}</a>
+                    </li>
+                    <li>
+                        <a href="{{ resource.get_absolute_url }}">{{ resource.title }}</a>
+                    </li>
+                {% endif %}
+                {% block breadcrumb %}
+                    <li class="active">{% trans "Metadata Detail" %}</li>
+                {% endblock breadcrumb %}
+            </ol>
+        </div>
+    </section>
     {{ block.super }}
 {% endblock middle %}
 
 {% block body_outer %}
 
 
-<div class="panel panel-default g-margin-t-45--xs g-margin-b-45--xs">
-    <div class="panel-body">
+<div class="panel panel-default g-margin-t-25--xs g-margin-b-45--xs">
+    <div class="panel-body g-margin-t-45--xs">
         <h2 class="page-title g-text-center--xs g-font-weight--400">{% trans "Metadata" %} : {{ resource.title }}</h2>
         <div class="g-text-right--xs">
             {% if resource.class_name == "Document" %}

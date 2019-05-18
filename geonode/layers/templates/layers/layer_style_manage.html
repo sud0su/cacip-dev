@@ -9,6 +9,13 @@
     <h2>{% trans "Manage Styles" %}</h2>
 {% endblock layer_title %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ layer.get_absolute_url }}">{{ layer.title }}</a>
+    </li>
+    <li class="active">{% trans "Manage Styles" %}</li>
+{% endblock breadcrumb %}
+
 {% block body_outer %}
     {% if error %}
     <div class="alert alert-error">{{ error }}</div>

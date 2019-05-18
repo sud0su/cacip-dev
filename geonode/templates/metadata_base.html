@@ -144,7 +144,7 @@
 {% block body_class %}data{% endblock body_class %}
 
 {% block middle %}
-    <section class="single-page-title single-page-title-about">
+    <section class="single-page-title single-page-title-about hide">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -156,6 +156,28 @@
         </div>
     </section>
     <!-- .page-title -->
+
+    <section class="breadcrumb-section">
+        <div class="container">
+            <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">
+                {% if 'documents' in request.path %}
+                    <li>
+                        <a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a>
+                    </li>
+                {% elif 'maps' in request.path %}
+                    <li>
+                        <a href="{% url 'maps_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Interactive Maps" %}</a>
+                    </li>
+                {% elif 'layers' in request.path %}
+                    <li>
+                        <a href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Layers" %}</a>
+                    </li>
+                {% endif %}
+                {% block breadcrumb %}
+                {% endblock breadcrumb %}
+            </ol>
+        </div>
+    </section>
     {{ block.super }}
 {% endblock middle %}
 

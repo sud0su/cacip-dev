@@ -7,9 +7,16 @@
     <h2>{% trans "Remove Static Maps" %}</h2>
 {% endblock doc_title %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ document.get_absolute_url }}">{{ document.title }}</a>
+    </li>
+    <li class="active">{% trans "Remove Static Map" %}</li>
+{% endblock breadcrumb %}
+
 {% block body %}
 
-<div class="panel panel-default g-margin-t-45--xs g-margin-b-45--xs">
+<div class="panel panel-default g-margin-t-25--xs g-margin-b-45--xs">
     <div class="panel-body">
         <div class="row">
             <div class="col-md-10 col-md-push-1">

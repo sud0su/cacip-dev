@@ -8,9 +8,16 @@
     <h2>{% trans "Remove Layers" %}</h2>
 {% endblock layer_title %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="{{ layer.get_absolute_url }}">{{ layer.alternate }}</a>
+    </li>
+    <li class="active">{% trans "Remove Layer" %}</li>
+{% endblock breadcrumb %}
+
 {% block body %}
    
-   <div class="panel panel-default g-margin-t-45--xs g-margin-b-45--xs">
+   <div class="panel panel-default g-margin-t-25--xs g-margin-b-45--xs">
        <div class="panel-body">
            <div class="row">
                <div class="text-center">

@@ -116,6 +116,10 @@ ul {
     background: #fff;
     }
 
+#wrap{
+    min-height: 75vh;
+}
+
 /*Button Style*/
 .btn,
 .pagination {
@@ -329,7 +333,8 @@ Shortcode Content
     }
 
 .navbar-default .navbar-nav > li > a {
-    color          : #303841;
+    /* color          : #303841; */
+    color          : #fff;
     font-size      : 15px;
     font-weight    : 400;
     padding        : 10px 15px;
@@ -340,20 +345,23 @@ Shortcode Content
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
     color            : #2a93fc;
-    background-color : transparent;
+    /* background-color : transparent; */
+    background-color : #fff;
     }
 
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:focus,
 .navbar-default .navbar-nav > .active > a:hover {
     color            : #2a93fc;
-    background-color : transparent;
+    /* background-color : transparent; */
+    background-color : #fff;
     }
 
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
     color : #2a93fc;
-    }
+    /* border-bottom: 1px solid #fff; */
+}
 
 .nav-cta {
     float              : right;
@@ -406,7 +414,7 @@ Shortcode Content
 
 @media (min-width: 992px) {
     .navbar-default {
-        background-color   : #fff;
+        background-color   : #037CF5;
         padding            : 30px 0;
         border             : none;
         border-radius: 0;
@@ -986,8 +994,9 @@ a.ui-state-focus,
 }
 
 .hero-slide .carousel-inner{
-    max-height: 50vh;
-    height: 50vh;
+    /* max-height: 50vh;
+    height: 50vh; */
+    height: 400px;
 }
 
 .hero-slide .carousel-inner-img{
@@ -1411,6 +1420,9 @@ a.ui-state-focus,
 
 .filter-toolbar-container{
     margin-bottom: 10px;
+    background-color: #fff;
+    padding: 8px 15px 0;
+    border-radius: 5px;
 }
 
 .list-container{
@@ -1983,6 +1995,16 @@ icon-style
     border-color: #F1F1F1;
 }
 
+/*-------------------
+ * Breadcrumb Style
+ *-------------------*/
+.breadcrumb{
+    background: transparent;
+}
+
+.breadcrumb-section{
+    padding-top: 15px;
+}
 
 /* --------------------------------------------
  *   Footer
