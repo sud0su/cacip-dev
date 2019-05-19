@@ -36,6 +36,7 @@ from urlparse import urljoin, urlsplit
 from django.db import models
 from django.core import serializers
 from django.db.models import Q, signals
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -47,6 +48,7 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.core.files.storage import default_storage as storage
 from django.core.files.base import ContentFile
 from django.contrib.gis.geos import GEOSGeometry
+from django.utils.timezone import now
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -156,7 +158,7 @@ class SpatialRepresentationType(models.Model):
     is_choice = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return self.gn_description
+        return u"{0}".format(self.gn_description)
 
     class Meta:
         ordering = ("identifier",)
@@ -209,7 +211,7 @@ class Region(MPTTModel):
         default='EPSG:4326')
 
     def __unicode__(self):
-        return self.name
+        return u"{0}".format(self.name)
 
     @property
     def bbox(self):
@@ -258,7 +260,7 @@ class RestrictionCodeType(models.Model):
     is_choice = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return self.gn_description
+        return u"{0}".format(self.gn_description)
 
     class Meta:
         ordering = ("identifier",)
@@ -287,7 +289,7 @@ class License(models.Model):
     license_text = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return u"{0}".format(self.name)
 
     @property
     def name_long(self):
@@ -550,7 +552,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     alternate = models.CharField(max_length=128, null=True, blank=True)
     date = models.DateTimeField(
         _('date'),
-        default=datetime.datetime.now,
+        default=now,
         help_text=date_help_text)
     date_type = models.CharField(
         _('date type'),
@@ -591,6 +593,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         manager=_HierarchicalTagManager)
     tkeywords = models.ManyToManyField(
         ThesaurusKeyword,
+        verbose_name=_('keywords'),
         help_text=tkeywords_help_text,
         blank=True)
     regions = models.ManyToManyField(
@@ -734,7 +737,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     # metadata XML specific fields
     metadata_uploaded = models.BooleanField(default=False)
-    metadata_uploaded_preserve = models.BooleanField(default=False)
+    metadata_uploaded_preserve = models.BooleanField(_('Metadata uploaded preserve'), default=False)
     metadata_xml = models.TextField(
         null=True,
         default='<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd"/>',
@@ -755,17 +758,48 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         help_text=_('Is this resource validated from a publisher or editor?'))
 
     # fields necessary for the apis
-    thumbnail_url = models.TextField(null=True, blank=True)
+    thumbnail_url = models.TextField(_("Thumbnail url"), null=True, blank=True)
     detail_url = models.CharField(max_length=255, null=True, blank=True)
     rating = models.IntegerField(default=0, null=True, blank=True)
 
     def __unicode__(self):
-        return self.title
+        return u"{0}".format(self.title)
+
+    def get_upload_session(self):
+        raise NotImplementedError()
+
+    @property
+    def creator(self):
+        return self.owner.get_full_name() or self.owner.username
+
+    @property
+    def organizationname(self):
+        return self.owner.organization
+
+    @property
+    def restriction_code(self):
+        return self.restriction_code_type.gn_description
+
+    @property
+    def publisher(self):
+        return self.poc.get_full_name() or self.poc.username
+
+    @property
+    def contributor(self):
+        return self.metadata_author.get_full_name() or self.metadata_author.username
+
+    @property
+    def topiccategory(self):
+        return self.category.identifier
+
+    @property
+    def csw_crs(self):
+        return self.srid
 
     @property
     def group_name(self):
         if self.group:
-            return str(self.group)
+            return str(self.group).encode("utf-8", "replace")
         return None
 
     @property
@@ -779,6 +813,24 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
             self.srid]
 
     @property
+    def ll_bbox(self):
+        """BBOX is in the format: [x0,x1,y0,y1]."""
+        from geonode.utils import bbox_to_projection
+        llbbox = self.bbox[0:4]
+        if self.srid and 'EPSG:' in self.srid:
+            try:
+                llbbox = bbox_to_projection([float(coord) for coord in llbbox] + [self.srid, ],
+                                            target_srid=4326)
+            except BaseException:
+                pass
+        return [
+            llbbox[0],  # x0
+            llbbox[1],  # x1
+            llbbox[2],  # y0
+            llbbox[3],  # y1
+            self.srid]
+
+    @property
     def bbox_string(self):
         """BBOX is in the format: [x0,y0,x1,y1]."""
         return ",".join([str(self.bbox_x0), str(self.bbox_y0),
@@ -787,11 +839,12 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     @property
     def geographic_bounding_box(self):
         """BBOX is in the format: [x0,x1,y0,y1]."""
+        llbbox = self.ll_bbox[0:4]
         return bbox_to_wkt(
-            self.bbox_x0,
-            self.bbox_x1,
-            self.bbox_y0,
-            self.bbox_y1,
+            llbbox[0],  # x0
+            llbbox[1],  # x1
+            llbbox[2],  # y0
+            llbbox[3],  # y1
             srid=self.srid)
 
     @property
@@ -849,13 +902,13 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         return '{}%'.format(len(filled_fields) * 100 / len(required_fields))
 
     def keyword_list(self):
-        return [kw.name for kw in self.keywords.all()]
+        return [kw.name.encode("utf-8", "replace") for kw in self.keywords.all()]
 
     def keyword_slug_list(self):
-        return [kw.slug for kw in self.keywords.all()]
+        return [kw.slug.encode("utf-8", "replace") for kw in self.keywords.all()]
 
     def region_name_list(self):
-        return [region.name for region in self.regions.all()]
+        return [region.name.encode("utf-8", "replace") for region in self.regions.all()]
 
     def spatial_representation_type_string(self):
         if hasattr(self.spatial_representation_type, 'identifier'):
@@ -916,6 +969,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         self.bbox_x1 = lon + distance_x_degrees
         self.bbox_y0 = lat - distance_y_degrees
         self.bbox_y1 = lat + distance_y_degrees
+        self.srid = 'EPSG:4326'
 
     def set_bounds_from_bbox(self, bbox, srid):
         """
@@ -940,24 +994,28 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         self.bbox_y1 = bbox[3]
         self.srid = srid
 
-        minx, maxx, miny, maxy = [float(c) for c in bbox]
-        x = (minx + maxx) / 2
-        y = (miny + maxy) / 2
-        (center_x, center_y) = forward_mercator((x, y))
+        if srid == "EPSG:4326":
+            minx, maxx, miny, maxy = [float(c) for c in bbox]
+            x = (minx + maxx) / 2
+            y = (miny + maxy) / 2
+            (center_x, center_y) = forward_mercator((x, y))
 
-        xdiff = maxx - minx
-        ydiff = maxy - miny
+            xdiff = maxx - minx
+            ydiff = maxy - miny
 
-        zoom = 0
+            zoom = 0
 
-        if xdiff > 0 and ydiff > 0:
-            width_zoom = math.log(360 / xdiff, 2)
-            height_zoom = math.log(360 / ydiff, 2)
-            zoom = math.ceil(min(width_zoom, height_zoom))
+            if xdiff > 0 and ydiff > 0:
+                width_zoom = math.log(360 / xdiff, 2)
+                height_zoom = math.log(360 / ydiff, 2)
+                zoom = math.ceil(min(width_zoom, height_zoom))
 
-        self.zoom = zoom
-        self.center_x = center_x
-        self.center_y = center_y
+            try:
+                self.zoom = zoom
+                self.center_x = center_x
+                self.center_y = center_y
+            except BaseException:
+                pass
 
     def download_links(self):
         """assemble download links for pycsw"""
@@ -1068,7 +1126,8 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
                 filename).replace(
                 '\\',
                 '/')
-            url = urljoin(settings.SITEURL, url_path)
+            site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
+            url = urljoin(site_url, url_path)
 
             # should only have one 'Thumbnail' link
             obj, created = Link.objects.get_or_create(resource=self,
@@ -1205,7 +1264,7 @@ class LinkManager(models.Manager):
         return self.get_queryset().filter(link_type='image')
 
     def download(self):
-        return self.get_queryset().filter(link_type__in=['image', 'data'])
+        return self.get_queryset().filter(link_type__in=['image', 'data', 'original'])
 
     def metadata(self):
         return self.get_queryset().filter(link_type='metadata')
@@ -1251,8 +1310,8 @@ class Link(models.Model):
 
     objects = LinkManager()
 
-    def __str__(self):
-        return '%s link' % self.link_type
+    def __unicode__(self):
+        return u"{0} link".format(self.link_type)
 
 
 def resourcebase_post_save(instance, *args, **kwargs):
@@ -1280,7 +1339,7 @@ def resourcebase_post_save(instance, *args, **kwargs):
         ResourceBase.objects.filter(id=instance.id).update(
             thumbnail_url=instance.get_thumbnail_url(),
             detail_url=instance.get_absolute_url(),
-            csw_insert_date=datetime.datetime.now(),
+            csw_insert_date=now(),
             license=instance.license)
         instance.refresh_from_db()
     except BaseException:
@@ -1374,7 +1433,7 @@ def do_login(sender, user, request, **kwargs):
             AccessToken.objects.get_or_create(
                 user=user,
                 application=app,
-                expires=datetime.datetime.now() +
+                expires=datetime.datetime.now(timezone.get_current_timezone()) +
                 datetime.timedelta(
                     days=1),
                 token=token)
@@ -1383,7 +1442,7 @@ def do_login(sender, user, request, **kwargs):
             token = u.hex
 
         # Do GeoServer Login
-        url = "%s%s?access_token=%s" % (settings.OGC_SERVER['default']['PUBLIC_LOCATION'],
+        url = "%s%s&access_token=%s" % (settings.OGC_SERVER['default']['LOCATION'],
                                         'ows?service=wms&version=1.3.0&request=GetCapabilities',
                                         token)
 
@@ -1426,20 +1485,20 @@ def do_logout(sender, user, request, **kwargs):
             pass
 
         # Do GeoServer Logout
-        if 'access_token' in request.session:
+        if request and 'access_token' in request.session:
             access_token = request.session['access_token']
         else:
             access_token = None
 
         if access_token:
-            url = "%s%s?access_token=%s" % (settings.OGC_SERVER['default']['PUBLIC_LOCATION'],
+            url = "%s%s?access_token=%s" % (settings.OGC_SERVER['default']['LOCATION'],
                                             settings.OGC_SERVER['default']['LOGOUT_ENDPOINT'],
                                             access_token)
             header_params = {
                 "Authorization": ("Bearer %s" % access_token)
             }
         else:
-            url = "%s%s" % (settings.OGC_SERVER['default']['PUBLIC_LOCATION'],
+            url = "%s%s" % (settings.OGC_SERVER['default']['LOCATION'],
                             settings.OGC_SERVER['default']['LOGOUT_ENDPOINT'])
 
         param = {}

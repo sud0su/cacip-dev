@@ -36,6 +36,7 @@ from django.views.generic import ListView
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
+from geonode.decorators import view_decorator, superuser_only
 
 from . import forms
 from . import models
@@ -44,6 +45,7 @@ from .models import GroupMember
 logger = logging.getLogger(__name__)
 
 
+@view_decorator(superuser_only, subclass=True)
 class GroupCategoryCreateView(CreateView):
     model = models.GroupCategory
     fields = ['name', 'description']
@@ -58,12 +60,13 @@ class GroupCategoryUpdateView(UpdateView):
     fields = ['name', 'description']
     template_name_suffix = '_update_form'
 
+
 group_category_create = GroupCategoryCreateView.as_view()
 group_category_detail = GroupCategoryDetailView.as_view()
 group_category_update = GroupCategoryUpdateView.as_view()
 
 
-@login_required
+@superuser_only
 def group_create(request):
     if request.method == "POST":
         form = forms.GroupForm(request.POST, request.FILES)
@@ -134,6 +137,7 @@ class GroupDetailView(ListView):
         context['object'] = self.group
         context['maps'] = self.group.resources(resource_type='map')
         context['layers'] = self.group.resources(resource_type='layer')
+        context['documents'] = self.group.resources(resource_type='document')
         context['is_member'] = self.group.user_is_member(self.request.user)
         context['is_manager'] = self.group.user_is_role(
             self.request.user,
@@ -272,6 +276,14 @@ class GroupActivityView(ListView):
             for action in actions
             if action.action_object and action.action_object.group == self.group.group][:15]
         action_list.extend(context['action_list_maps'])
+        actions = Action.objects.filter(
+            public=True,
+            action_object_content_type__model='document')[:15]
+        context['action_list_documents'] = [
+            action
+            for action in actions
+            if action.action_object and action.action_object.group == self.group.group][:15]
+        action_list.extend(context['action_list_documents'])
         context['action_list_comments'] = Action.objects.filter(
             public=True,
             actor_object_id__in=members,

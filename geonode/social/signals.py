@@ -96,6 +96,7 @@ def activity_post_modify_object(sender, instance, created=None, **kwargs):
                                       updated_verb=_("updated a comment"),
                                       )
     action_settings['layer'].update(created_verb=_('uploaded'))
+    action_settings['document'].update(created_verb=_('uploaded'))
 
     action = action_settings[obj_type]
     if created:
@@ -127,7 +128,7 @@ def activity_post_modify_object(sender, instance, created=None, **kwargs):
                           raw_action=raw_action,
                           )
         # except ModelNotActionable:
-        except:
+        except BaseException:
             logger.debug('The activity received a non-actionable Model or None as the actor/action.')
 
 
@@ -150,6 +151,9 @@ if activity:
 
     signals.post_save.connect(activity_post_modify_object, sender=Map)
     signals.post_delete.connect(activity_post_modify_object, sender=Map)
+
+    signals.post_save.connect(activity_post_modify_object, sender=Document)
+    signals.post_delete.connect(activity_post_modify_object, sender=Document)
 
 
 def notification_post_save_resource(instance, sender, created, **kwargs):
@@ -253,7 +257,7 @@ def json_serializer_producer(dictionary):
             y = str(y)
         # check datetime object
         # TODO: Use instanceof
-        if type(y) == datetime.datetime:
+        if isinstance(y, datetime.datetime):
             y = str(y)
 
         output[x] = y

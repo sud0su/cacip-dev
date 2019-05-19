@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#
+#########################################################################
 #
 # Copyright (C) 2016 OSGeo
 #
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-#
+#########################################################################
 
 from django.conf import settings
 from django.conf.urls import url
@@ -49,6 +49,8 @@ urlpatterns = [  # 'geonode.geoserver.views',
                                                        downstream_path='wfs'), name='wfs_endpoint'),
     url(r'^wcs', views.geoserver_protected_proxy, dict(proxy_path='/gs/wcs',
                                                        downstream_path='wcs'), name='wcs_endpoint'),
+    url(r'^wps', views.geoserver_proxy, dict(proxy_path='/gs/wps',
+                                             downstream_path='wps'), name='wps_endpoint'),
     url(r'^pdf', views.geoserver_proxy, dict(proxy_path='/gs/pdf',
                                              downstream_path='pdf'), name='pdf_endpoint'),
     url(r'^(?P<workspace>[^/]*)/(?P<layername>[^/]*)/wms',

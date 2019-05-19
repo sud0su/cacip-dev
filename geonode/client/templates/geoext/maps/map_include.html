@@ -1,9 +1,11 @@
 {% include "geoext/ext_header.html" %}
 {% include "geoext/app_header.html" %}
 {% include "geoext/geo_header.html" %}
-<script type="text/javascript" src="{{ STATIC_URL}}geonode/js/extjs/GeoNode-mixin.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL}}geonode/js/extjs/Geonode-CatalogueApiSearch.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL}}geonode/js/extjs/GeoNode-GeoExplorer.js"></script>
+{% load static from staticfiles %}
+<script type="text/javascript" src="{% static "geonode/js/extjs/GeoNode-mixin.js" %}"></script>
+<script type="text/javascript" src="{% static "geonode/js/extjs/Geonode-CatalogueApiSearch.js" %}"></script>
+<script type="text/javascript" src="{% static "geonode/js/extjs/GeoNode-GeoExplorer.js" %}"></script>
+<script type="text/javascript" src="{% static "geonode/js/utils/thumbnail.js" %}"></script>
 <script type="text/javascript">
 var app;
 Ext.onReady(function() {
@@ -53,7 +55,8 @@ Ext.onReady(function() {
                       305.74811309814453, 152.87405654907226, 76.43702827453613,
                       38.218514137268066, 19.109257068634033, 9.554628534317017,
                       4.777314267158508, 2.388657133579254, 1.194328566789627,
-                      0.5971642833948135, 0.25, 0.1, 0.05];
+                      0.5971642833948135, 0.2985821416974067, 0.1492910708487033,
+                      0.0746455354243516];
                 }
                 app.mapPanel.map.getServerResolutions = function() {
                       return [156543.03390625, 78271.516953125, 39135.7584765625,
@@ -163,38 +166,23 @@ Ext.onReady(function() {
                 var map = app.mapPanel.map;
                 var layer = app.map.layers.slice(-1)[0];
                 var bbox = layer.bbox;
-                var crs = layer.crs
+                var crs = layer.srs;
                 if (bbox != undefined)
                 {
-                   if (!Array.isArray(bbox) && Object.keys(layer.srs) in bbox) {
-                    bbox = bbox[Object.keys(layer.srs)].bbox;
-                   }
-
                    var extent = new OpenLayers.Bounds();
 
-                   if(crs && crs.properties) {
-                       extent.left = bbox[0];
-                       extent.right = bbox[2];
-                       extent.bottom = bbox[1];
-                       extent.top = bbox[3];
-
-                       if (crs.properties != map.projection) {
-                           extent = extent.clone().transform(crs.properties, map.projection);
-                       }
-                   } else {
+                   if (layer.capability.bbox &&
+                            !Array.isArray(layer.capability.bbox) &&
+                                    map.projection in layer.capability.bbox) {
+                       bbox = layer.capability.bbox[map.projection].bbox;
                        extent = OpenLayers.Bounds.fromArray(bbox);
-                   }
-
-                   var zoomToData = function()
-                   {
-                       map.zoomToExtent(extent, false);
-                       app.mapPanel.center = map.center;
-                       app.mapPanel.zoom = map.zoom;
-                       map.events.unregister('changebaselayer', null, zoomToData);
-                   };
-                   map.events.register('changebaselayer',null,zoomToData);
-                   if(map.baseLayer){
-                       map.zoomToExtent(extent, false);
+                   } else {
+                       if (crs != map.projection) {
+                           extent = OpenLayers.Bounds.fromArray(bbox);
+                           extent = extent.clone().transform(crs, map.projection);
+                       } else {
+                           extent = OpenLayers.Bounds.fromArray(bbox);
+                       }
                    }
                 }
             },

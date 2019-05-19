@@ -41,7 +41,7 @@ If you want to use Docker you can now::
     docker-compose build
 
     # run the docker container
-    docker-compose up
+    docker-compose up -f docker-compose.yml -f docker-compose.override.localhost.yml -d
 
     # turn it off
     docker-compose down
@@ -62,7 +62,7 @@ Or if you want to use the provided Makefile::
 
     # complete development setup
     make develop
-    
+
 .. note:: For development you need to add ``geonode`` alias into ``/etc/hosts/`` file as following::
 
         $ sudo vim /etc/hosts
@@ -82,7 +82,7 @@ For GeoServer: http://geonode/geoserver/web/
 Ubuntu
 ------
 
-Ubuntu development build instructions using an isolated virtual environment (tested on Ubuntu 14.04 LTS)::
+Ubuntu development build instructions using an isolated virtual environment (tested on Ubuntu 16.04 LTS)::
 
     # Install Ubuntu dependencies
     sudo apt-get update
@@ -102,8 +102,8 @@ Ubuntu development build instructions using an isolated virtual environment (tes
     cd geonode
 
     # Install pip dependencies
-    pip install -r requirements.txt --no-deps
-    pip install -e .
+    pip install -r requirements.txt --upgrade
+    pip install -e . --upgrade --no-cache
     pip install pygdal==1.11.3.3
 
 For Ubuntu 16.04 you should create your virtual-env like this instead (so with site packages)::
@@ -266,7 +266,7 @@ Mac OSX Development Build Instructions::
     npm install -g grunt-cli
 
     #Install pip dependencies
-    pip install -e .
+    pip install -e . --upgrade --no-cache
 
     #Paver handles dependencies for Geonode, first setup (this will download and update your python dependencies - ensure you're in a virtualenv)
     paver setup

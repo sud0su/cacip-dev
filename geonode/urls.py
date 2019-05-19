@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#
+#########################################################################
 #
 # Copyright (C) 2018 OSGeo
 #
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-#
+#########################################################################
 
 import django
 from django.conf.urls import include, url
@@ -34,7 +34,7 @@ import geonode.proxy.urls
 from . import views
 
 from geonode.api.urls import api
-from geonode.api.views import verify_token, roles, users, admin_role
+from geonode.api.views import verify_token, user_info, roles, users, admin_role
 
 from geonode import geoserver, qgis_server  # noqa
 from geonode.utils import check_ogc_backend
@@ -56,21 +56,28 @@ sitemaps = {
     "map": MapSitemap
 }
 
-urlpatterns = [  # '',
-    # Static pages
-    url(r'^$',
-        TemplateView.as_view(template_name='index.html'),
-        name='home'),
-    url(r'^help/$',
-        TemplateView.as_view(template_name='help.html'),
-        name='help'),
-    url(r'^developer/$',
-        TemplateView.as_view(
-        template_name='developer.html'),
-        name='developer'),
-    url(r'^about/$',
-        TemplateView.as_view(template_name='about.html'),
-        name='about'),
+urlpatterns = [
+                url(r'^$',
+                    TemplateView.as_view(template_name='index.html'),
+                    name='home'),
+                url(r'^help/$',
+                    TemplateView.as_view(template_name='help.html'),
+                    name='help'),
+                url(r'^developer/$',
+                    TemplateView.as_view(
+                    template_name='developer.html'),
+                    name='developer'),
+                url(r'^about/$',
+                    TemplateView.as_view(template_name='about.html'),
+                    name='about'),
+              ]
+
+# WorldMap
+if settings.USE_WORLDMAP:
+    urlpatterns += [url(r'', include('geonode.contrib.worldmap.wm_extra.urls', namespace='worldmap'))]
+    urlpatterns += [url(r'', include('geonode.contrib.worldmap.gazetteer.urls', namespace='gazetteer'))]
+
+urlpatterns += [
 
     # Layer views
     url(r'^layers/', include('geonode.layers.urls')),
@@ -155,6 +162,8 @@ urlpatterns = [  # '',
     # Api Views
     url(r'^api/o/v4/tokeninfo',
         verify_token, name='tokeninfo'),
+    url(r'^api/o/v4/userinfo',
+        user_info, name='userinfo'),
     url(r'^api/roles', roles, name='roles'),
     url(r'^api/adminRole', admin_role, name='adminRole'),
     url(r'^api/users', users, name='users'),
@@ -202,7 +211,7 @@ if check_ogc_backend(geoserver.BACKEND_PACKAGE):
             get_capabilities, name='capabilities_layer'),
         url(r'^capabilities/map/(?P<mapid>\d+)/$',
             get_capabilities, name='capabilities_map'),
-        url(r'^capabilities/user/(?P<user>[\w.-]+)/$',
+        url(r'^capabilities/user/(?P<user>[\w.@+-]+)/$',
             get_capabilities, name='capabilities_user'),
         url(r'^capabilities/category/(?P<category>\w+)/$',
             get_capabilities, name='capabilities_category'),

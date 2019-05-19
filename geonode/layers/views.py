@@ -27,6 +27,9 @@ import traceback
 import uuid
 import decimal
 import re
+import cPickle as pickle
+from django.db.models import Q
+from celery.exceptions import TimeoutError
 
 from django.contrib.gis.geos import GEOSGeometry
 from django.template.response import TemplateResponse
@@ -82,17 +85,14 @@ from geonode.utils import build_social_links
 from geonode.base.views import batch_modify
 from geonode.base.models import Thesaurus
 from geonode.maps.models import Map
-from geonode.geoserver.helpers import (cascading_delete,
-                                       gs_catalog,
+from geonode.geoserver.helpers import (gs_catalog,
                                        ogc_server_settings,
-                                       set_layer_style)
+                                       set_layer_style)  # cascading_delete
 from .tasks import delete_layer
 
-# [EPR-BGD01]
-from matrix.views import savematrix
-
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
-    from geonode.geoserver.helpers import _render_thumbnail
+    from geonode.geoserver.helpers import (_render_thumbnail,
+                                           _prepare_thumbnail_body_from_opts)
 if check_ogc_backend(qgis_server.BACKEND_PACKAGE):
     from geonode.qgis_server.models import QGISServerLayer
 CONTEXT_LOG_FILE = ogc_server_settings.LOG_FILE
@@ -212,7 +212,7 @@ def layer_upload(request, template='upload/layer_upload.html'):
                 else:
                     saved_layer = Layer.objects.get(alternate=title)
                     if not saved_layer:
-                        msg = 'Failed to process.  Could not find matching layer.'
+                        msg = 'Failed to process. Could not find matching layer.'
                         raise Exception(msg)
                     sld = open(base_file).read()
                     set_layer_style(saved_layer, title, base_file, sld)
@@ -239,7 +239,7 @@ def layer_upload(request, template='upload/layer_upload.html'):
                     user=request.user).order_by('-date')
                 if latest_uploads.count() > 0:
                     upload_session = latest_uploads[0]
-                    upload_session.error = str(error)
+                    upload_session.error = pickle.dumps(error).decode("utf-8", "replace")
                     upload_session.traceback = traceback.format_exc(tb)
                     upload_session.context = log_snippet(CONTEXT_LOG_FILE)
                     upload_session.save()
@@ -286,6 +286,16 @@ def layer_upload(request, template='upload/layer_upload.html'):
                 layer_name = saved_layer.alternate if hasattr(
                     saved_layer, 'alternate') else name
                 request.add_resource('layer', layer_name)
+        _keys = ['info', 'errors']
+        for _k in _keys:
+            if _k in out:
+                if isinstance(out[_k], unicode) or isinstance(
+                        out[_k], str):
+                        out[_k] = out[_k].decode(saved_layer.charset).encode("utf-8")
+                elif isinstance(out[_k], dict):
+                    for key, value in out[_k].iteritems():
+                        out[_k][key] = out[_k][key].decode(saved_layer.charset).encode("utf-8")
+                        out[_k][key.decode(saved_layer.charset).encode("utf-8")] = out[_k].pop(key)
         return HttpResponse(
             json.dumps(out),
             content_type='application/json',
@@ -317,7 +327,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             if isinstance(o, decimal.Decimal):
                 o = (str(o) for o in [o])
             _bbox.append(o)
-        return _bbox
+        # Must be in the form : [x0, x1, y0, y1
+        return [_bbox[0], _bbox[2], _bbox[1], _bbox[3]]
 
     def sld_definition(style):
         from urllib import quote
@@ -345,6 +356,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
                              layer.owner.last_name) if layer.owner.first_name or layer.owner.last_name else str(
         layer.owner)
     srs = getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857')
+    srs_srid = int(srs.split(":")[1]) if srs != "EPSG:900913" else 3857
     config["attribution"] = "<span class='gx-attribution-title'>%s</span>" % attribution
     config["format"] = getattr(
         settings, 'DEFAULT_LAYER_FORMAT', 'image/png')
@@ -355,11 +367,13 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     config["bbox"] = decimal_encode(
         bbox_to_projection([float(coord) for coord in layer_bbox] + [layer.srid, ],
                            target_srid=int(srs.split(":")[1]))[:4])
+
     config["capability"] = {
         "abstract": layer.abstract,
         "name": layer.alternate,
         "title": layer.title,
         "queryable": True,
+        "storeType": layer.storeType,
         "bbox": {
             layer.srid: {
                 "srs": layer.srid,
@@ -369,13 +383,19 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
                 "srs": srs,
                 "bbox": decimal_encode(
                     bbox_to_projection([float(coord) for coord in layer_bbox] + [layer.srid, ],
-                                       target_srid=int(srs.split(":")[1]))[:4])
+                                       target_srid=srs_srid)[:4])
             },
             "EPSG:4326": {
                 "srs": "EPSG:4326",
                 "bbox": decimal_encode(bbox) if layer.srid == 'EPSG:4326' else
                 decimal_encode(bbox_to_projection(
                     [float(coord) for coord in layer_bbox] + [layer.srid, ], target_srid=4326)[:4])
+            },
+            "EPSG:900913": {
+                "srs": "EPSG:900913",
+                "bbox": decimal_encode(bbox) if layer.srid == 'EPSG:900913' else
+                decimal_encode(bbox_to_projection(
+                    [float(coord) for coord in layer_bbox] + [layer.srid, ], target_srid=3857)[:4])
             }
         },
         "srs": {
@@ -404,37 +424,82 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             [float(coord) for coord in layer_bbox] + [layer.srid, ], target_srid=4326)[:4])
     }
 
+    all_times = None
+    if check_ogc_backend(geoserver.BACKEND_PACKAGE):
+        from geonode.geoserver.views import get_capabilities
+        workspace, layername = layer.alternate.split(
+            ":") if ":" in layer.alternate else (None, layer.alternate)
+        # WARNING Please make sure to have enabled DJANGO CACHE as per
+        # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
+        wms_capabilities_resp = get_capabilities(
+            request, layer.id, tolerant=True)
+        if wms_capabilities_resp.status_code >= 200 and wms_capabilities_resp.status_code < 400:
+            wms_capabilities = wms_capabilities_resp.getvalue()
+            if wms_capabilities:
+                import xml.etree.ElementTree as ET
+                namespaces = {'wms': 'http://www.opengis.net/wms',
+                              'xlink': 'http://www.w3.org/1999/xlink',
+                              'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+
+                e = ET.fromstring(wms_capabilities)
+                for atype in e.findall(
+                        "./[wms:Name='%s']/wms:Dimension[@name='time']" % (layer.alternate), namespaces):
+                    dim_name = atype.get('name')
+                    if dim_name:
+                        dim_name = str(dim_name).lower()
+                        if dim_name == 'time':
+                            dim_values = atype.text
+                            if dim_values:
+                                all_times = dim_values.split(",")
+                                break
+        if all_times:
+            config["capability"]["dimensions"] = {
+                "time": {
+                    "name": "time",
+                    "units": "ISO8601",
+                    "unitsymbol": None,
+                    "nearestVal": False,
+                    "multipleVal": False,
+                    "current": False,
+                    "default": "current",
+                    "values": all_times
+                }
+            }
+
     if layer.storeType == "remoteStore":
         service = layer.remote_service
-        source_params = {
-            "ptype": service.ptype,
-            "remote": True,
-            "url": service.service_url,
-            "name": service.name,
-            "title": "[R] %s" % service.title}
+        source_params = {}
+        if service.type in ('REST_MAP', 'REST_IMG'):
+            source_params = {
+                "ptype": service.ptype,
+                "remote": True,
+                "url": service.service_url,
+                "name": service.name,
+                "title": "[R] %s" % service.title}
         maplayer = GXPLayer(
             name=layer.alternate,
             ows_url=layer.ows_url,
             layer_params=json.dumps(config),
-            source_params=json.dumps(source_params))
+            source_params=json.dumps(source_params)
+        )
     else:
         maplayer = GXPLayer(
             name=layer.alternate,
             ows_url=layer.ows_url,
-            layer_params=json.dumps(config))
+            layer_params=json.dumps(config)
+        )
 
     # Update count for popularity ranking,
     # but do not includes admins or resource owners
     layer.view_count_up(request.user)
-    if request.user != layer.owner and not request.user.is_superuser:
-        savematrix(request=request, action='Layer View', resource=layer)
 
     # center/zoom don't matter; the viewer will center on the layer bounds
     map_obj = GXPMap(
+        sender=Layer,
         projection=getattr(
             settings,
             'DEFAULT_MAP_CRS',
-            'EPSG:900913'))
+            'EPSG:3857'))
 
     NON_WMS_BASE_LAYERS = [
         la for la in default_map_config(request)[1] if la.ows_url is None]
@@ -475,28 +540,31 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     if check_ogc_backend(geoserver.BACKEND_PACKAGE):
         from geonode.geoserver.views import get_capabilities
-        if layer.has_time:
-            workspace, layername = layer.alternate.split(
-                ":") if ":" in layer.alternate else (None, layer.alternate)
-            # WARNING Please make sure to have enabled DJANGO CACHE as per
-            # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
-            wms_capabilities_resp = get_capabilities(
-                request, layer.id, tolerant=True)
-            if wms_capabilities_resp.status_code >= 200 and wms_capabilities_resp.status_code < 400:
-                wms_capabilities = wms_capabilities_resp.getvalue()
-                if wms_capabilities:
-                    import xml.etree.ElementTree as ET
-                    e = ET.fromstring(wms_capabilities)
-                    for atype in e.findall(
-                            "Capability/Layer/Layer[Name='%s']/Extent" % (layername)):
-                        dim_name = atype.get('name')
-                        if dim_name:
-                            dim_name = str(dim_name).lower()
-                            if dim_name == 'time':
-                                dim_values = atype.text
-                                if dim_values:
-                                    all_times = dim_values.split(",")
-                                    break
+        workspace, layername = layer.alternate.split(
+            ":") if ":" in layer.alternate else (None, layer.alternate)
+        # WARNING Please make sure to have enabled DJANGO CACHE as per
+        # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
+        wms_capabilities_resp = get_capabilities(
+            request, layer.id, tolerant=True)
+        if wms_capabilities_resp.status_code >= 200 and wms_capabilities_resp.status_code < 400:
+            wms_capabilities = wms_capabilities_resp.getvalue()
+            if wms_capabilities:
+                import xml.etree.ElementTree as ET
+                namespaces = {'wms': 'http://www.opengis.net/wms',
+                              'xlink': 'http://www.w3.org/1999/xlink',
+                              'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+
+                e = ET.fromstring(wms_capabilities)
+                for atype in e.findall(
+                        "./[wms:Name='%s']/wms:Dimension[@name='time']" % (layer.alternate), namespaces):
+                    dim_name = atype.get('name')
+                    if dim_name:
+                        dim_name = str(dim_name).lower()
+                        if dim_name == 'time':
+                            dim_values = atype.text
+                            if dim_values:
+                                all_times = dim_values.split(",")
+                                break
 
     group = None
     if layer.group:
@@ -524,17 +592,17 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         "show_popup": show_popup,
         "filter": filter,
         "storeType": layer.storeType,
-        "online": (layer.remote_service.probe == 200) if layer.storeType == "remoteStore" else True
+        # "online": (layer.remote_service.probe == 200) if layer.storeType == "remoteStore" else True
     }
 
-    if 'access_token' in request.session:
+    if request and 'access_token' in request.session:
         access_token = request.session['access_token']
     else:
         u = uuid.uuid1()
         access_token = u.hex
 
     context_dict["viewer"] = json.dumps(map_obj.viewer_json(
-        request.user, access_token, * (NON_WMS_BASE_LAYERS + [maplayer])))
+        request, * (NON_WMS_BASE_LAYERS + [maplayer])))
     context_dict["preview"] = getattr(
         settings,
         'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY',
@@ -542,7 +610,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     context_dict["crs"] = getattr(
         settings,
         'DEFAULT_MAP_CRS',
-        'EPSG:900913')
+        'EPSG:3857')
 
     # provide bbox in EPSG:4326 for leaflet
     if context_dict["preview"] == 'leaflet':
@@ -554,10 +622,12 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     if layer.storeType == 'dataStore':
         links = layer.link_set.download().filter(
-            name__in=settings.DOWNLOAD_FORMATS_VECTOR)
+            Q(name__in=settings.DOWNLOAD_FORMATS_VECTOR) |
+            Q(link_type='original'))
     else:
         links = layer.link_set.download().filter(
-            name__in=settings.DOWNLOAD_FORMATS_RASTER)
+            Q(name__in=settings.DOWNLOAD_FORMATS_RASTER) |
+            Q(link_type='original'))
     links_view = [item for idx, item in enumerate(links) if
                   item.url and 'wms' in item.url or 'gwc' in item.url]
     links_download = [item for idx, item in enumerate(
@@ -583,9 +653,6 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             links = layer.link_set.download().filter(
                 name__in=settings.DOWNLOAD_FORMATS_RASTER)
         context_dict["links_download"] = links_download
-
-        # TODO: pass geoserver layer download url through proxy to make accurate counter
-        savematrix(request=request, action='Layer Download', resource=layer)
 
     if settings.SOCIAL_ORIGINS:
         context_dict["social_links"] = build_social_links(request, layer)
@@ -642,8 +709,11 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         logger.error(
             "Possible error with OWSLib. Turning all available properties to string")
 
-    # maps owned by user needed to fill the "add to existing map section" in
-    # template
+    if settings.GEOTIFF_IO_ENABLED:
+        from geonode.contrib.geotiffio import create_geotiff_io_url
+        context_dict["link_geotiff_io"] = create_geotiff_io_url(layer, access_token)
+
+    # maps owned by user needed to fill the "add to existing map section" in template
     if request.user.is_authenticated():
         context_dict["maps"] = Map.objects.filter(owner=request.user)
     return TemplateResponse(
@@ -656,8 +726,7 @@ def load_layer_data(request, template='layers/layer_detail.html'):
     context_dict = {}
     data_dict = json.loads(request.POST.get('json_data'))
     layername = data_dict['layer_name']
-    filtered_attributes = [x for x in data_dict['filtered_attributes'].split(
-        ',') if '/load_layer_data' not in x]
+    filtered_attributes = [x for x in data_dict['filtered_attributes'] if '/load_layer_data' not in x]
     workspace, name = layername.split(':')
     location = "{location}{service}".format(** {
         'location': settings.OGC_SERVER['default']['LOCATION'],
@@ -689,10 +758,11 @@ def load_layer_data(request, template='layers/layer_detail.html'):
 
         # loop the dictionary based on the values on the list and add the properties
         # in the dictionary (if doesn't exist) together with the value
+        from collections import Iterable
         for i in range(len(decoded_features)):
             for key, value in decoded_features[i]['properties'].iteritems():
                 if value != '' and isinstance(value, (string_types, int, float)) and (
-                        '/load_layer_data' not in value):
+                        (isinstance(value, Iterable) and '/load_layer_data' not in value) or value):
                     properties[key].append(value)
 
         for key in properties:
@@ -777,25 +847,28 @@ def layer_metadata(
             'type': 'name',
             'properties': layer.srid
         }
-    config["srs"] = getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913')
-    config["bbox"] = bbox if config["srs"] != 'EPSG:900913' \
+    config["srs"] = getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857')
+    config["bbox"] = bbox if config["srs"] != 'EPSG:3857' \
         else llbbox_to_mercator([float(coord) for coord in bbox])
     config["title"] = layer.title
     config["queryable"] = True
 
     if layer.storeType == "remoteStore":
         service = layer.remote_service
-        source_params = {
-            "ptype": service.ptype,
-            "remote": True,
-            "url": service.service_url,
-            "name": service.name,
-            "title": "[R] %s" % service.title}
+        source_params = {}
+        if service.type in ('REST_MAP', 'REST_IMG'):
+            source_params = {
+                "ptype": service.ptype,
+                "remote": True,
+                "url": service.service_url,
+                "name": service.name,
+                "title": "[R] %s" % service.title}
         maplayer = GXPLayer(
             name=layer.alternate,
             ows_url=layer.ows_url,
             layer_params=json.dumps(config),
-            source_params=json.dumps(source_params))
+            source_params=json.dumps(source_params)
+        )
     else:
         maplayer = GXPLayer(
             name=layer.alternate,
@@ -813,7 +886,7 @@ def layer_metadata(
         projection=getattr(
             settings,
             'DEFAULT_MAP_CRS',
-            'EPSG:900913'))
+            'EPSG:3857'))
 
     NON_WMS_BASE_LAYERS = [
         la for la in default_map_config(request)[1] if la.ows_url is None]
@@ -934,7 +1007,7 @@ def layer_metadata(
             la = Attribute.objects.get(id=int(form['id'].id))
             la.description = form["description"]
             la.attribute_label = form["attribute_label"]
-            la.visible = form["visible"]
+            la.visible = True if form["attribute_label"] else False  # form["visible"]
             la.display_order = form["display_order"]
             la.save()
 
@@ -1052,14 +1125,8 @@ def layer_metadata(
         author_form = ProfileForm(prefix="author")
         author_form.hidden = False
 
-    if 'access_token' in request.session:
-        access_token = request.session['access_token']
-    else:
-        u = uuid.uuid1()
-        access_token = u.hex
-
     viewer = json.dumps(map_obj.viewer_json(
-        request.user, access_token, * (NON_WMS_BASE_LAYERS + [maplayer])))
+        request, * (NON_WMS_BASE_LAYERS + [maplayer])))
 
     metadataxsl = False
     if "geonode.contrib.metadataxsl" in settings.INSTALLED_APPS:
@@ -1072,7 +1139,8 @@ def layer_metadata(
         try:
             all_metadata_author_groups = chain(
                 request.user.group_list_all().distinct(),
-                GroupProfile.objects.exclude(access="private").exclude(access="public-invite"))
+                GroupProfile.objects.exclude(
+                    access="private").exclude(access="public-invite"))
         except BaseException:
             all_metadata_author_groups = GroupProfile.objects.exclude(
                 access="private").exclude(access="public-invite")
@@ -1090,7 +1158,7 @@ def layer_metadata(
         "tkeywords_form": tkeywords_form,
         "viewer": viewer,
         "preview": getattr(settings, 'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY', 'geoext'),
-        "crs": getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913'),
+        "crs": getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:3857'),
         "metadataxsl": metadataxsl,
         "freetext_readonly": getattr(
             settings,
@@ -1115,9 +1183,9 @@ def layer_change_poc(request, ids, template='layers/layer_change_poc.html'):
     layers = Layer.objects.filter(id__in=ids.split('_'))
 
     if settings.MONITORING_ENABLED:
-        for l in layers:
-            if hasattr(l, 'alternate'):
-                request.add_resource('layer', l.alternate)
+        for _l in layers:
+            if hasattr(_l, 'alternate'):
+                request.add_resource('layer', _l.alternate)
     if request.method == 'POST':
         form = PocForm(request.POST)
         if form.is_valid():
@@ -1145,13 +1213,12 @@ def layer_replace(request, layername, template='layers/layer_replace.html'):
     if request.method == 'GET':
         ctx = {
             'charsets': CHARSETS,
-            'layer': layer,
+            'resource': layer,
             'is_featuretype': layer.is_vector(),
             'is_layer': True,
         }
         return render(request, template, context=ctx)
     elif request.method == 'POST':
-
         form = LayerUploadForm(request.POST, request.FILES)
         tempdir = None
         out = {}
@@ -1170,8 +1237,7 @@ def layer_replace(request, layername, template='layers/layer_replace.html'):
                 else:
                     if check_ogc_backend(geoserver.BACKEND_PACKAGE):
                         # delete geoserver's store before upload
-                        cat = gs_catalog
-                        cascading_delete(cat, layer.typename)
+                        # cascading_delete(gs_catalog, layer.alternate)
                         out['ogc_backend'] = geoserver.BACKEND_PACKAGE
                     elif check_ogc_backend(qgis_server.BACKEND_PACKAGE):
                         try:
@@ -1184,8 +1250,18 @@ def layer_replace(request, layername, template='layers/layer_replace.html'):
 
                     saved_layer = file_upload(
                         base_file,
+                        title=layer.title,
+                        abstract=layer.abstract,
+                        is_approved=layer.is_approved,
+                        is_published=layer.is_published,
                         name=layer.name,
-                        user=request.user,
+                        user=layer.owner,
+                        # user=request.user,
+                        license=layer.license.name if layer.license else None,
+                        category=layer.category,
+                        keywords=list(layer.keywords.all()),
+                        regions=list(layer.regions.values_list('name', flat=True)),
+                        # date=layer.date,
                         overwrite=True,
                         charset=form.cleaned_data["charset"],
                     )
@@ -1193,7 +1269,7 @@ def layer_replace(request, layername, template='layers/layer_replace.html'):
                     out['url'] = reverse(
                         'layer_detail', args=[
                             saved_layer.service_typename])
-            except Exception as e:
+            except BaseException as e:
                 logger.exception(e)
                 tb = traceback.format_exc()
                 out['success'] = False
@@ -1234,7 +1310,20 @@ def layer_remove(request, layername, template='layers/layer_remove.html'):
     if (request.method == 'POST'):
         try:
             with transaction.atomic():
-                delete_layer.delay(object_id=layer.id)
+                # Using Tastypie
+                # from geonode.api.resourcebase_api import LayerResource
+                # res = LayerResource()
+                # request_bundle = res.build_bundle(request=request)
+                # layer_bundle = res.build_bundle(request=request, obj=layer)
+                # layer_json = res.serialize(None,
+                #                            res.full_dehydrate(layer_bundle),
+                #                            "application/json")
+                # delete_layer.delay(instance=layer_json)
+                result = delete_layer.delay(layer_id=layer.id)
+                result.wait(10)
+        except TimeoutError:
+            # traceback.print_exc()
+            pass
         except Exception as e:
             traceback.print_exc()
             message = '{0}: {1}.'.format(
@@ -1314,7 +1403,12 @@ def layer_thumbnail(request, layername):
                     request.body)['image'].split(';base64,')
                 image = base64.b64decode(image)
             else:
-                image = _render_thumbnail(request.body)
+                image = None
+                try:
+                    image = _prepare_thumbnail_body_from_opts(request.body,
+                                                              request=request)
+                except BaseException:
+                    image = _render_thumbnail(request.body)
 
             if not image:
                 return
@@ -1377,10 +1471,11 @@ def layer_metadata_detail(
             group = GroupProfile.objects.get(slug=layer.group.name)
         except GroupProfile.DoesNotExist:
             group = None
+    site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
     return render(request, template, context={
         "resource": layer,
         "group": group,
-        'SITEURL': settings.SITEURL[:-1]
+        'SITEURL': site_url
     })
 
 
@@ -1393,10 +1488,11 @@ def layer_metadata_upload(
         layername,
         'base.change_resourcebase',
         _PERMISSION_MSG_METADATA)
+    site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
     return render(request, template, context={
         "resource": layer,
         "layer": layer,
-        'SITEURL': settings.SITEURL[:-1]
+        'SITEURL': site_url
     })
 
 
@@ -1409,10 +1505,11 @@ def layer_sld_upload(
         layername,
         'base.change_resourcebase',
         _PERMISSION_MSG_METADATA)
+    site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
     return render(request, template, context={
         "resource": layer,
         "layer": layer,
-        'SITEURL': settings.SITEURL[:-1]
+        'SITEURL': site_url
     })
 
 
@@ -1422,6 +1519,6 @@ def layer_batch_metadata(request, ids):
 
 
 def layer_view_counter(layer_id, viewer):
-    l = Layer.objects.get(id=layer_id)
-    u = get_user_model().objects.get(username=viewer)
-    l.view_count_up(u, do_local=True)
+    _l = Layer.objects.get(id=layer_id)
+    _u = get_user_model().objects.get(username=viewer)
+    _l.view_count_up(_u, do_local=True)

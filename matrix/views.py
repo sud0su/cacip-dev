@@ -14,7 +14,7 @@ def savematrix(request=None, action='', resourcecode=getattr(settings, 'MATRIX_D
             from geonode.maps.views import _resolve_map, _PERMISSION_MSG_VIEW
             resource = _resolve_map(request, resourcecode, 'base.view_resourcebase', _PERMISSION_MSG_VIEW)
     except Exception as identifier:
-        logger.warning('_resolve_map() failed using resource_code=%s, check settings.MATRIX_DEFAULT_MAP_CODE'%(settings.MATRIX_DEFAULT_MAP_CODE))
+        logger.warning('_resolve_map() failed using resource_code=%s, check settings.MATRIX_DEFAULT_MAP_CODE'%(resourcecode))
     else:
         if hasattr(request, 'user') and isinstance(request.user, Profile):
             user = request.user

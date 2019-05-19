@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+
 import uuid
 import logging
 import geoserver
@@ -163,6 +164,10 @@ def geoserver_upload(
                 'successful import to GeoSever', name)
 
     # Verify the resource was created
+    if not gs_resource:
+        gs_resource = gs_catalog.get_resource(
+                name,
+                workspace=workspace)
     if gs_resource is not None:
         assert gs_resource.name == name
     else:
@@ -175,8 +180,13 @@ def geoserver_upload(
     # Step 6. Make sure our data always has a valid projection
     # FIXME: Put this in gsconfig.py
     logger.info('>>> Step 6. Making sure [%s] has a valid projection' % name)
-    if gs_resource.native_bbox is None:
-        box = gs_resource.native_bbox[:4]
+    _native_bbox = None
+    try:
+        _native_bbox = gs_resource.native_bbox
+    except BaseException:
+        pass
+    if _native_bbox and len(_native_bbox) >= 5 and _native_bbox[4:5][0] == 'EPSG:4326':
+        box = _native_bbox[:4]
         minx, maxx, miny, maxy = [float(a) for a in box]
         if -180 <= minx <= 180 and -180 <= maxx <= 180 and \
            - 90 <= miny <= 90 and -90 <= maxy <= 90:
@@ -185,7 +195,7 @@ def geoserver_upload(
             # If GeoServer couldn't figure out the projection, we just
             # assume it's lat/lon to avoid a bad GeoServer configuration
 
-            gs_resource.latlon_bbox = gs_resource.native_bbox
+            gs_resource.latlon_bbox = _native_bbox
             gs_resource.projection = "EPSG:4326"
             cat.save(gs_resource)
         else:
@@ -199,7 +209,9 @@ def geoserver_upload(
     # Step 7. Create the style and assign it to the created resource
     # FIXME: Put this in gsconfig.py
     logger.info('>>> Step 7. Creating style for [%s]' % name)
-    publishing = cat.get_layer(name)
+    cat.save(gs_resource)
+    cat.reload()
+    publishing = cat.get_layer(name) or gs_resource
 
     if 'sld' in files:
         f = open(files['sld'], 'r')
@@ -230,7 +242,7 @@ def geoserver_upload(
                 style = cat.get_style(name, workspace=settings.DEFAULT_WORKSPACE) or cat.get_style(name)
                 overwrite = style or False
                 cat.create_style(name, sld, overwrite=overwrite, raw=True, workspace=settings.DEFAULT_WORKSPACE)
-            except:
+            except BaseException:
                 try:
                     style = cat.get_style(name + '_layer', workspace=settings.DEFAULT_WORKSPACE) or \
                             cat.get_style(name + '_layer')
@@ -269,6 +281,7 @@ def geoserver_upload(
     # FIXME: Do this inside the layer object
     alternate = workspace.name + ':' + gs_resource.name
     layer_uuid = str(uuid.uuid1())
+
     defaults = dict(store=gs_resource.store.name,
                     storeType=gs_resource.store.resource_type,
                     alternate=alternate,

@@ -1,2 +1,0 @@
-# EPR-BGD01
-EPR WFP Bangladesh V01

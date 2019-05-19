@@ -51,8 +51,8 @@ Upgrade Development Environment
       .. code-block:: bash
 
           pip install pip --upgrade
-          pip install -r requirements.txt
-          pip install -e .
+          pip install -r requirements.txt --upgrade
+          pip install -e . --upgrade --no-cache
 
           # WARNING: your GDAL version might be different. Use the right one accordingly to gdal-config --version
           pip install pygdal==2.2.1.3
@@ -308,7 +308,7 @@ Upgrade Development Environment
             ------------------------------------------------------------------------
             216 # default map projection                                                                                             +-
             217 # Note: If set to EPSG:4326, then only EPSG:4326 basemaps will work.
-            218 DEFAULT_MAP_CRS = "EPSG:900913"
+            218 DEFAULT_MAP_CRS = "EPSG:3857"
             ------------------------------------------------------------------------
             219                                                                                                                      =
             ------------------------------------------------------------------------
@@ -537,7 +537,7 @@ Upgrade Development Environment
 
           DJANGO_SETTINGS_MODULE=geonode.local_settings paver sync
 
-    * Download the latest GeoServer WAR (http://build.geonode.org/geoserver/latest/geoserver-2.12.2.war)
+    * Download the latest GeoServer WAR (https://build.geo-solutions.it/geonode/geoserver/latest//geoserver-2.12.2.war)
 
       .. image:: img/gn_up_0004.png
          :width: 600px
@@ -562,7 +562,7 @@ Upgrade Development Environment
 
     * Delete the printing configuration by deleting the content of the ``GEOSERVER_DATA_DIR/printing`` folder
 
-    * Insert the content of the 2.12.2 data dir (http://build.geonode.org/geoserver/latest/data-2.12.2.zip),
+    * Insert the content of the 2.12.2 data dir (https://build.geo-solutions.it/geonode/geoserver/latest//data-2.12.2.zip),
       specifically:
 
       - The content of ``data/notifier``, into the ``GEOSERVER_DATA_DIR/notifier folder``.
@@ -827,7 +827,7 @@ Upgrade Development Environment
                 23 /**;POST,DELETE,PUT=ROLE_AUTHENTICATED                                                             <> 4 /**;POST,DELETE,PUT=ROLE_ADMINISTRATOR
                 ------------------------------------------------------------------------
 
-    .. note:: In case of dubts you can always try to do a "diff" between your old GEOSERVER_DATA_DIR and http://build.geonode.org/geoserver/latest/data-2.12.2.zip
+    .. note:: In case of dubts you can always try to do a "diff" between your old GEOSERVER_DATA_DIR and https://build.geo-solutions.it/geonode/geoserver/latest//data-2.12.2.zip
 
     * Update/tweak GeoNode ``settings.py``
 
