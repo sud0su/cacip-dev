@@ -70,6 +70,79 @@ register(HierarchicalKeyword,
                                      'A space or comma-separated list of keywords', },)
 
 
+class CampUnionBaseAutocomplete(AutocompleteModelTemplate):
+    choice_template = 'autocomplete_response.html'
+    model = Region
+
+    def choices_for_request(self):
+        request = self.request
+        self.choices = self.choices.filter(level__in=[2,3])
+
+        self.choices = get_visible_resources(
+            self.choices,
+            request.user if request else None,
+            admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
+            unpublished_not_visible=settings.RESOURCE_PUBLISHING,
+            private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
+
+        return super(CampUnionBaseAutocomplete, self).choices_for_request()
+
+
+register(CampUnionBaseAutocomplete,
+         search_fields=['name'],
+         limit_choices=100,
+         autocomplete_js_attributes={'placeholder': 'Camp ..', },)
+
+
+class UnionBaseAutocomplete(AutocompleteModelTemplate):
+    choice_template = 'autocomplete_response.html'
+    model = Region
+
+    def choices_for_request(self):
+        request = self.request
+        self.choices = self.choices.filter(level=2)
+
+        self.choices = get_visible_resources(
+            self.choices,
+            request.user if request else None,
+            admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
+            unpublished_not_visible=settings.RESOURCE_PUBLISHING,
+            private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
+
+        return super(UnionBaseAutocomplete, self).choices_for_request()
+
+
+register(UnionBaseAutocomplete,
+         search_fields=['name'],
+         limit_choices=100,
+         autocomplete_js_attributes={'placeholder': 'Host Community ..', },)
+
+
+class CampBaseAutocomplete(AutocompleteModelTemplate):
+    choice_template = 'autocomplete_response.html'
+    model = Region
+
+    def choices_for_request(self):
+        request = self.request
+        self.choices = self.choices.filter(level=3)
+
+        self.choices = get_visible_resources(
+            self.choices,
+            request.user if request else None,
+            admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
+            unpublished_not_visible=settings.RESOURCE_PUBLISHING,
+            private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
+
+        return super(CampBaseAutocomplete, self).choices_for_request()
+
+
+register(CampBaseAutocomplete,
+         search_fields=['name'],
+         limit_choices=100,
+         autocomplete_js_attributes={'placeholder': 'Host Community ..', },)
+
+
+
 class ThesaurusKeywordLabelAutocomplete(AutocompleteModelBase):
 
     search_fields = ['label']

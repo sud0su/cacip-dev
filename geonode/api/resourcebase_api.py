@@ -49,7 +49,7 @@ from geonode import get_version, qgis_server, geoserver
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
 from geonode.documents.models import Document
-from geonode.base.models import ResourceBase
+from geonode.base.models import ResourceBase, Region
 from geonode.base.models import HierarchicalKeyword
 from geonode.people.models import Profile
 from geonode.groups.models import GroupProfile
@@ -988,6 +988,16 @@ class DocumentResource(CommonModelApi):
             formatted_obj['keywords'] = [k.name for k in obj.keywords.all()] if obj.keywords else []
             formatted_obj['regions'] = [r.name for r in obj.regions.all()] if obj.regions else []
 
+            # checking_level = Region.objects.filter(resourcebase__pk=obj.id)
+            # for cl in checking_level:
+            #     print(cl.level)
+            camp_data = Region.objects.filter(level=3, resourcebase__pk=obj.id)
+            formatted_obj['camps'] = [c.name for c in camp_data] if camp_data else []
+    
+            union_data = Region.objects.filter(level=2, resourcebase__pk=obj.id)
+            formatted_obj['unions'] = [c.name for c in union_data] if union_data else []
+
+            
             # Probe Remote Services
             formatted_obj['store_type'] = 'dataset'
             formatted_obj['online'] = True

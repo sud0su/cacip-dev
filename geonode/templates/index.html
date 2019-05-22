@@ -28,7 +28,7 @@
                         <div class="carousel-caption">
                             <div class="container">
                                 <h1>{% trans "Dashboard" %}</h1>
-                                <p>Efficiently develop parallel e-markets through impactful outsourcing.<br>Conveniently drive prospective functionalities before.</p>
+                                <p class="hide">Efficiently develop parallel e-markets through impactful outsourcing.<br>Conveniently drive prospective functionalities before.</p>
                             </div>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                         <div class="carousel-caption">
                             <div class="container">
                                 <h1>{% trans "Static Maps" %}</h1>
-                                <p>Synergistically enhance low-risk high-yield testing procedures<br>with clicks-and-mortar architectures.
+                                <p class="hide">Synergistically enhance low-risk high-yield testing procedures<br>with clicks-and-mortar architectures.
                             </div>
                             </p>
                         </div>
@@ -45,7 +45,7 @@
                         <div class="carousel-caption">
                             <div class="container">
                                 <h1>{% trans "Interactive Maps" %}</h1>
-                                <p>Monotonectally envisioneer 24/7 bandwidth with reliable imperatives. <br>Continually unleash unique niches after go forward.</p>
+                                <p class="hide">Monotonectally envisioneer 24/7 bandwidth with reliable imperatives. <br>Continually unleash unique niches after go forward.</p>
                             </div>
                         </div>
                     </div>
@@ -66,12 +66,199 @@
     {% endblock hero %}
     
 	{% block mainbody %}
-		{% block bigsearch %}
-			
-		{% endblock bigsearch %}
+        <div ng-app="featured" >
+            <section class="case-studies">
+                <div class="container">
+                    <div class="section-title text-center">
+                        <h1>{% trans "Latest Updates Camps" %}</h1>
+                        {% verbatim %}
+                        <p class="">
+                            New 
+                            <span class="g-font-weight--500">{{ latestcamp.objects[0].doc_type_long }}</span>
+                            has been added for 
+                            <span class="g-font-weight--500" ng-repeat="region in latestcamp.objects[0].camps">{{region}}</span>
+                        </p>
+                        {% endverbatim %}
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-8">
+                            <div class="latest-search g-margin-b-25--xs">
+                                <form id="camp_search" action="{% url "search" %}" >
+                                    <input id="camp_search_input" type="text" placeholder="Search Static Maps by Camp" name="regions__name__in" class="g-width-100-percent--xs">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% verbatim %}
+                        <div class="resourcebase-snippet">
+                            <div class="col-xs-12 col-sm-6 col-md-3" ng-repeat="item in latestcamp.objects">
+                                <div class="card">
+                                    <div class="card-image">
+                                        <a href="{{ item.detail_url }}">
+                                            <img class="img-responsive center-block" src="{{ item.thumbnail_url }}" alt="{{ item.title }}">
+                                        </a>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="description-content">
+                                            <p class="text-uppercase g-font-size-14--xs g-font-weight--700 g-color--primary g-letter-spacing--2 g-margin-b-0--xs">{{ item.doc_type_long }}</p>
+                                            <a href="{{ item.detail_url }}">
+                                                <h2 class="g-margin-b-0--xs">{{ item.title }}</h2>
+                                            </a>
+                                            <div class="g-color--gray-light hide">
+                                                by {{ item.owner_name }}
+                                                <span class="mx-1">•</span>
+                                                {{ item.date|date:'MMM d, y' }}
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">Last updated {{ item.date|date:'MMM d, y' }}</small>
+                                            </div>
+                                            <div class="text-right">
+                                                <span ng-repeat="region in item.regions">
+                                                    <span class="label label-default">{{ region }}</span>&nbsp;
+                                                </span>
+                                            </div>
+                                            <div class="hide">
+                                                <span class="label label-default">{{ item.category__gn_description }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endverbatim %}
+                    </div>
+                </div>
+            </section>
+    
+            <section class="case-studies g-bg-color--sky-light">
+                <div class="container">
+                    <div class="section-title text-center">
+                        <h1>{% trans "Latest Updates Host Communities" %}</h1>
+                        {% verbatim %}
+                        <p class="">
+                            New 
+                            <span class="g-font-weight--500">{{ latestcmty.objects[0].doc_type_long }}</span>
+                            has been added for 
+                            <span class="g-font-weight--500" ng-repeat="region in latestcmty.objects[0].unions">{{region}}</span>
+                        </p>
+                        {% endverbatim %}
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-8">
+                            <div class="latest-search g-margin-b-25--xs">
+                                <form id="union_search" action="{% url "search" %}" >
+                                    <input id="union_search_input" type="text" placeholder="Search Static Maps by Host Community" name="regions__name__in" class="g-width-100-percent--xs">
+                                </form>
+                            </div>
+                        </div>
+                        {% verbatim %}
+                        <div class="resourcebase-snippet">
+                            <div class="col-xs-12 col-sm-6 col-md-3" ng-repeat="item in latestcmty.objects">
+                                <div class="card">
+                                    <div class="card-image">
+                                        <a href="{{ item.detail_url }}">
+                                            <img class="img-responsive center-block" src="{{ item.thumbnail_url }}" alt="{{ item.title }}">
+                                        </a>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="description-content">
+                                            <p class="text-uppercase g-font-size-14--xs g-font-weight--700 g-color--primary g-letter-spacing--2 g-margin-b-0--xs">{{ item.doc_type_long }}</p>
+                                            <a href="{{ item.detail_url }}">
+                                                <h2 class="g-margin-b-0--xs">{{ item.title }}</h2>
+                                            </a>
+                                            <div class="g-color--gray-light hide">
+                                                by {{ item.owner_name }}
+                                                <span class="mx-1">•</span>
+                                                {{ item.date|date:'MMM d, y' }}
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">Last updated {{ item.date|date:'MMM d, y' }}</small>
+                                            </div>
+                                            <div class="text-right">
+                                                <span ng-repeat="region in item.regions">
+                                                    <span class="label label-default">{{ region }}</span>&nbsp;
+                                                </span>
+                                            </div>
+                                            <div class="hide">
+                                                <span class="label label-default">{{ item.category__gn_description }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endverbatim %}
+                    </div>
+                </div>
+            </section>
+    
+            <section class="case-studies">
+                <div class="container">
+                    <div class="section-title text-center">
+                        <h1>{% trans "Latest Updates" %}</h1>
+                        {% verbatim %}
+                        <p class="">
+                            New 
+                            <span class="g-font-weight--500">{{ latestcampcmty.objects[0].doc_type_long }}</span>
+                            has been added for 
+                            <span class="g-font-weight--500" ng-repeat="region in latestcampcmty.objects[0].camps">{{region}}</span>
+                            <span class="g-font-weight--500" ng-repeat="region in latestcampcmty.objects[0].unions">{{region}}</span>
+                        </p>
+                        {% endverbatim %}
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-8">
+                            <div class="latest-search g-margin-b-25--xs">
+                                <form id="camp_union_search" action="{% url "search" %}" >
+                                    <input id="camp_union_search_input" type="text" placeholder="Search Static Maps by Camp or Host Community" name="regions__name__in" class="g-width-100-percent--xs">
+                                </form>
+                            </div>
+                        </div>
+                        {% verbatim %}
+                        <div class="resourcebase-snippet">
+                            <div class="col-xs-12 col-sm-6 col-md-3" ng-repeat="item in latestcampcmty.objects">
+                                <div class="card">
+                                    <div class="card-image">
+                                        <a href="{{ item.detail_url }}">
+                                            <img class="img-responsive center-block" src="{{ item.thumbnail_url }}" alt="{{ item.title }}">
+                                        </a>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="description-content">
+                                            <p class="text-uppercase g-font-size-14--xs g-font-weight--700 g-color--primary g-letter-spacing--2 g-margin-b-0--xs">{{ item.doc_type_long }}</p>
+                                            <a href="{{ item.detail_url }}">
+                                                <h2 class="g-margin-b-0--xs">{{ item.title }}</h2>
+                                            </a>
+                                            <div class="g-color--gray-light hide">
+                                                by {{ item.owner_name }}
+                                                <span class="mx-1">•</span>
+                                                {{ item.date|date:'MMM d, y' }}
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">Last updated {{ item.date|date:'MMM d, y' }}</small>
+                                            </div>
+                                            <div class="text-right">
+                                                <span ng-repeat="region in item.regions">
+                                                    <span class="label label-default">{{ region }}</span>&nbsp;
+                                                </span>
+                                            </div>
+                                            <div class="hide">
+                                                <span class="label label-default">{{ item.category__gn_description }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endverbatim %}
+                    </div>
+                </div>
+            </section>
+        </div>
 
 		{% block datasets %}
-		<section class="section-content-left-icon">
+		<section class="section-content-left-icon hide">
             <div class="container">
                 <div class="row">
                     <div class="col-md-4">
@@ -151,7 +338,7 @@
 		{% endblock datasets %}
 
 		{% block showcase %}
-		<section class="featured-box">
+		<section class="featured-box hide">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -174,7 +361,7 @@
         <!-- /.featured-box -->
         {% endblock showcase %}
         
-        <section class="testimonial">
+        <section class="testimonial hide">
             <div class="container">
                 <div id="testimonialSlider" class="carousel slide" data-ride="carousel">
                     <!-- Indicators -->
@@ -238,7 +425,7 @@
         </section>
         <!-- /.testimonial -->
 
-        <section class="client-logo ptb-100">
+        <section class="client-logo ptb-100 hide">
             <div class="container">
                 <div class="row">
                     <div class="col-md-2 col-sm-4 col-xs-6 section-margin">
@@ -275,17 +462,83 @@
 		<script src="{% static "lib/js/angular.js" %}"></script>
 	{% endif %}
 	<script type="text/javascript">
-		FEATURED_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='featured' %}'
+        FEATURED_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='featured' %}'
+        LATESTCAMP_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=3&limit=4&offset=0&order_by=-date';
+        LATESTCMTY_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=2&limit=4&offset=0&order_by=-date';
+        LATESTCAMPCMTY_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=2,3&limit=4&offset=0&order_by=-date';
+        LATESTCAMP_URL_DOC = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=3&limit=1&offset=0&order_by=-date';
+
 		'use strict';
 		(function(){
 			var module = angular.module('featured', []);
 			module.run(function($http, $rootScope){
 				$http.get(FEATURED_URL).success(function(data){
 					$rootScope.featured = data.objects;
+                });
+                $http.get(LATESTCAMP_URL).success(function(data){
+					$rootScope.latestcamp = data;
+                });
+                $http.get(LATESTCMTY_URL).success(function(data){
+					$rootScope.latestcmty = data;
+                });
+                $http.get(LATESTCAMPCMTY_URL).success(function(data){
+					$rootScope.latestcampcmty = data;
+                });
+                $http.get(LATESTCAMP_URL_DOC).success(function(data){
+					$rootScope.latestcampdoc = data;
 				});
 			});
 		})();
-	</script>
+    </script>
+    <script type="text/javascript">
+        var camp_autocomplete = $('#camp_search_input').yourlabsAutocomplete({
+            url: '{% url "autocomplete_light_autocomplete" "CampBaseAutocomplete" %}',
+            choiceSelector: 'span',
+            hideAfter: 200,
+            minimumCharacters: 1,
+            placeholder: '{% trans "Enter camp here ..." %}',
+            appendAutocomplete: $('#camp_search_input'),
+            autoHilightFirst: false
+        });
+        $('#camp_search_input').bind('selectChoice', function(e, choice, autocomplete) {
+            if(choice[0].children[0] == undefined) {
+                $('#camp_search_input').val($(choice[0]).text());
+                $('#camp_search').submit();
+            }
+        });
+
+        var union_autocomplete = $('#union_search_input').yourlabsAutocomplete({
+            url: '{% url "autocomplete_light_autocomplete" "UnionBaseAutocomplete" %}',
+            choiceSelector: 'span',
+            hideAfter: 200,
+            minimumCharacters: 1,
+            placeholder: '{% trans "Enter Host Community here ..." %}',
+            appendAutocomplete: $('#union_search_input'),
+            autoHilightFirst: false
+        });
+        $('#union_search_input').bind('selectChoice', function(e, choice, autocomplete) {
+            if(choice[0].children[0] == undefined) {
+                $('#union_search_input').val($(choice[0]).text());
+                $('#union_search').submit();
+            }
+        });
+
+        var camp_union_autocomplete = $('#camp_union_search_input').yourlabsAutocomplete({
+            url: '{% url "autocomplete_light_autocomplete" "CampUnionBaseAutocomplete" %}',
+            choiceSelector: 'span',
+            hideAfter: 200,
+            minimumCharacters: 1,
+            placeholder: '{% trans "Enter Any Camp or Host Community here ..." %}',
+            appendAutocomplete: $('#camp_union_search_input'),
+            autoHilightFirst: false
+        });
+        $('#camp_union_search_input').bind('selectChoice', function(e, choice, autocomplete) {
+            if(choice[0].children[0] == undefined) {
+                $('#camp_union_search_input').val($(choice[0]).text());
+                $('#camp_union_search').submit();
+            }
+        });
+    </script>
 	<script>
 		$('[data-toggle="tooltip"]').tooltip({container: 'body'});
 	</script>
