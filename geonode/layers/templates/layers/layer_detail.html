@@ -31,6 +31,13 @@
 {% endblock breadcrumb %}
 
 {% block body_outer %}
+    {% if GEOSERVER_BASE_URL %}
+        {% get_obj_perms request.user for resource.layer as "layer_perms" %}
+    {% endif %}
+
+    {% if OGC_SERVER.default.BACKEND == 'geonode.qgis_server' %}
+        {% get_obj_perms request.user for resource.layer as "layer_perms" %}
+    {% endif %}
     <div class="page-header hide">
         <style>
         #paneltbar {
@@ -400,13 +407,6 @@
                     {% endif %}
                     <div class="tab-pane fade" id="tab_util">
                         <ul class="list-group">
-                            {% if GEOSERVER_BASE_URL %}
-                                {% get_obj_perms request.user for resource.layer as "layer_perms" %}
-                            {% endif %}
-                
-                            {% if OGC_SERVER.default.BACKEND == 'geonode.qgis_server' %}
-                                {% get_obj_perms request.user for resource.layer as "layer_perms" %}
-                            {% endif %}
                 
                             <li class="list-group-item">
                                 <a href="{% url "layer_metadata_detail" resource.alternate %}">
@@ -471,6 +471,13 @@
 {% endblock %}
 
 {% block modal %}
+    {% if GEOSERVER_BASE_URL %}
+        {% get_obj_perms request.user for resource.layer as "layer_perms" %}
+    {% endif %}
+
+    {% if OGC_SERVER.default.BACKEND == 'geonode.qgis_server' %}
+        {% get_obj_perms request.user for resource.layer as "layer_perms" %}
+    {% endif %}
     <div class="modal fade" id="download-layer" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
