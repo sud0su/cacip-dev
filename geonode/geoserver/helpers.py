@@ -1603,16 +1603,18 @@ def style_update(request, url):
                 style.save()
                 affected_layers.append(layer)
         elif request.method == 'PUT':  # update style in GN
+            print 'in on PUT request'
             style, created = Style.objects.get_or_create(name=style_name)
             style.sld_body = sld_body
             style.sld_url = url
+            print style.sld_body
             if len(elm_user_style_title.text) > 0:
                 style.sld_title = elm_user_style_title.text
             style.save()
             for layer in style.layer_styles.all():
                 layer.save()
                 affected_layers.append(layer)
-
+            print affected_layers
         # Invalidate GeoWebCache so it doesn't retain old style in tiles
         try:
             _stylefilterparams_geowebcache_layer(layer_name)
