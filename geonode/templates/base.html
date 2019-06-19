@@ -169,7 +169,7 @@
                                         <li role="separator" class="divider"></li>
                                         <li><a href="{% url "admin:index" %}">Admin</a></li>
                                         {% if 'geonode.geoserver' in INSTALLED_APPS %}
-                                            <li><a href="{% url "proxy" %}?url={{ OGC_SERVER.default.LOCATION }}">GeoServer</a></li>
+                                            <li><a href="{% url "proxy" %}?url={{ OGC_SERVER.default.LOCATION }}web">GeoServer</a></li>
                                         {% endif %}
                                         {% if USE_MONITORING %}
                                             <li role="separator" class="divider"></li>
@@ -255,7 +255,7 @@
                                 <a href="{% url "recent-activity" %}" class="list-group-item small">{% trans "Recent Activity" %}</a>
                                 {% if user.is_superuser or user.is_staff %}
                                     {% if 'geonode.geoserver' in INSTALLED_APPS %}
-                                        <a href="{% url "proxy" %}?url={{ OGC_SERVER.default.LOCATION }}" class="list-group-item small">{% trans "GeoServer" %}</a>
+                                        <a href="{% url "proxy" %}?url={{ OGC_SERVER.default.LOCATION }}web" class="list-group-item small">{% trans "GeoServer" %}</a>
                                     {% endif %}
                                     {% if USE_MONITORING %}
                                         <a href="{% url "monitoring:index" %}" class="list-group-item small">{% trans "Monitoring" %}</a>
