@@ -60,7 +60,7 @@
                                     <li><a href="{{ item.detail_url }}#rate"><i class="fa fa-star"></i>&nbsp;{{ item.rating }}</a></li>
                                     <li ng-if="item.group"><a href="/groups/group/{{ item.group }}/activity/"><i class="fa fa-group"></i>&nbsp;{{ item.group_name }}</a></li>
                                 </ul>
-                                <p>{{ item.abstract | limitTo: 300 }}{{ item.abstract.length  > 300 ? '...' : ''}}</p>
+                                <p>{{ item.abstract | limitTo: 300 }}{{ item.abstract.length  > 200 ? '...' : ''}}</p>
                                 <div ng-if="item.online && item.store_type == 'remoteStore'">
                                     {% endverbatim %}
                                     <div ng-if="item.online == true" class="label label-success">{% trans "Service is" %} {% trans "online" %}</div>
@@ -69,11 +69,16 @@
                                 </div>
                                 <div class="label label-warning" ng-if="item.is_approved == false">PENDING APPROVAL</div>
                                 <div class="label label-danger" ng-if="item.is_approved == true && item.is_published == false">UNPUBLISHED</div>
-                                <div>
+                                <div class="hide">
                                     <span class="label label-default">{{ item.category__gn_description }}</span>
                                 </div>
+                                <div class="text-right">
+                                    <span ng-repeat="region in item.regions">
+                                        <span class="label label-default">{{ region }}</span>&nbsp;
+                                    </span>
+                                </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-right resourcebase-btn-group">
                                 <a class="btn" href="{{ item.detail_url }}" role="button">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>
                                 <a class="btn btn-primary" ng-if="item.detail_url.indexOf('/layers/') > -1" href="{% endverbatim %}{% url 'new_map' %}?layer={% verbatim %}{{ item.detail_url.substring(8) }}" role="button">{% endverbatim %}{% trans "Create Map" %}{% verbatim %}</a>
                                 <a class="btn btn-primary" ng-if="item.detail_url.indexOf('/maps/') > -1" href="/maps/{{item.id}}/view">{% endverbatim %}{% trans "View Map" %}{% verbatim %}</a>
@@ -144,8 +149,13 @@
                                     </div>
                                     <div class="label label-warning" ng-if="item.is_approved == false">PENDING APPROVAL</div>
                                     <div class="label label-danger" ng-if="item.is_approved == true && item.is_published == false">UNPUBLISHED</div>
-                                    <div>
+                                    <div class="hide">
                                         <span class="label label-default">{{ item.category__gn_description }}</span>
+                                    </div>
+                                    <div class="">
+                                        <span ng-repeat="region in item.regions">
+                                            <span class="label label-default">{{ region }}</span>&nbsp;
+                                        </span>
                                     </div>
                                     <div class="text-right">
                                         <a class="btn" href="{{ item.detail_url }}" role="button">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>

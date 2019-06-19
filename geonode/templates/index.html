@@ -466,7 +466,6 @@
         LATESTCAMP_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=3&limit=4&offset=0&order_by=-date';
         LATESTCMTY_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=2&limit=4&offset=0&order_by=-date';
         LATESTCAMPCMTY_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=2,3&limit=4&offset=0&order_by=-date';
-        LATESTCAMP_URL_DOC = '{% url 'api_dispatch_list' api_name='api' resource_name='documents' %}?regions__level__in=3&limit=1&offset=0&order_by=-date';
 
 		'use strict';
 		(function(){
@@ -484,9 +483,6 @@
                 $http.get(LATESTCAMPCMTY_URL).success(function(data){
 					$rootScope.latestcampcmty = data;
                 });
-                $http.get(LATESTCAMP_URL_DOC).success(function(data){
-					$rootScope.latestcampdoc = data;
-				});
 			});
 		})();
     </script>
