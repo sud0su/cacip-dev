@@ -399,31 +399,32 @@ def style_change_check(request, path):
     # we will suppose that a user can create a new style only if he is an
     # authenticated (we need to discuss about it)
     authorized = True
-    if request.method == 'POST':
-        # new style
+    if request.method in ('PUT', 'POST'):
         if not request.user.is_authenticated:
             authorized = False
-    if request.method == 'PUT':
-        if path == 'rest/layers':
+        elif path == 'rest/layers' and request.method == 'PUT':
             # layer update, should be safe to always authorize it
             authorized = True
         else:
-            # style update
+            # style new/update
             # we will iterate all layers (should be just one if not using GS)
             # to which the posted style is associated
             # and check if the user has change_style_layer permissions on each
             # of them
             style_name = os.path.splitext(request.path)[0].split('/')[-1]
-            try:
-                style = Style.objects.get(name=style_name)
-                for layer in style.layer_styles.all():
-                    if not request.user.has_perm(
-                            'change_layer_style', obj=layer):
-                        authorized = False
-            except BaseException:
-                authorized = False
-                logger.warn(
-                    'There is not a style with such a name: %s.' % style_name)
+            if style_name == 'styles' and 'raw' in request.GET:
+                authorized = True
+            else:
+                try:
+                    style = Style.objects.get(name=style_name)
+                    for layer in style.layer_styles.all():
+                        if not request.user.has_perm(
+                                'change_layer_style', obj=layer):
+                            authorized = False
+                except BaseException:
+                    authorized = (request.method == 'POST')  # The user is probably trying to create a new style
+                    logger.warn(
+                        'There is not a style with such a name: %s.' % style_name)
     return authorized
 
 
@@ -462,21 +463,15 @@ def geoserver_proxy(request,
     #         status=401)
 
     def strip_prefix(path, prefix):
-        assert path.startswith(prefix)
+        assert prefix in path
+        prefix_idx = path.index(prefix)
+        _prefix = path[:prefix_idx] + prefix
         full_prefix = "%s/%s/%s" % (
-            prefix, layername, downstream_path) if layername else prefix
+            _prefix, layername, downstream_path) if layername else _prefix
         return path[len(full_prefix):]
 
     path = strip_prefix(request.get_full_path(), proxy_path)
-
-    access_token = None
-    if request and 'access_token' in request.session:
-        access_token = request.session['access_token']
-
-    if access_token and 'access_token' not in path:
-        query_separator = '&' if '?' in path else '?'
-        path = ('%s%saccess_token=%s' %
-                (path, query_separator, access_token))
+    do_style_update = re.match(r'^rest/workspaces/(?P<workspace>\w+)/styles$', downstream_path+path)
 
     raw_url = str(
         "".join([ogc_server_settings.LOCATION, downstream_path, path]))
@@ -514,28 +509,45 @@ def geoserver_proxy(request,
             re.match(r'/(ows).*$', path, re.IGNORECASE)):
         _url = str("".join([ogc_server_settings.LOCATION, '', path[1:]]))
         raw_url = _url
-
     url = urlsplit(raw_url)
-
     affected_layers = None
-    if request.method in ("POST", "PUT"):
+
+    if '%s/layers' % ws in path:
+        downstream_path = 'rest/layers'
+    elif '%s/styles' % ws in path:
+        downstream_path = 'rest/styles'
+
+    if request.method in ("POST", "PUT", "DELETE"):
         if downstream_path in ('rest/styles', 'rest/layers',
-                               'rest/workspaces') and len(request.body) > 0:
+                               'rest/workspaces'):
             if not style_change_check(request, downstream_path):
                 return HttpResponse(
                     _(
                         "You don't have permissions to change style for this layer"),
                     content_type="text/plain",
                     status=401)
-            elif downstream_path == 'rest/styles':
+            elif downstream_path == 'rest/styles' or do_style_update:
+            # elif downstream_path == 'rest/styles':
                 logger.info(
-                    "[geoserver_proxy] Updating Style to ---> url %s" %
-                    url.path)
+                    "[geoserver_proxy] Updating Style ---> url %s" %
+                    url.geturl())
                 affected_layers = style_update(request, raw_url)
+            elif downstream_path == 'rest/layers':
+                logger.info(
+                    "[geoserver_proxy] Updating Layer ---> url %s" %
+                    url.geturl())
+                try:
+                    _layer_name = os.path.splitext(os.path.basename(request.path))[0]
+                    _layer = Layer.objects.get(name__icontains=_layer_name)
+                    affected_layers = [_layer]
+                except BaseException:
+                    logger.warn("Could not find any Layer %s on DB" % os.path.basename(request.path))
 
     kwargs = {'affected_layers': affected_layers}
-    return proxy(request, url=raw_url, response_callback=_response_callback, **kwargs)
-
+    import urllib
+    raw_url = urllib.unquote(raw_url).decode('utf8')
+    timeout = getattr(ogc_server_settings, 'TIMEOUT') or 10
+    return proxy(request, url=raw_url, response_callback=_response_callback, timeout=timeout, **kwargs)
 
 def _response_callback(**kwargs):
     affected_layers = kwargs['affected_layers']
@@ -553,7 +565,7 @@ def _response_callback(**kwargs):
             create_gs_thumbnail(layer, overwrite=True)
 
     # Replace Proxy URL
-    if content_type in ('application/xml', 'text/xml', 'text/plain'):
+    if content_type in ('application/xml', 'text/xml', 'text/plain', 'application/json', 'text/json'):
         _gn_proxy_url = urljoin(settings.SITEURL, '/gs/')
         content = content\
             .replace(ogc_server_settings.LOCATION, _gn_proxy_url)\
