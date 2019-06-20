@@ -47,12 +47,21 @@
                     <div class="filter-toolbar-container">
                         {% include "search/_filter_toolbar.html" %}
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <span class="pull-right">Total: 
-                                <span ng-bind="total_counts"></span>
-                            </span>
+                    <div>
+                        <span class="pull-left">Total: 
+                            <span ng-bind="total_counts"></span>
+                        </span>
+                        {% if user.is_authenticated %}
+                        <div class="g-margin-b-20--xs text-right">
+                            {% if facet_type == 'groups' %}
+                                <a href="{% url "group_create" %}" class="btn btn-primary">{% trans "Create New Group" %}</a>
+                            {% elif facet_type == 'groupcategories' %}
+                                <a href="{% url "group_category_create" %}" class="btn btn-primary">{% trans "Create New Group Category" %}</a>
+                            {% elif facet_type == 'people' %}
+
+                            {% endif %}
                         </div>
+                        {% endif %}
                     </div>
                     <div class="row">
                         <div class="col-md-12 grid-spacer">

@@ -5,8 +5,16 @@
 {% block head_title %}{% trans "Create Group" %}{% endblock %}
 {% block body_class %}groups create{% endblock %}
 
+{% block group_title %}
+    {% if 'categories' in request.path_info %}
+        <h2>{% trans "Create Group Category" %}</h2>
+    {% else %}
+        <h2>{% trans "Create Group" %}</h2>
+    {% endif %}
+{% endblock group_title %}
+
 {% block middle %}
-    <section class="single-page-title single-page-title-about">
+    <section class="single-page-title single-page-title-about hide">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">

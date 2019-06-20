@@ -28,10 +28,10 @@
 
         // Stick the Filter bar on scroll
         $(window).scroll(function(e){
-            console.log($(window).width());
+            // console.log($(window).width());
             if ($(this).scrollTop() >= 50){
                 $(".filter-toolbar-container").addClass("filter-toolbar-scroll");
-                console.log($(this).scrollTop());
+                $(".filter-toolbar-container").show();
             }
             if ($(this).scrollTop() < 50){
                 $(".filter-toolbar-container").removeClass("filter-toolbar-scroll");
@@ -39,10 +39,12 @@
             if ($(window).width() <= 768) {
                 if ($(window).scrollTop() + $(window).height() > ($(document).height() - 650) ){
                     $(".filter-toolbar-container").removeClass("filter-toolbar-scroll");
+                    $(".filter-toolbar-container").hide();
                 }
             } else {
                 if ($(window).scrollTop() + $(window).height() > ($(document).height() - 250) ){
                     $(".filter-toolbar-container").removeClass("filter-toolbar-scroll");
+                    $(".filter-toolbar-container").hide();
                 }
             }
         });

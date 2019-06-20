@@ -1,24 +1,66 @@
+{% load i18n %}
+
 {% verbatim %}
-<div class="row">
-  <article ng-repeat="groupcategory in results" resource_id="{{ groupcategory.id }}" ng-cloak class="ng-cloak">
-    <div class="col-xs-12 item-container">
-        <div class="col-xs-8 item-details">
-          <h4><a href="{{ groupcategory.detail_url }}">{{ groupcategory.name }}</a></h4>
-          <div class="row">
-            <div class="col-xs-12 item-items">
-              <ul class="list-inline">
-                <li>
-                    <a href="{{ groupcategory.detail_url }}">
-                      <strong>{{ groupcategory.member_count }}</strong>
-                      <ng-pluralize count="groupcategory.member_count" when="{'1': 'Member', 'other': 'Members'}"></ng-pluralize>
-                    </a>
-                </li>
-              </ul>
+    <div class="row">
+        <div id="grid_view">
+            <div class="col-sm-6 col-md-6 col-lg-4" ng-repeat="groupcategory in results" resource_id="{{ groupcategory.id }}" ng-cloak class="ng-cloak">
+                <div class="card">
+                    <div class="card-content">
+                        <div>
+                            <h2 class="g-margin-b-0--xs">
+                                <a href="{{ groupcategory.detail_url }}">
+                                    {{ groupcategory.name }}
+                                </a>
+                            </h2>
+                            <ul class="list-inline">
+                                <li>
+                                    <a href="{{ groupcategory.detail_url }}">
+                                        <strong>{{ groupcategory.member_count }}</strong>
+                                        <ng-pluralize count="groupcategory.member_count" when="{'1': 'Member', 'other': 'Members'}"></ng-pluralize>
+                                    </a>
+                                </li>
+                            </ul>
+                            <p>
+                                {{ groupcategory.description | limitTo: 300 }}
+                                {{ groupcategory.description.length  > 300 ? '...' : ''}}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <a href="{{ groupcategory.detail_url }}" class="btn">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+        <div id="list_view" style="display: none;">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-repeat="groupcategory in results" resource_id="{{ groupcategory.id }}" ng-cloak class="ng-cloak">
+                <div class="card">
+                    <div class="">
+                        <div class="">
+                            <div class="card-content">
+                                <div>
+                                    <h4 class="g-margin-b-0--xs"><a href="{{ groupcategory.detail_url }}">{{ groupcategory.name }}</a></h4>
+                                    <p>
+                                        {{ groupcategory.description | limitTo: 300 }}
+                                        {{ groupcategory.description.length  > 300 ? '...' : ''}}
+                                    </p>
+                                    <ul class="list-inline">
+                                        <li>
+                                            <a href="{{ groupcategory.detail_url }}">
+                                                <strong>{{ groupcategory.member_count }}</strong>
+                                                <ng-pluralize count="groupcategory.member_count" when="{'1': 'Member', 'other': 'Members'}"></ng-pluralize>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="text-right">
+                                    <a href="{{ groupcategory.detail_url }}" class="btn">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </article>
-</div>
 {% endverbatim %}
