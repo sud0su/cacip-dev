@@ -20,10 +20,10 @@ jQuery(function ($) {
 
      $(window).scroll(function() {
         if ($(this).scrollTop() >= 50) {
-            $('nav.navbar').addClass('sticky-nav');
+            // $('nav.navbar').addClass('sticky-nav');
         }
         else {
-            $('nav.navbar').removeClass('sticky-nav');
+            // $('nav.navbar').removeClass('sticky-nav');
         }
     });
 
@@ -33,16 +33,16 @@ jQuery(function ($) {
     // mobile menu
     // -------------------------------------------------------------
     (function () {
-        $('button.navbar-toggle').ucOffCanvasMenu({
-        documentWrapper: '#main-wrapper',
-        contentWrapper : '.content-wrapper',
-        position       : 'uc-offcanvas-left',    // class name
-        // opener         : 'st-menu-open',            // class name
-        effect         : 'slide-along',             // class name
-        closeButton    : '#uc-mobile-menu-close-btn',
-        menuWrapper    : '.uc-mobile-menu',                 // class name below-pusher
-        documentPusher : '.uc-mobile-menu-pusher'
-        });
+        // $('button.navbar-toggle').ucOffCanvasMenu({
+        // documentWrapper: '#main-wrapper',
+        // contentWrapper : '.content-wrapper',
+        // position       : 'uc-offcanvas-left',    // class name
+        // // opener         : 'st-menu-open',            // class name
+        // effect         : 'slide-along',             // class name
+        // closeButton    : '#uc-mobile-menu-close-btn',
+        // menuWrapper    : '.uc-mobile-menu',                 // class name below-pusher
+        // documentPusher : '.uc-mobile-menu-pusher'
+        // });
     }());
 
 
@@ -106,7 +106,7 @@ jQuery(function ($) {
 
 
 $(document).on('click', '.m-menu .dropdown-menu', function(e) {
-  e.stopPropagation();
+    e.stopPropagation();
 })
 
 // ------------------------------------------------------------------

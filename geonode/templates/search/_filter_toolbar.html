@@ -1,6 +1,6 @@
 {% load i18n %}
 <div id="filter_toolbar" class="row">
-    <div class="col-xs-12 col-md-5 col-lg-6 g-margin-b-20--xs g-margin-b-0--lg">
+    <div class="col-xs-12 col-md-5 col-lg-6 g-margin-b-20--xs g-margin-b-0--lg g-text-center--sm g-text-left--lg">
         <button type="button" class="btn btn-default" id="filter_btn">{% trans "Hide Filter" %}</button>
     </div>
     <div class="col-xs-12 col-md-7 col-lg-6">
@@ -32,6 +32,8 @@
             </ul>
         </div>
         {% include "search/_sort_filters.html" %}
-        {% include 'search/_pagination.html' %}
+        <div class="g-pull-right--md g-margin-t-20--xs g-margin-t-0--md">
+            {% include 'search/_pagination.html' %}
+        </div>
     </div>
 </div>

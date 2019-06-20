@@ -118,6 +118,13 @@ ul {
 
 #wrap{
     min-height: 75vh;
+    padding-top: 72px;
+}
+
+@media (min-width : 992px) {
+    #wrap{
+        padding-top: 60px;
+    }
 }
 
 /*Button Style*/
@@ -417,7 +424,8 @@ Shortcode Content
 @media (min-width: 992px) {
     .navbar-default {
         background-color   : #037CF5;
-        padding            : 30px 0;
+        /* padding            : 30px 0; */
+        padding            : 10px 0;
         border             : none;
         border-radius: 0;
         }
@@ -491,6 +499,24 @@ Shortcode Content
     .header-top .search input:focus {
         width: 170px;
     }
+}
+
+/* Sidemenu Nav */
+#mobile_menu_sidebar{
+    background-color: #27272C;
+}
+
+#mobile_menu_sidebar a.list-group-item {
+    color: #fff;
+}
+
+#mobile_menu_sidebar .list-group-item{
+    background-color: transparent;
+    border: none;
+}
+
+#sidemenu .list-group-item>span{
+    line-height: 28px;
 }
 
 /* Autocomplete */
@@ -660,7 +686,7 @@ a.ui-state-focus,
 
 /* Dropdown Menu */
 
-.main-nav>.dropdown-menu {
+.navbar-main>.dropdown-menu {
     display            : inherit;
     top                : 100%;
     padding            : 0;
@@ -677,15 +703,19 @@ a.ui-state-focus,
     transform: translateY(50px);
 }
 
+.navbar-main>.dropdown>.dropdown-menu{
+    margin-top : 10px;
+}
+
 .dropdown-menu {
     border             : 1px solid #f5f5f5;
     border-radius      : 0;
     box-shadow         : 0px -2px 0px #000000;
 }
 
-.main-nav>.dropdown:hover>.dropdown-menu {
+.navbar-main>.dropdown:hover>.dropdown-menu {
     display    : block;
-    margin-top : 28px;
+    margin-top : 10px;
     opacity    : 1;
     visibility : visible;
     -webkit-transform: translateY(0);
@@ -693,13 +723,17 @@ a.ui-state-focus,
     transform: translateY(0);
 }
 
-.main-nav .dropdown-menu::before {
-    top      : -30px;
+.navbar-main .dropdown-menu::before {
+    top      : -15px;
     content  : "";
     position : absolute;
     width    : 100%;
-    height   : 30px;
+    height   : 15px;
     display  : block;
+}
+
+.navbar-main .dropdown-submenu>a>i{
+    line-height: 28px;
 }
 
 .sticky-nav .dropdown:hover .dropdown-menu {
@@ -720,6 +754,7 @@ a.ui-state-focus,
     line-height : 30px;
     color       : #969595;
     padding     : 3px 20px;
+    font-weight : 400;
 }
 
 .dropdown-menu li a:hover {
@@ -750,7 +785,8 @@ a.ui-state-focus,
     box-shadow         : none;
 }
 
-.main-nav .dropdown:hover .dropdown-submenu>.dropdown-menu {
+.main-nav .dropdown:hover .dropdown-submenu>.dropdown-menu,
+.navbar-main .dropdown:hover .dropdown-submenu>.dropdown-menu{
     top: 0;
     left: 100%;
     margin-top: 0;
@@ -966,6 +1002,19 @@ a.ui-state-focus,
     padding: 0 15px;
     background: #3ea8f4;
     color: #fff;
+}
+
+/* Button Set on Navbar */
+.button-set{
+    display: inline-block;
+    text-align: center;
+    background: #3ea8f4;
+    color: #fff;
+}
+
+.nav.navbar-nav .button-set a{
+    display: inline-block;
+    text-transform: capitalize;
 }
 
 /* Media Queries */
@@ -1433,7 +1482,7 @@ a.ui-state-focus,
 }
 
 .list-container{
-    margin-top: 10px
+    margin-top: 25px
 }
 
 #filter_controller .form-control{
@@ -1442,6 +1491,34 @@ a.ui-state-focus,
 
 #filter_controller .text-filter-container{
     margin-bottom: 10px;
+}
+
+.filter-toolbar-scroll{
+    position: fixed;
+    top: 72px;
+    z-index: 2;
+    /* width: 68%; */
+    /* width: 59%; */
+    width: calc(100% - 30px);
+}
+
+@media (min-width: 768px){
+    .filter-toolbar-scroll{
+        width: 470px;
+    }
+}
+
+@media (min-width: 992px){
+    .filter-toolbar-scroll{
+        top: 61px;
+        width: calc(727.5px - 30px);
+    }
+}
+
+@media (min-width: 1200px){
+    .filter-toolbar-scroll{
+        width: 847.5px;
+    }
 }
 
 /*---------------------
@@ -1468,6 +1545,26 @@ a.ui-state-focus,
     padding-top: 50px;
 }
 
+/* Show Scrollbar on hover */
+.card .card-content.resourcebase-content .description-content{
+    overflow-y: hidden;
+}
+
+.card .card-content.resourcebase-content .description-content:hover{
+    overflow-y: auto;
+}
+
+.description-content::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 4px;
+}
+
+.description-content::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+
 @media (min-width: 768px){
     .card .card-content.resourcebase-content .description-content{
         height: 325px;
@@ -1481,6 +1578,10 @@ a.ui-state-focus,
 }
 
 @media (min-width: 992px) and (max-width: 1024px){}
+
+.resourcebase-btn-group{
+    padding-top: 15px;
+}
 
 .card .card-content.resourcebase-content-list{
     padding: 10px 20px 20px 0px;

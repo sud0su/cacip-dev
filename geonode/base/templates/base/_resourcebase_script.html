@@ -28,11 +28,22 @@
 
         // Stick the Filter bar on scroll
         $(window).scroll(function(e){
-            if ($(this).scrollTop() > 200){
-                $(".product-filter-nav").addClass("product-filter-nav-scroll");
+            console.log($(window).width());
+            if ($(this).scrollTop() >= 50){
+                $(".filter-toolbar-container").addClass("filter-toolbar-scroll");
+                console.log($(this).scrollTop());
             }
-            if ($(this).scrollTop() < 200){
-                $(".product-filter-nav").removeClass("product-filter-nav-scroll");
+            if ($(this).scrollTop() < 50){
+                $(".filter-toolbar-container").removeClass("filter-toolbar-scroll");
+            }
+            if ($(window).width() <= 768) {
+                if ($(window).scrollTop() + $(window).height() > ($(document).height() - 650) ){
+                    $(".filter-toolbar-container").removeClass("filter-toolbar-scroll");
+                }
+            } else {
+                if ($(window).scrollTop() + $(window).height() > ($(document).height() - 250) ){
+                    $(".filter-toolbar-container").removeClass("filter-toolbar-scroll");
+                }
             }
         });
     });
@@ -41,5 +52,4 @@
         // Append the set permission btn group after everything has loaded
         $(".container-tools-set").append($("#tools_set"));
     });
-
 </script>
