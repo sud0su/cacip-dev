@@ -471,7 +471,7 @@ def geoserver_proxy(request,
         return path[len(full_prefix):]
 
     path = strip_prefix(request.get_full_path(), proxy_path)
-    do_style_update = re.match(r'^rest/workspaces/(?P<workspace>\w+)/styles$', downstream_path+path)
+    # do_style_update = re.match(r'^rest/workspaces/(?P<workspace>\w+)/styles$', downstream_path+path)
 
     raw_url = str(
         "".join([ogc_server_settings.LOCATION, downstream_path, path]))
@@ -526,14 +526,14 @@ def geoserver_proxy(request,
                         "You don't have permissions to change style for this layer"),
                     content_type="text/plain",
                     status=401)
-            elif downstream_path == 'rest/styles' or do_style_update:
-            # elif downstream_path == 'rest/styles':
+            # elif downstream_path == 'rest/styles' or do_style_update:
+            elif downstream_path == 'rest/styles':
                 logger.info(
                     "[geoserver_proxy] Updating Style ---> url %s" %
                     url.geturl())
                 affected_layers = style_update(request, raw_url)
             elif downstream_path == 'rest/layers':
-                logger.info(
+                logger.debug(
                     "[geoserver_proxy] Updating Layer ---> url %s" %
                     url.geturl())
                 try:
@@ -546,8 +546,11 @@ def geoserver_proxy(request,
     kwargs = {'affected_layers': affected_layers}
     import urllib
     raw_url = urllib.unquote(raw_url).decode('utf8')
-    timeout = getattr(ogc_server_settings, 'TIMEOUT') or 10
-    return proxy(request, url=raw_url, response_callback=_response_callback, timeout=timeout, **kwargs)
+    timeout = getattr(ogc_server_settings, 'TIMEOUT') or 20
+    allowed_hosts = [urlsplit(ogc_server_settings.public_url).hostname, ]
+    return proxy(request, url=raw_url, response_callback=_response_callback,
+                 timeout=timeout, allowed_hosts=allowed_hosts, **kwargs)
+
 
 def _response_callback(**kwargs):
     affected_layers = kwargs['affected_layers']

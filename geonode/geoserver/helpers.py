@@ -325,8 +325,7 @@ def set_layer_style(saved_layer, title, sld, base_file=None):
             etree.parse(base_file)
     except Exception:
         logger.exception("The uploaded SLD file is not valid XML")
-        raise Exception(
-            "The uploaded SLD file is not valid XML")
+        # raise Exception("The uploaded SLD file is not valid XML")
 
     # Check Layer's available styles
     match = None
@@ -338,32 +337,31 @@ def set_layer_style(saved_layer, title, sld, base_file=None):
             break
     cat = gs_catalog
     layer = cat.get_layer(title)
+    style = None
     if match is None:
         try:
-            cat.create_style(saved_layer.name, sld, raw=True, workspace=settings.DEFAULT_WORKSPACE)
-            style = cat.get_style(saved_layer.name, workspace=settings.DEFAULT_WORKSPACE) or \
+            cat.create_style(
+                saved_layer.name, sld, overwrite=False, raw=True, workspace=saved_layer.workspace)
+            style = cat.get_style(saved_layer.name, workspace=saved_layer.workspace) or \
                 cat.get_style(saved_layer.name)
-            if layer and style:
-                layer.default_style = style
-                cat.save(layer)
-                saved_layer.default_style = save_style(style)
-                set_geowebcache_invalidate_cache(saved_layer.alternate)
         except Exception as e:
             logger.exception(e)
     else:
-        style = cat.get_style(saved_layer.name, workspace=settings.DEFAULT_WORKSPACE) or \
+        style = cat.get_style(saved_layer.name, workspace=saved_layer.workspace) or \
             cat.get_style(saved_layer.name)
         # style.update_body(sld)
         try:
             cat.create_style(saved_layer.name, sld, overwrite=True, raw=True,
-                             workspace=settings.DEFAULT_WORKSPACE)
-            style = cat.get_style(saved_layer.name, workspace=settings.DEFAULT_WORKSPACE) or \
-                cat.get_style(saved_layer.name)
-            if layer and style:
-                layer.default_style = style
-                cat.save(layer)
-                saved_layer.default_style = save_style(style)
-                set_geowebcache_invalidate_cache(saved_layer.alternate)
+                             workspace=saved_layer.workspace)
+            style = cat.get_style(saved_layer.name, workspace=saved_layer.workspace)
+        except Exception as e:
+            logger.exception(e)
+
+    if layer and style:
+        try:
+            layer.default_style = style
+            cat.save(layer)
+            set_styles(saved_layer, cat)
         except Exception as e:
             logger.exception(e)
 
@@ -922,41 +920,54 @@ def set_styles(layer, gs_catalog):
         try:
             default_style = gs_layer.default_style or None
         except BaseException:
+            tb = traceback.format_exc()
+            logger.debug(tb)
             pass
 
         if not default_style:
             try:
                 default_style = gs_catalog.get_style(layer.name, workspace=layer.workspace) \
-                                or gs_catalog.get_style(layer.name)
+                    or gs_catalog.get_style(layer.name)
                 gs_layer.default_style = default_style
                 gs_catalog.save(gs_layer)
             except BaseException:
+                tb = traceback.format_exc()
+                logger.debug(tb)
                 logger.exception("GeoServer Layer Default Style issues!")
 
         if default_style:
-            # make sure we are not using a defaul SLD (which won't be editable)
+            # make sure we are not using a default SLD (which won't be editable)
             if not default_style.workspace or default_style.workspace != layer.workspace:
                 sld_body = default_style.sld_body
                 try:
                     gs_catalog.create_style(layer.name, sld_body, raw=True, workspace=layer.workspace)
                 except BaseException:
+                    tb = traceback.format_exc()
+                    logger.debug(tb)
                     pass
                 style = gs_catalog.get_style(layer.name, workspace=layer.workspace)
             else:
                 style = default_style
             if style:
-                layer.default_style = save_style(style)
-                # FIXME: This should remove styles that are no longer valid
-                style_set.append(layer.default_style)
+                layer.default_style = save_style(style, layer)
+                if layer.default_style not in style_set:
+                    style_set.append(layer.default_style)
+                gs_layer.default_style = style
+                gs_catalog.save(gs_layer)
+
         try:
             if gs_layer.styles:
                 alt_styles = gs_layer.styles
                 for alt_style in alt_styles:
                     if alt_style:
-                        style_set.append(save_style(alt_style))
+                        style_set.append(save_style(alt_style, layer))
         except BaseException:
+            tb = traceback.format_exc()
+            logger.debug(tb)
             pass
 
+    # Remove duplicates
+    style_set = list(dict.fromkeys(style_set))
     layer.styles = style_set
 
     # Update default style to database
@@ -966,19 +977,40 @@ def set_styles(layer, gs_catalog):
 
     Layer.objects.filter(id=layer.id).update(**to_update)
     layer.refresh_from_db()
-
-
-def save_style(gs_style):
-    style, created = Style.objects.get_or_create(name=gs_style.name)
     try:
-        style.sld_title = gs_style.sld_title
+        set_geowebcache_invalidate_cache(layer.alternate)
+    except BaseException as e:
+        logger.exception(e)
+
+
+def save_style(gs_style, layer):
+
+    if not gs_style.workspace or gs_style.workspace != layer.workspace:
+        sld_body = gs_style.sld_body
+        try:
+            gs_catalog.create_style(gs_style.name, sld_body, raw=True, workspace=layer.workspace)
+        except BaseException:
+            tb = traceback.format_exc()
+            logger.debug(tb)
+            pass
+        style = gs_catalog.get_style(gs_style.name, workspace=layer.workspace)
+
+    style, created = Style.objects.get_or_create(name=gs_style.name)
+    if not style.workspace:
+        style.workspace = layer.workspace
+
+    try:
+        style.sld_title = gs_style.sld_title or gs_style.sld_name
     except BaseException:
+        tb = traceback.format_exc()
+        logger.debug(tb)
         style.sld_title = gs_style.name
     finally:
         style.sld_body = gs_style.sld_body
         style.sld_url = gs_style.body_href
         style.save()
     return style
+
 
 
 def is_layer_attribute_aggregable(store_type, field_name, field_type):
@@ -1486,22 +1518,16 @@ def wps_execute_layer_attribute_statistics(layer_name, field):
 
 
 def _stylefilterparams_geowebcache_layer(layer_name):
-    http = httplib2.Http()
-    username, password = ogc_server_settings.credentials
-    auth = base64.encodestring(username + ':' + password)
-    # http.add_credentials(username, password)
     headers = {
-        "Content-Type": "text/xml",
-        "Authorization": "Basic " + auth
+        "Content-Type": "text/xml"
     }
     url = '%sgwc/rest/layers/%s.xml' % (ogc_server_settings.LOCATION, layer_name)
 
     # read GWC configuration
-    method = "GET"
-    response, _ = http.request(url, method, headers=headers)
-    if response.status != 200:
+    req, content = http_client.get(url, headers=headers)
+    if req.status_code != 200:
         line = "Error {0} reading Style Filter Params GeoWebCache at {1}".format(
-            response.status, url
+            req.status_code, url
         )
         logger.error(line)
         return
@@ -1519,35 +1545,28 @@ def _stylefilterparams_geowebcache_layer(layer_name):
             param_filters[0].append(style_filters_elem)
             body = ET.tostring(tree)
     if body:
-        method = "POST"
-        response, _ = http.request(url, method, body=body, headers=headers)
-        if response.status != 200:
+        req, content = http_client.post(url, data=body, headers=headers)
+        if req.status_code != 200:
             line = "Error {0} writing Style Filter Params GeoWebCache at {1}".format(
-                response.status, url
+                req.status_code, url
             )
             logger.error(line)
 
 
 def _invalidate_geowebcache_layer(layer_name, url=None):
-    http = httplib2.Http()
-    username, password = ogc_server_settings.credentials
-    auth = base64.encodestring(username + ':' + password)
-    # http.add_credentials(username, password)
-    method = "POST"
     headers = {
         "Content-Type": "text/xml",
-        "Authorization": "Basic " + auth
     }
     body = """
         <truncateLayer><layerName>{0}</layerName></truncateLayer>
         """.strip().format(layer_name)
     if not url:
         url = '%sgwc/rest/masstruncate' % ogc_server_settings.LOCATION
-    response, _ = http.request(url, method, body=body, headers=headers)
+    req, content = http_client.post(url, data=body, headers=headers)
 
-    if response.status != 200:
+    if req.status_code != 200:
         line = "Error {0} invalidating GeoWebCache at {1}".format(
-            response.status, url
+            req.status_code, url
         )
         logger.error(line)
 
@@ -1625,19 +1644,15 @@ def style_update(request, url):
                 style.save()
                 affected_layers.append(layer)
         elif request.method == 'PUT':  # update style in GN
-            print('Razinal Test:style name='+ style_name)
             if style_name:
                 style, created = Style.objects.get_or_create(name=style_name)
-                print('Razinal Test:sld_body', sld_body)
                 style.sld_body = sld_body
                 style.sld_url = url
                 if elm_user_style_title and len(elm_user_style_title) > 0:
                     style.sld_title = elm_user_style_title
                 style.save()
                 for layer in style.layer_styles.all():
-                    layer.save()
                     affected_layers.append(layer)
-                print('Razinal Test:Affected layer=', affected_layers)
 
         # Invalidate GeoWebCache so it doesn't retain old style in tiles
         try:
