@@ -3,7 +3,8 @@ body {font-family: Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;}
     display: none;
 }
 #paneltbar {
-    margin-top: 68px;
+    margin-top: 55px !important;
+    /*margin-bottom: 0px;*/
 }
 button.logout {
     display: none;
