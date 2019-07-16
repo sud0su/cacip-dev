@@ -27,7 +27,9 @@ import traceback
 from lxml import etree
 from os.path import isfile
 
+import urlparse
 from urlparse import urlsplit, urljoin
+from urllib import urlencode
 
 from django.contrib.auth import authenticate
 from django.http import HttpResponse, HttpResponseRedirect
@@ -548,6 +550,26 @@ def geoserver_proxy(request,
     raw_url = urllib.unquote(raw_url).decode('utf8')
     timeout = getattr(ogc_server_settings, 'TIMEOUT') or 20
     allowed_hosts = [urlsplit(ogc_server_settings.public_url).hostname, ]
+
+    # remove workspace from layer name
+    if downstream_path == 'ows':
+        key = None
+        if 'LAYERS' in request.GET:
+            key = 'LAYERS'
+        elif 'layer' in request.GET:
+            key = 'layer'
+        if key:
+            _mutable = request.GET._mutable
+            request.GET._mutable = True
+            request.GET[key] = request.GET[key].split(':')[-1]
+            request.GET._mutable = _mutable
+
+            url_parts = list(urlparse.urlparse(raw_url))
+            query = dict(urlparse.parse_qsl(url_parts[4]))
+            query.update({key: request.GET[key]})
+            url_parts[4] = urlencode(query)
+            raw_url = urlparse.urlunparse(url_parts)
+
     return proxy(request, url=raw_url, response_callback=_response_callback,
                  timeout=timeout, allowed_hosts=allowed_hosts, **kwargs)
 
