@@ -27,6 +27,7 @@ def geoserver_urls(request):
     """Global values to pass to templates"""
     defaults = dict(
         GEOSERVER_LOCAL_URL=ogc_server_settings.LOCATION,
+        GEOSERVER_PUBLIC_LOCATION=ogc_server_settings.public_url,
         GEOSERVER_BASE_URL=ogc_server_settings.public_url,
         UPLOADER_URL=reverse('data_upload') if getattr(
             settings,
@@ -38,7 +39,6 @@ def geoserver_urls(request):
         MAPFISH_PRINT_ENABLED=getattr(ogc_server_settings, 'MAPFISH_PRINT_ENABLED', False),
         PRINT_NG_ENABLED=getattr(ogc_server_settings, 'PRINT_NG_ENABLED', False),
         GEONODE_SECURITY_ENABLED=getattr(ogc_server_settings, 'GEONODE_SECURITY_ENABLED', False),
-        GEOGIG_ENABLED=getattr(ogc_server_settings, 'GEOGIG_ENABLED', False),
         TIME_ENABLED=getattr(
                 settings,
                 'UPLOADER',

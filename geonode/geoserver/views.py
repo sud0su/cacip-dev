@@ -22,14 +22,11 @@ import os
 import re
 import json
 import logging
-import httplib2
 import traceback
 from lxml import etree
 from os.path import isfile
 
-import urlparse
 from urlparse import urlsplit, urljoin
-from urllib import urlencode
 
 from django.contrib.auth import authenticate
 from django.http import HttpResponse, HttpResponseRedirect
@@ -45,8 +42,9 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext as _
 
 from guardian.shortcuts import get_objects_for_user
-
+from .utils import requests_retry
 from geonode.base.models import ResourceBase
+# from geonode.base.auth import get_or_create_token
 from geonode.layers.forms import LayerStyleUploadForm
 from geonode.layers.models import Layer, Style
 from geonode.layers.views import _resolve_layer, _PERMISSION_MSG_MODIFY
@@ -55,10 +53,15 @@ from geonode.proxy.views import proxy
 from geonode.geoserver.signals import gs_catalog
 from .tasks import geoserver_update_layers
 from geonode.utils import json_response, _get_basic_auth_info
-from geoserver.catalog import FailedRequestError, ConflictingDataError
-from .helpers import (get_stores, ogc_server_settings, extract_name_from_sld, set_styles,
-                      style_update, create_gs_thumbnail,
-                      _stylefilterparams_geowebcache_layer, _invalidate_geowebcache_layer)
+from geoserver.catalog import FailedRequestError
+from .helpers import (get_stores,
+                      ogc_server_settings,
+                      extract_name_from_sld,
+                      set_styles,
+                      style_update,
+                      set_layer_style,
+                      _stylefilterparams_geowebcache_layer,
+                      _invalidate_geowebcache_layer)
 
 from django_basic_auth import logged_in_or_basicauth
 from django.views.decorators.csrf import csrf_exempt
@@ -173,42 +176,13 @@ def layer_style_upload(request, layername):
         respond(errors="The uploaded SLD file is not valid XML: {}".format(e))
 
     name = data.get('name') or sld_name
-    if data['update']:
-        match = None
-        styles = list(layer.styles) + [layer.default_style]
-        for style in styles:
-            if style.sld_name == name:
-                match = style
-                break
-        if match is None:
-            return respond(errors="Cannot locate style : " + name)
-        match.update_body(sld)
-    else:
-        try:
-            cat = gs_catalog
-            cat.create_style(
-                name,
-                sld,
-                raw=True,
-                workspace=settings.DEFAULT_WORKSPACE)
-            layer.styles = layer.styles + \
-                [type('style', (object,), {'name': name})]
-            cat.save(layer.publishing)
-        except ConflictingDataError:
-            return respond(errors="""A layer with this name exists. Select
-                                     the update option if you want to update.""")
 
-    # Invalidate GeoWebCache for the updated resource
-    try:
-        _stylefilterparams_geowebcache_layer(layer.alternate)
-        _invalidate_geowebcache_layer(layer.alternate)
-    except BaseException:
-        pass
+    set_layer_style(layer, data.get('title') or name, sld)
 
     return respond(
         body={
             'success': True,
-            'style': name,
+            'style': data.get('title') or name,
             'updated': data['update']})
 
 
@@ -232,20 +206,24 @@ def layer_style_manage(request, layername):
                 logger.warn(
                     'Unable to set the default style.  Ensure Geoserver is running and that this layer exists.')
 
-            # Ahmed Nour:
-            # Get public styles also
-            all_available_gs_styles = cat.get_styles(
-                settings.DEFAULT_WORKSPACE)
-            all_available_gs_styles += cat.get_styles()
             gs_styles = []
-            for style in all_available_gs_styles:
+            for style in Style.objects.all():
                 sld_title = style.name
+                if style.sld_title:
+                    sld_title = style.sld_title
                 try:
-                    if style.sld_title:
-                        sld_title = style.sld_title
+                    gs_sld = cat.get_style(style.name,
+                                           workspace=layer.workspace) or cat.get_style(style.name)
+                    # Temporary Hack to remove GeoServer temp styles from the list
+                    _match = re.match(r'\w{8}-\w{4}-\w{4}-\w{4}-\w{12}_(ms)_\d{13}', gs_sld.name)
+                    if gs_sld and not _match:
+                        sld_title = gs_sld.sld_title
+                        gs_styles.append((style.name, sld_title))
+                    else:
+                        style.delete()
                 except BaseException:
-                    pass
-                gs_styles.append((style.name, sld_title))
+                    tb = traceback.format_exc()
+                    logger.debug(tb)
 
             current_layer_styles = layer.styles.all()
             layer_styles = []
@@ -255,18 +233,25 @@ def layer_style_manage(request, layername):
                     if style.sld_title:
                         sld_title = style.sld_title
                 except BaseException:
-                    pass
+                    tb = traceback.format_exc()
+                    logger.debug(tb)
                 layer_styles.append((style.name, sld_title))
 
             # Render the form
-            sld_title = layer.default_style.name
-            try:
-                if layer.default_style.sld_title:
-                    sld_title = layer.default_style.sld_title
-            except BaseException:
-                pass
+            def_sld_name = None  # noqa
+            def_sld_title = None  # noqa
+            if layer.default_style:
+                def_sld_name = layer.default_style.name  # noqa
+                def_sld_title = layer.default_style.name  # noqa
+                try:
+                    if layer.default_style.sld_title:
+                        def_sld_title = layer.default_style.sld_title
+                except BaseException:
+                    tb = traceback.format_exc()
+                    logger.debug(tb)
 
-            default_style = (layer.default_style.name, sld_title)
+            default_style = (def_sld_name, def_sld_title)
+
             return render(
                 request,
                 'layers/layer_style_manage.html',
@@ -274,6 +259,7 @@ def layer_style_manage(request, layername):
                     "layer": layer,
                     "gs_styles": gs_styles,
                     "layer_styles": layer_styles,
+                    "layer_style_names": [s[0] for s in layer_styles],
                     "default_style": default_style
                 }
             )
@@ -284,7 +270,7 @@ def layer_style_manage(request, layername):
                    'to manage style information for layer "%s"' % (
                        ogc_server_settings.LOCATION, layer.name)
                    )
-            logger.warn(msg)
+            logger.debug(msg)
             # If geoserver is not online, return an error
             return render(
                 request,
@@ -294,7 +280,7 @@ def layer_style_manage(request, layername):
                     "error": msg
                 }
             )
-    elif request.method == 'POST':
+    elif request.method in ('POST', 'PUT', 'DELETE'):
         try:
             selected_styles = request.POST.getlist('style-select')
 
@@ -311,10 +297,9 @@ def layer_style_manage(request, layername):
                     cat.get_style(default_style)
                 styles = []
                 for style in selected_styles:
-                    styles.append(
-                        cat.get_style(
-                            style,
-                            workspace=settings.DEFAULT_WORKSPACE) or cat.get_style(style))
+                    gs_sld = cat.get_style(style, workspace=settings.DEFAULT_WORKSPACE) or cat.get_style(style)
+                    if gs_sld:
+                        styles.append(gs_sld)
                 gs_layer.styles = styles
                 cat.save(gs_layer)
 
@@ -350,7 +335,7 @@ def layer_style_manage(request, layername):
             )
 
 
-def feature_edit_check(request, layername):
+def feature_edit_check(request, layername, permission='change_layer_data'):
     """
     If the layer is not a raster and the user has edit permission, return a status of 200 (OK).
     Otherwise, return a status of 401 (unauthorized).
@@ -362,7 +347,7 @@ def feature_edit_check(request, layername):
         return HttpResponse(
             json.dumps({'authorized': False}), content_type="application/json")
     datastore = ogc_server_settings.DATASTORE
-    feature_edit = getattr(settings, "GEOGIG_DATASTORE", None) or datastore
+    feature_edit = datastore
     is_admin = False
     is_staff = False
     is_owner = False
@@ -377,13 +362,23 @@ def feature_edit_check(request, layername):
         except BaseException:
             is_manager = False
     if is_admin or is_staff or is_owner or is_manager or request.user.has_perm(
-            'change_layer_data',
-            obj=layer) and layer.storeType == 'dataStore' and feature_edit:
+            permission,
+            obj=layer) and \
+            ((permission == 'change_layer_data' and layer.storeType == 'dataStore' and feature_edit) or
+             True):
         return HttpResponse(
             json.dumps({'authorized': True}), content_type="application/json")
     else:
         return HttpResponse(
             json.dumps({'authorized': False}), content_type="application/json")
+
+
+def style_edit_check(request, layername):
+    """
+    If the layer is not a raster and the user has edit permission, return a status of 200 (OK).
+    Otherwise, return a status of 401 (unauthorized).
+    """
+    return feature_edit_check(request, layername, permission='change_layer_style')
 
 
 def style_change_check(request, path):
@@ -473,7 +468,6 @@ def geoserver_proxy(request,
         return path[len(full_prefix):]
 
     path = strip_prefix(request.get_full_path(), proxy_path)
-    # do_style_update = re.match(r'^rest/workspaces/(?P<workspace>\w+)/styles$', downstream_path+path)
 
     raw_url = str(
         "".join([ogc_server_settings.LOCATION, downstream_path, path]))
@@ -528,7 +522,6 @@ def geoserver_proxy(request,
                         "You don't have permissions to change style for this layer"),
                     content_type="text/plain",
                     status=401)
-            # elif downstream_path == 'rest/styles' or do_style_update:
             elif downstream_path == 'rest/styles':
                 logger.info(
                     "[geoserver_proxy] Updating Style ---> url %s" %
@@ -540,7 +533,7 @@ def geoserver_proxy(request,
                     url.geturl())
                 try:
                     _layer_name = os.path.splitext(os.path.basename(request.path))[0]
-                    _layer = Layer.objects.get(name__icontains=_layer_name)
+                    _layer = Layer.objects.get(typename__icontains=_layer_name)
                     affected_layers = [_layer]
                 except BaseException:
                     logger.warn("Could not find any Layer %s on DB" % os.path.basename(request.path))
@@ -548,53 +541,31 @@ def geoserver_proxy(request,
     kwargs = {'affected_layers': affected_layers}
     import urllib
     raw_url = urllib.unquote(raw_url).decode('utf8')
-    timeout = getattr(ogc_server_settings, 'TIMEOUT') or 20
+    timeout = getattr(ogc_server_settings, 'TIMEOUT') or 10
     allowed_hosts = [urlsplit(ogc_server_settings.public_url).hostname, ]
-
-    # remove workspace from layer name
-    if downstream_path == 'ows':
-        key = None
-        if 'LAYERS' in request.GET:
-            key = 'LAYERS'
-        elif 'layer' in request.GET:
-            key = 'layer'
-        if key:
-            _mutable = request.GET._mutable
-            request.GET._mutable = True
-            request.GET[key] = request.GET[key].split(':')[-1]
-            request.GET._mutable = _mutable
-
-            url_parts = list(urlparse.urlparse(raw_url))
-            query = dict(urlparse.parse_qsl(url_parts[4]))
-            query.update({key: request.GET[key]})
-            url_parts[4] = urlencode(query)
-            raw_url = urlparse.urlunparse(url_parts)
-
     return proxy(request, url=raw_url, response_callback=_response_callback,
                  timeout=timeout, allowed_hosts=allowed_hosts, **kwargs)
 
 
 def _response_callback(**kwargs):
-    affected_layers = kwargs['affected_layers']
+    # affected_layers = kwargs['affected_layers']
     # response = kwargs['response']
     content = kwargs['content']
     status = kwargs['status']
     content_type = kwargs['content_type']
-
-    # update thumbnails
-    if status == 200 and affected_layers:
-        for layer in affected_layers:
-            logger.debug(
-                'Updating thumbnail for layer with uuid %s' %
-                layer.uuid)
-            create_gs_thumbnail(layer, overwrite=True)
+    print content
+    print status
+    print content_type
 
     # Replace Proxy URL
-    if content_type in ('application/xml', 'text/xml', 'text/plain', 'application/json', 'text/json'):
+    if content_type in ('application/xml', 'text/xml', 'text/plain', 'application/json', 'text/json') and status==200:
         _gn_proxy_url = urljoin(settings.SITEURL, '/gs/')
-        content = content\
-            .replace(ogc_server_settings.LOCATION, _gn_proxy_url)\
-            .replace(ogc_server_settings.PUBLIC_LOCATION, _gn_proxy_url)
+        print '------------------------ callback results'
+        print _gn_proxy_url
+        print ogc_server_settings.LOCATION
+        # content = content\
+        #     .replace(ogc_server_settings.LOCATION, _gn_proxy_url)\
+        #     .replace(ogc_server_settings.PUBLIC_LOCATION, _gn_proxy_url)
 
     return HttpResponse(
         content=content,
@@ -641,9 +612,8 @@ def layer_batch_download(request):
         }
 
         url = "%srest/process/batchDownload/launch/" % ogc_server_settings.LOCATION
-        resp, content = http_client.request(
-            url, 'POST', body=json.dumps(fake_map))
-        return HttpResponse(content, status=resp.status)
+        req, content = http_client.post(url, data=json.dumps(fake_map))
+        return HttpResponse(content, status=req.status_code)
 
     if request.method == 'GET':
         # essentially, this just proxies back to geoserver
@@ -653,8 +623,8 @@ def layer_batch_download(request):
 
         url = "%srest/process/batchDownload/status/%s" % (
             ogc_server_settings.LOCATION, download_id)
-        resp, content = http_client.request(url, 'GET')
-        return HttpResponse(content, status=resp.status)
+        req, content = http_client.get(url)
+        return HttpResponse(content, status=req.status_code)
 
 
 def resolve_user(request):
@@ -677,7 +647,7 @@ def resolve_user(request):
                                 content_type="text/plain")
 
     if not any([user, geoserver, superuser]
-               ) and not request.user.is_anonymous():
+               ) and not request.user.is_anonymous:
         user = request.user.username
         superuser = request.user.is_superuser
 
@@ -778,18 +748,21 @@ def get_layer_capabilities(layer, version='1.3.0', access_token=None, tolerant=F
         wms_url = '%s?service=wms&version=%s&request=GetCapabilities'\
             % (layer.remote_service.service_url, version)
 
-    http = httplib2.Http()
-    response, getcap = http.request(wms_url)
-    if tolerant and ('ServiceException' in getcap or response.status == 404):
-        # WARNING Please make sure to have enabled DJANGO CACHE as per
-        # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
-        wms_url = '%s%s/ows?service=wms&version=%s&request=GetCapabilities&layers=%s'\
-            % (ogc_server_settings.public_url, workspace, version, layer)
-        if access_token:
-            wms_url += ('&access_token=%s' % access_token)
-        response, getcap = http.request(wms_url)
+    session = requests_retry()
+    req = session.get(wms_url)
+    getcap = req.content
+    if not getattr(settings, 'DELAYED_SECURITY_SIGNALS', False):
+        if tolerant and ('ServiceException' in getcap or req.status_code == 404):
+            # WARNING Please make sure to have enabled DJANGO CACHE as per
+            # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
+            wms_url = '%s%s/ows?service=wms&version=%s&request=GetCapabilities&layers=%s'\
+                % (ogc_server_settings.public_url, workspace, version, layer)
+            if access_token:
+                wms_url += ('&access_token=%s' % access_token)
+            req = session.get(wms_url)
+            getcap = req.content
 
-    if 'ServiceException' in getcap or response.status == 404:
+    if 'ServiceException' in getcap or req.status_code == 404:
         return None
     return getcap
 
@@ -848,12 +821,14 @@ def get_capabilities(request, layerid=None, user=None,
     for layer in layers:
         if request.user.has_perm('view_resourcebase',
                                  layer.get_self_resource()):
+            # access_token = get_or_create_token(request.user)
+            # if access_token and not access_token.is_expired():
+            #     access_token = access_token.token
             access_token = None
             if request and 'access_token' in request.session:
                 access_token = request.session['access_token']
             else:
                 access_token = None
-
             try:
                 workspace, layername = layer.alternate.split(":") if ":" in layer.alternate else (None, layer.alternate)
                 layercap = get_layer_capabilities(layer,
@@ -906,3 +881,15 @@ def get_capabilities(request, layerid=None, user=None,
             pretty_print=True)
         return HttpResponse(capabilities, content_type="text/xml")
     return HttpResponse(status=200)
+
+
+def server_online(request):
+    """
+    Returns {success} whenever the LOCAL_GEOSERVER is up and running
+    """
+    from .helpers import check_geoserver_is_up
+    try:
+        check_geoserver_is_up()
+        return HttpResponse(json.dumps({'online': True}), content_type="application/json")
+    except BaseException:
+        return HttpResponse(json.dumps({'online': False}), content_type="application/json")
