@@ -52,7 +52,7 @@ from geonode.maps.models import Map
 from geonode.proxy.views import proxy
 from geonode.geoserver.signals import gs_catalog
 from .tasks import geoserver_update_layers
-from geonode.utils import json_response, _get_basic_auth_info
+from geonode.utils import json_response, _get_basic_auth_info, json2xml
 from geoserver.catalog import FailedRequestError
 from .helpers import (get_stores,
                       ogc_server_settings,
@@ -528,6 +528,12 @@ def geoserver_proxy(request,
                     url.geturl())
                 affected_layers = style_update(request, raw_url)
             elif downstream_path == 'rest/layers':
+
+                # fix failed associate style to layer, convert json to xml
+                if request.method == 'PUT' and re.match('\/gs\/rest\/layers\/(.+)\.json', request.path):
+                    request.body_alt = json2xml(json.loads(request.body), tab="", linefeed="")
+                    request.META['CONTENT_TYPE'] = 'application/xml'
+
                 logger.debug(
                     "[geoserver_proxy] Updating Layer ---> url %s" %
                     url.geturl())
