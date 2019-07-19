@@ -421,7 +421,7 @@ def cascading_delete(cat, layer_name):
             pass
         gs_styles = [x for x in cat.get_styles()]
         if settings.DEFAULT_WORKSPACE:
-            gs_styles = gs_styles + [x for x in cat.get_styles(workspaces=settings.DEFAULT_WORKSPACE)]
+            gs_styles = gs_styles + [x for x in cat.get_styles(workspace=settings.DEFAULT_WORKSPACE)]
             ws_styles = []
             for s in styles:
                 if s is not None and s.name not in _default_style_names:
