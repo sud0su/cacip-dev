@@ -2644,3 +2644,7 @@ div#user_messages{
 .hidden_custom {
     height: 0;
 }
+
+.bootstrap-select.btn-group .dropdown-menu li a {
+    color: black;
+}
