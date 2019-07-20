@@ -9,7 +9,7 @@
         {% verbatim %}
         <div class="row">
             <div id="grid_view">
-                <div class="col-sm-6 col-md-6 col-lg-4" ng-repeat="item in results" resource_id="{{ item.id }}" ng-cloak class="ng-cloak">
+                <div class="col-sm-6 col-md-6 col-lg-4 grid_padding" ng-repeat="item in results" resource_id="{{ item.id }}" ng-cloak class="ng-cloak">
                     <div class="card">
                         <div class="card-image">
                             <button type="button" 
@@ -157,7 +157,7 @@
                                             <span class="label label-default">{{ region }}</span>&nbsp;
                                         </span>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right align-right-custom">
                                         <a class="btn" href="{{ item.detail_url }}" role="button">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>
                                         <a class="btn btn-primary" ng-if="item.detail_url.indexOf('/layers/') > -1" href="{% endverbatim %}{% url 'new_map' %}?layer={% verbatim %}{{ item.detail_url.substring(8) }}" role="button">{% endverbatim %}{% trans "Create Map" %}{% verbatim %}</a>
                                         <a class="btn btn-primary" ng-if="item.detail_url.indexOf('/maps/') > -1" href="/maps/{{item.id}}/view">{% endverbatim %}{% trans "View Map" %}{% verbatim %}</a>

@@ -18,7 +18,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 
 h1 {
-    font-size   : 36px;
+    font-size   : 18px;
     line-height : 1.2em;
     font-weight : 100;
     }
@@ -60,7 +60,7 @@ h6 {
 LINK STYLE
 ------------------------------------------*/
 a {
-    color              : #2a93fc;
+    /*color              : #000;*/
     text-decoration    : none;
     -webkit-transition : all 0.3s ease 0s;
     -moz-transition    : all 0.3s ease 0s;
@@ -74,17 +74,20 @@ a:focus,
 a:active {
     text-decoration : none;
     outline         : none
+    font-size: 12px;
     }
 
 a:hover,
 a:focus {
     text-decoration : none;
-    color: #037CF5;
+    color: #337ab7;
+    font-weight: 999;
     }
 
 
 p{
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
+        font-size: 12px;
 }
 
 
@@ -157,7 +160,7 @@ ul {
 /*btn-default*/
 .btn-default {
     color            : #2a93fc;
-    background-color : transparent;
+    /*background-color : transparent;*/
     border-color     : #e1e1e1;
     }
 
@@ -347,6 +350,7 @@ Shortcode Content
     padding        : 10px 15px;
     border-radius  : 2px;
     text-transform : uppercase;
+    font-weight: 100;
     }
 
 .navbar-default .navbar-nav > li > a:focus,
@@ -362,13 +366,15 @@ Shortcode Content
 .navbar-default .navbar-nav > .active > a:hover {
     color            : #fff;
     background-color : transparent;
-    border-bottom: 1px solid #fff;
+    /*border-bottom: 1px solid #fff;*/
     /* background-color : #fff; */
+    font-weight: 900;
     }
 
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
     color : #fff;
+    font-weight: 900;
     /* border-bottom: 1px solid #fff; */
 }
 
@@ -410,7 +416,7 @@ Shortcode Content
 
     .navbar-default {
         /* background    : #333333 !important; */
-        background    : #037CF5;
+        background    : #0a6eb4;
         padding       : 10px 0;
         border        : none;
         border-radius: 0;
@@ -423,7 +429,7 @@ Shortcode Content
 
 @media (min-width: 992px) {
     .navbar-default {
-        background-color   : #037CF5;
+        background-color   : #0a6eb4;
         /* padding            : 30px 0; */
         padding            : 10px 0;
         border             : none;
@@ -553,6 +559,7 @@ Shortcode Content
 
 .latest-search {
     position: relative;
+    top: -75px;
 }
 
 /* Keywords Treeview */
@@ -705,6 +712,7 @@ a.ui-state-focus,
 
 .navbar-main>.dropdown>.dropdown-menu{
     margin-top : 10px;
+    background-color: #096eb4;
 }
 
 .dropdown-menu {
@@ -752,14 +760,15 @@ a.ui-state-focus,
     display     : block;
     font-size   : 13px;
     line-height : 30px;
-    color       : #969595;
+    color       : #FFF;
     padding     : 3px 20px;
-    font-weight : 400;
+    font-weight : 100;
 }
 
 .dropdown-menu li a:hover {
-    color            : #2a93fc;
-    background-color : #f5f5f5;
+    color: #FFF;
+    font-weight: 999;
+    background-color: #096eb4;
 }
 
 .dropdown-menu > .active > a,
@@ -1167,7 +1176,7 @@ a.ui-state-focus,
  * Section Title
  *---------------------------*/
  .section-title{
-    margin-bottom: 60px;
+    /*margin-bottom: 60px;*/
  }
 
 /*---------------------------
@@ -1443,7 +1452,7 @@ a.ui-state-focus,
  *  case Studies
  *---------------------- */
 .case-studies{
-    padding: 80px 0;
+    padding: 50px 0;
     background: #f0f1f3;
     border-top: 1px solid rgba(0,0,0,.05);
 }
@@ -1476,7 +1485,7 @@ a.ui-state-focus,
 
 .filter-toolbar-container{
     margin-bottom: 10px;
-    background-color: #fff;
+    /*background-color: #fff;*/
     padding: 8px 15px 0;
     border-radius: 5px;
 }
@@ -1531,18 +1540,41 @@ a.ui-state-focus,
 } */
 
 .card{
-    background: #fff;
+    /*background: #fff;
     margin-bottom: 30px;
+    border: 1px solid;
+    border-color: #F1F1F1;*/
+    padding: 8px 10px 13px 12px;
+    background-color: #fffdfd;
+    color: #333;
+    text-align: justify;
+    /*height: 142px;*/
+    overflow-y: hidden;
+    border-radius: 0 0 3px 3px;
+    border: 1px solid #e4e5e7;
+    webkit transition: all 200ms ease in out;
+    transition: all 200ms ease in out;
 }
 
 .card .card-content{
-    padding: 20px;
+/*    padding: 15px;
     margin: 0;
     position: relative;
+    height: 150px;*/
+    padding: 0px 1px 1px 1px;
+    /*background-color: #f6f6f6;*/
+    color: #333;
+    text-align: justify;
+    height: 150px;
+    overflow-y: auto;
+    border-radius: 0 0 3px 3px;
+    webkit transition: all 200ms ease in out;
+    transition: all 200ms ease in out;
 }
 
 .card .card-content.resourcebase-content{
-    padding-top: 50px;
+    /*padding-top: 50px;*/
+    font-size: 12px;
 }
 
 /* Show Scrollbar on hover */
@@ -1567,13 +1599,13 @@ a.ui-state-focus,
 
 @media (min-width: 768px){
     .card .card-content.resourcebase-content .description-content{
-        height: 325px;
+        height: 100px;
     }
 }
 
 @media (min-width: 992px){
     .card .card-content.resourcebase-content .description-content{
-        height: 270px;
+        height: 100px;
     }
 }
 
@@ -1585,10 +1617,11 @@ a.ui-state-focus,
 
 .card .card-content.resourcebase-content-list{
     padding: 10px 20px 20px 0px;
+    height: auto;
 }
 
 .card .card-content h2{
-    font-size: 18px;
+    font-size: 12px;
     word-break: break-word;
 }
 
@@ -1596,8 +1629,8 @@ a.ui-state-focus,
     line-height: 1.4;
     text-transform: uppercase;
     position: absolute;
-    top: -3.5em;
-    left: 0px;
+    top: 0.5em;
+    left: 28px;
     padding: 0.5em 0.7em;
     background: rgb(255, 195, 0);
 }
@@ -2123,7 +2156,7 @@ icon-style
     }
 
 .footer-widget-section{
-    padding: 80px 0;
+    padding: 40px 0;
 }
 
 .footer .footer-logo {
@@ -2199,6 +2232,7 @@ icon-style
     zoom: 1;
     padding-left: 10px;
     padding-right: 10px;
+    color: #0a6eb4;
 }
 
 .footer .colorlib-social-icons li a i {
@@ -2407,8 +2441,10 @@ nav.filter ul,
 
 @media screen and (min-width: 768px){
     .resourcebase-snippet .card-image img{
-        height: 200px;
-        width: auto;
+            width: 100%;
+            height: 160px;
+            display: block;
+            position: relative;
     }
 }
 
@@ -2580,4 +2616,31 @@ div#user_messages{
     -o-transform: rotate(45deg);
     transform: rotate(45deg);
     /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);*/
+}
+
+.grid-spacer{
+    position: relative;
+    min-height: 1px;
+    padding-right: 0px; 
+    padding-left: 15px;
+    padding-bottom: 15px;
+}
+
+.grid_padding {
+    padding-bottom: 25px;
+}
+
+.col-lg-12 {
+    width: 100%;
+    padding: 5px;
+}
+
+.align-right-custom {
+    position: absolute;
+    bottom: 0px;
+    right: 35px;
+}
+
+.hidden_custom {
+    height: 0;
 }

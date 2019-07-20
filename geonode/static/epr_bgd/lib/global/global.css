@@ -7245,6 +7245,7 @@
 
 .g-color--white {
   color: #fff !important;
+  font-weight: 100;
 }
 
 .g-color--text {
@@ -7354,7 +7355,7 @@
 }
 
 .g-bg-color--sky-light {
-  background-color: #f5f8f9 !important;
+  background-color: #f0f1f3 !important;
 }
 
 .g-bg-color--primary-to-blueviolet-ltr {

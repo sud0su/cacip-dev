@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 {% load base_tags %}
 
-{% block title %} {% trans "Welcome!" %} - {{ block.super }} {% endblock %}
+{% block title %} {% trans "EPR - Spatial Data Center" %} - {{ block.super }} {% endblock %}
 
 {% block body_class %}home{% endblock %}
 
@@ -69,7 +69,7 @@
         <div ng-app="featured" >
             <section class="case-studies">
                 <div class="container">
-                    <div class="section-title text-center">
+                    <div class="section-title">
                         <h1>{% trans "Latest Updates Camps" %}</h1>
                         {% verbatim %}
                         <p class="">
@@ -80,7 +80,7 @@
                         </p>
                         {% endverbatim %}
                     </div>
-                    <div class="row">
+                    <div class="row hidden_custom">
                         <div class="col-xs-12 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-8">
                             <div class="latest-search g-margin-b-25--xs">
                                 <form id="camp_search" action="{% url "search" %}" >
@@ -133,7 +133,7 @@
     
             <section class="case-studies g-bg-color--sky-light">
                 <div class="container">
-                    <div class="section-title text-center">
+                    <div class="section-title">
                         <h1>{% trans "Latest Updates Host Communities" %}</h1>
                         {% verbatim %}
                         <p class="">
@@ -195,7 +195,7 @@
     
             <section class="case-studies">
                 <div class="container">
-                    <div class="section-title text-center">
+                    <div class="section-title">
                         <h1>{% trans "Latest Updates" %}</h1>
                         {% verbatim %}
                         <p class="">
