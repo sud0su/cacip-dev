@@ -1391,7 +1391,7 @@ def layer_granule_remove(
 def layer_thumbnail(request, layername):
     if request.method == 'POST':
         layer_obj = _resolve_layer(request, layername)
-
+        
         try:
             try:
                 preview = json.loads(request.body).get('preview', None)
@@ -1405,11 +1405,16 @@ def layer_thumbnail(request, layername):
             else:
                 image = None
                 try:
+                    # print '------- in here 111 ------'
+                    # print request.body
                     image = _prepare_thumbnail_body_from_opts(request.body,
                                                               request=request)
+                    # print image
                 except BaseException:
+                    # print '------- in here ------'
                     image = _render_thumbnail(request.body)
 
+            # print image
             if not image:
                 return
             filename = "layer-%s-thumb.png" % layer_obj.uuid

@@ -34,7 +34,7 @@ import time
 import uuid
 import base64
 import urllib
-from urlparse import urlsplit, urljoin
+from urlparse import urlsplit, urljoin, urlparse
 
 from agon_ratings.models import OverallRating
 from bs4 import BeautifulSoup
@@ -1898,10 +1898,8 @@ _esri_types = {
 def _render_thumbnail(req_body, width=240, height=180):
     spec = _fixup_ows_url(req_body)
     url = "%srest/printng/render.png" % ogc_server_settings.LOCATION
-    headers = {'Content-type': 'text/html'}
-    valid_uname_pw = base64.b64encode(b"%s:%s" % (_user, _password)).decode("ascii")
-    headers['Authorization'] = 'Basic {}'.format(valid_uname_pw)
-    params = dict(width=width, height=height)
+    hostname = urlparse(settings.SITEURL).hostname
+    params = dict(width=width, height=height, auth="%s,%s,%s" % (hostname, _user, _password))
     url = url + "?" + urllib.urlencode(params)
 
     # @todo annoying but not critical
@@ -1917,13 +1915,13 @@ def _render_thumbnail(req_body, width=240, height=180):
         data = data.encode('ASCII', 'ignore')
     data = unicode(data, errors='ignore').encode('UTF-8')
     try:
-        req, content = http_client.post(
-            url, data=data, headers=headers)
+        resp, content = http_client.request(url, "POST", data, {
+            'Content-type': 'text/html'
+        })
     except BaseException as e:
-        logger.warning('Error generating thumbnail')
-        logger.exception(e)
+        logging.warning('Error generating thumbnail')
+        logging.warning(e)
         return
-
     return content
 
 

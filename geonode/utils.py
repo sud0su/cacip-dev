@@ -40,9 +40,12 @@ import gc
 import weakref
 import traceback
 
+import requests
+
 from math import atan, exp, log, pi, sin, tan, floor
 from contextlib import closing
 from zipfile import ZipFile, is_zipfile, ZIP_DEFLATED
+from requests.packages.urllib3.util.retry import Retry
 from StringIO import StringIO
 from osgeo import ogr
 from slugify import Slugify
@@ -86,7 +89,7 @@ SIGN_CHARACTER = '$'
 SQL_PARAMS_RE = re.compile(r'%\(([\w_\-]+)\)s')
 
 custom_slugify = Slugify(separator='_')
-
+requests.packages.urllib3.disable_warnings()
 signalnames = [
     'class_prepared',
     'm2m_changed',
@@ -1337,14 +1340,15 @@ def check_ogc_backend(backend_package):
     return False
 
 
+http_client = None
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
     ogc_server_settings = settings.OGC_SERVER['default']
     http_client = httplib2.Http(
         cache=getattr(
             ogc_server_settings, 'CACHE', None), timeout=getattr(
-            ogc_server_settings, 'TIMEOUT', 1))
+            ogc_server_settings, 'TIMEOUT', 30))
 else:
-    http_client = httplib2.Http(timeout=10)
+    http_client = httplib2.Http(timeout=30)
 
 
 def get_dir_time_suffix():
