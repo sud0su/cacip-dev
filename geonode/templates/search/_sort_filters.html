@@ -28,7 +28,7 @@
                 {% trans "Most popular" %}
                 <i class="fa fa-angle-down fa-lg"></i>
             </div>
-            <div ng-if="dataValue == null" ng-cloak>
+            <div ng-if="dataValue == null || dataValue == 'content' || dataValue == 'layer' || dataValue == 'map' || dataValue == 'document'" ng-cloak>
                 <!-- <i class="fa fa-clock-o"></i>
                 <i class="fa fa-clock-o fa-level-down"></i> -->
                 {% trans "Most recent" %}

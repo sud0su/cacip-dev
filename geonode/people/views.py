@@ -33,6 +33,7 @@ from geonode.people.models import Profile
 from geonode.people.forms import ProfileForm
 from geonode.people.forms import ForgotUsernameForm
 from geonode.tasks.tasks import send_email
+from actstream.models import Action
 
 
 @login_required
@@ -70,11 +71,25 @@ def profile_edit(request, username=None):
 
 
 def profile_detail(request, username):
+    def get_queryset(**kwargs):
+        # There's no generic foreign key for 'actor', so can't filter directly
+        # Hence the code below is essentially applying the filter afterwards
+        return [x for x in Action.objects.filter(public=True)[:15]
+                if x.actor.username == kwargs['actor']]
+
+    # def get_context_data(*args, **kwargs):
+    #     context = super(ListView, self).get_context_data(*args, **kwargs)
+    #     context['actor'] = kwargs['actor']
+    #     return context
+    action_list = get_queryset(actor=username)
+
     profile = get_object_or_404(Profile, Q(is_active=True), username=username)
     # combined queryset from each model content type
 
     return render(request, "people/profile_detail.html", {
         "profile": profile,
+        "action_list": action_list,
+        "actor": username,
     })
 
 
@@ -110,3 +125,5 @@ def forgot_username(request):
                                   'message': message,
                                   'form': username_form
                               })
+
+

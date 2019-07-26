@@ -73,7 +73,7 @@ a:active,
 a:focus,
 a:active {
     text-decoration : none;
-    outline         : none
+    outline         : none;
     font-size: 12px;
     }
 
@@ -1281,7 +1281,7 @@ a.ui-state-focus,
     }
 }
 .team-member .thumbnail img{
-    width: 100%;
+    width: 50%;
 }
 .team-member .thumbnail .caption {
     padding: 30px 40px;
@@ -1531,6 +1531,43 @@ a.ui-state-focus,
 }
 
 /*---------------------
+ *  Profile Detail
+ *---------------------- */
+
+.people figure.thumbnail>a>img:first-of-type{
+    margin-top: 50px;
+}
+
+#resources .filter a{
+    padding-top: 6px;
+    padding-bottom: 6px;
+    cursor: pointer;
+}
+
+#resources .filter .selected{
+    background-color: #2a93fc;
+    color: #fff;
+}
+
+#resources .pagination{
+    margin-top: 0;
+}
+
+#resources .card {
+    border: 1px solid #e1e1e1;
+    border-radius: 3px;
+}
+
+/*---------------------
+ *  Group Detail
+ *---------------------- */
+
+#search-content .card {
+    border: 1px solid #e1e1e1;
+    border-radius: 3px;
+}
+
+/*---------------------
  *  Card
  *---------------------- */
  /* .card{
@@ -1623,6 +1660,9 @@ a.ui-state-focus,
 .card .card-content h2{
     font-size: 12px;
     word-break: break-word;
+    /* For Firefox */
+    /* white-space: pre-wrap; */
+    word-break: break-all;
 }
 
 .card-content .meta {

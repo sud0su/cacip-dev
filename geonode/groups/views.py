@@ -143,6 +143,44 @@ class GroupDetailView(ListView):
             self.request.user,
             "manager")
         context['can_view'] = self.group.can_view(self.request.user)
+
+        def getKey(action):
+            return action.timestamp
+            
+        context['group'] = self.group
+        members = ([(member.user.id) for member in self.group.member_queryset()])
+        # Additional Filtered Lists Below
+        action_list = []
+        actions = Action.objects.filter(
+            public=True,
+            action_object_content_type__model='layer')
+        context['action_list_layers'] = [
+            action
+            for action in actions
+            if action.action_object and action.action_object.group == self.group.group][:15]
+        action_list.extend(context['action_list_layers'])
+        actions = Action.objects.filter(
+            public=True,
+            action_object_content_type__model='map')[:15]
+        context['action_list_maps'] = [
+            action
+            for action in actions
+            if action.action_object and action.action_object.group == self.group.group][:15]
+        action_list.extend(context['action_list_maps'])
+        actions = Action.objects.filter(
+            public=True,
+            action_object_content_type__model='document')[:15]
+        context['action_list_documents'] = [
+            action
+            for action in actions
+            if action.action_object and action.action_object.group == self.group.group][:15]
+        action_list.extend(context['action_list_documents'])
+        context['action_list_comments'] = Action.objects.filter(
+            public=True,
+            actor_object_id__in=members,
+            action_object_content_type__model='comment')[:15]
+        action_list.extend(context['action_list_comments'])
+        context['action_list'] = sorted(action_list, key=getKey, reverse=True)
         return context
 
 
