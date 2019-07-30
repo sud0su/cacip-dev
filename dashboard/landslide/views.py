@@ -9,19 +9,19 @@ def get_dashboard_meta():
 	return {
 		'pages': [
 			{
-				'name': 'weather',
+				'name': 'landslide',
 				# 'function': None, 
-				'template': 'dash_weather.html',
-				'menutitle': 'Weather',
+				'template': 'dash_landslide.html',
+				'menutitle': 'Landslide',
 			},
 		],
-		'menutitle': 'Weather',
+		'menutitle': 'Landslide',
 	}
 
 # moved from geodb.views
 
-def getWeatherInfoVillages(request):
-    template = './weatherinfo.html'
+def getLandslideInfoVillages(request):
+    template = './landslideinfo.html'
     context_dict = {}
     # village = request.GET["v"]
 

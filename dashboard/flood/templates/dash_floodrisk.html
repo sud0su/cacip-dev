@@ -1,0 +1,13 @@
+{% extends "dashboard_base.html" %}
+{% load i18n %}
+{% load base_tags %}
+
+{% block dashboard_breadcrumb %} 
+    <a href="{% url "dashboard_detail" %}?page=floodrisk" class="hide">{% trans "Flood Risk" %}</a>
+{% endblock dashboard_breadcrumb %}
+
+{% block dashboard_content %}
+    <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" frameborder="0" scrolling="no" src="https://www.ventusky.com/?p=24.5;90.3;5&l=temperature" style="height: calc(100vh - 150px);"></iframe>
+    </div>
+{% endblock %}
