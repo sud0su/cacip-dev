@@ -1340,15 +1340,112 @@ def check_ogc_backend(backend_package):
     return False
 
 
-http_client = None
-if check_ogc_backend(geoserver.BACKEND_PACKAGE):
-    ogc_server_settings = settings.OGC_SERVER['default']
-    http_client = httplib2.Http(
-        cache=getattr(
-            ogc_server_settings, 'CACHE', None), timeout=getattr(
-            ogc_server_settings, 'TIMEOUT', 30))
-else:
-    http_client = httplib2.Http(timeout=30)
+# http_client = None
+# if check_ogc_backend(geoserver.BACKEND_PACKAGE):
+#     ogc_server_settings = settings.OGC_SERVER['default']
+#     http_client = httplib2.Http(
+#         cache=getattr(
+#             ogc_server_settings, 'CACHE', None), timeout=getattr(
+#             ogc_server_settings, 'TIMEOUT', 30))
+# else:
+#     http_client = httplib2.Http(timeout=30)
+
+class HttpClient(object):
+
+    def __init__(self):
+        self.timeout = 5
+        self.retries = 5
+        self.pool_maxsize = 10
+        self.backoff_factor = 0.3
+        self.pool_connections = 10
+        self.status_forcelist = (500, 502, 503, 504)
+        self.username = 'admin'
+        self.password = 'admin'
+        if check_ogc_backend(geoserver.BACKEND_PACKAGE):
+            ogc_server_settings = settings.OGC_SERVER['default']
+            self.timeout = ogc_server_settings['TIMEOUT'] if 'TIMEOUT' in ogc_server_settings else 5
+            self.retries = ogc_server_settings['MAX_RETRIES'] if 'MAX_RETRIES' in ogc_server_settings else 5
+            self.backoff_factor = ogc_server_settings['BACKOFF_FACTOR'] if \
+            'BACKOFF_FACTOR' in ogc_server_settings else 0.3
+            self.pool_maxsize = ogc_server_settings['POOL_MAXSIZE'] if 'POOL_MAXSIZE' in ogc_server_settings else 10
+            self.pool_connections = ogc_server_settings['POOL_CONNECTIONS'] if \
+            'POOL_CONNECTIONS' in ogc_server_settings else 10
+            self.username = ogc_server_settings['USER'] if 'USER' in ogc_server_settings else 'admin'
+            self.password = ogc_server_settings['PASSWORD'] if 'PASSWORD' in ogc_server_settings else 'geoserver'
+
+    def request(self, url, method='GET', data=None, headers={}, stream=False, timeout=None, user=None):
+
+        if (user or self.username != 'admin') and \
+        check_ogc_backend(geoserver.BACKEND_PACKAGE) and 'Authorization' not in headers:
+            if connection.cursor().db.vendor not in ('sqlite', 'sqlite3', 'spatialite'):
+                try:
+                    _u = user or get_user_model().objects.get(username=self.username)
+                    access_token = get_or_create_token(_u)
+                    if access_token and not access_token.is_expired():
+                        headers['Authorization'] = 'Bearer %s' % access_token.token
+                except BaseException:
+                    tb = traceback.format_exc()
+                    logger.debug(tb)
+                    pass
+            elif user == self.username:
+                valid_uname_pw = base64.b64encode(
+                    b"%s:%s" % (self.username, self.password)).decode("ascii")
+                headers['Authorization'] = 'Basic {}'.format(valid_uname_pw)
+
+        response = None
+        content = None
+        session = requests.Session()
+        retry = Retry(
+            total=self.retries,
+            read=self.retries,
+            connect=self.retries,
+            backoff_factor=self.backoff_factor,
+            status_forcelist=self.status_forcelist,
+        )
+        adapter = requests.adapters.HTTPAdapter(
+            max_retries=retry,
+            pool_maxsize=self.pool_maxsize,
+            pool_connections=self.pool_connections
+        )
+        session.mount("{scheme}://".format(scheme=urlparse.urlsplit(url).scheme), adapter)
+        action = getattr(session, method.lower(), None)
+        if action:
+            response = action(
+                url=urllib.unquote(url).decode('utf8'),
+                data=data,
+                headers=headers,
+                timeout=timeout or self.timeout,
+                stream=stream)
+        else:
+            response = session.get(url, headers=headers, timeout=self.timeout)
+
+        try:
+            content = response.content if not stream else response.raw
+        except BaseException:
+            content = None
+
+        return (response, content)
+
+    def get(self, url, data=None, headers={}, stream=False, timeout=None, user=None):
+        return self.request(url,
+                            method='GET',
+                            data=data,
+                            headers=headers,
+                            timeout=timeout or self.timeout,
+                            stream=stream,
+                            user=user)
+
+    def post(self, url, data=None, headers={}, stream=False, timeout=None, user=None):
+        return self.request(url,
+                            method='POST',
+                            data=data,
+                            headers=headers,
+                            timeout=timeout or self.timeout,
+                            stream=stream,
+                            user=user)
+
+
+http_client = HttpClient()
 
 
 def get_dir_time_suffix():
