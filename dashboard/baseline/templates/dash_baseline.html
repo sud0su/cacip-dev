@@ -1,13 +1,170 @@
 {% extends "dashboard_base.html" %}
 {% load i18n %}
 {% load base_tags %}
+{% load app_filters %}
 
 {% block dashboard_breadcrumb %} 
-    <a href="{% url "dashboard_detail" %}?page=baseline" class="hide">{% trans "Baseline" %}</a>
+    <li class="active">
+        <a href="{% url "dashboard_detail" %}?page=baseline" class="">{% trans "Baseline" %}</a>
+    </li>
 {% endblock dashboard_breadcrumb %}
 
 {% block dashboard_content %}
-    <div class="embed-responsive embed-responsive-16by9">
-        <iframe class="embed-responsive-item" frameborder="0" scrolling="no" src="https://www.ventusky.com/?p=24.5;90.3;5&l=temperature" style="height: calc(100vh - 150px);"></iframe>
+{% endblock %}
+
+{% block body_outer %}
+    <div class="row g-margin-t-25--xs g-margin-b-45--xs">
+        
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+            <div class="info-box">
+                <div class="icon">
+                    <i class="icon-Affected-population"></i>
+                </div>
+                <div class="content">
+                    <div class="text">{% trans "Population" %}</div>
+                    <div class="number count-to" data-from="0" data-to="257" data-speed="1000" data-fresh-interval="20">257 K</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+            <div class="info-box">
+                <div class="icon">
+                    <i class="icon-Shelter"></i>
+                </div>
+                <div class="content">
+                    <div class="text">{% trans "Shelter" %}</div>
+                    <div class="number count-to" data-from="0" data-to="257" data-speed="1000" data-fresh-interval="20">257 K</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+            <div class="info-box">
+                <div class="icon">
+                    <i class="icon-Health-facility"></i>
+                </div>
+                <div class="content">
+                    <div class="text">{% trans "Health Facilities" %}</div>
+                    <div class="number count-to" data-from="0" data-to="257" data-speed="1000" data-fresh-interval="20">257 K</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Overview of Population" %}</h2>
+                    <p class="">{% trans 'An overview of the number of shelter, populations estimates per ...' %}</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Camp" %}</th>
+                                    <th class="hum" title="{% trans 'Population' %}">{% trans "Population" %}</th>
+                                    <th class="hum" title="{% trans 'Shelter' %}">{% trans "Shelter" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for parent in panels.tables.adm_lcgroup_pop_area.parentdata %}
+                                    <td class="boldRow">{{parent}}</td>
+                                {% endfor %}
+                                {% for child in panels.tables.adm_lcgroup_pop_area.child %}
+                                    <tr class="selectable" onclick="window.document.location='?page=baseline&code={{child.code}}';">
+                                        {% for item in child.values %}
+                                            <td class="">{{item}}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Population" %}</h2>
+                    <div id="chart_bar_horizontal_pop" class="ch-size bar-chart" data-color="colorBar" data-colorpoint="false" data-legend="false" data-xaxis='{% trans "Population" %}' data-yaxis='["Camp A", "Camp B", "Camp C", "Camp D"]' data-val='[{"data":[10, 100, 200, 400]}]' ></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Shelter" %}</h2>
+                    <div id="chart_bar_horizontal_shelter" class="ch-size bar-chart" data-color="colorBar" data-colorpoint="false" data-legend="false" data-xaxis='{% trans "Shelter" %}' data-yaxis='["Camp A", "Camp B", "Camp C", "Camp D"]' data-val='[{"data":[10, 100, 200, 400]}]' ></div>
+                    {% comment %}
+                    <!-- <div id="chart_bar_horizontal_{{chart_title}}" class="ch-size bar-chart" data-color="colorBar" data-colorpoint="false" data-legend="false" data-xaxis='{% if  chart_title == 'area_lc' %}{% trans "Area" %}{% elif chart_title == 'building_lc' %}{% trans "Buildings" %}{% elif chart_title == 'pop_lc' %}{% trans "Population" %}{% endif %}' data-yaxis='{{ chart_val.labels | jsonify | safe }}' data-val='[{"data":{{ chart_val.values | jsonify | safe }}}]' ></div> -->
+                    {% endcomment %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Health Facilities" %}</h2>
+                    <p class="">{% trans 'An overview of which type of health facilities are present: Hospitals: National (H1), Provincial (H2), District (H3). Comprehensive Health Center (CHC), Basic Health Center (BHC), Sub Health Center (SHC)' %}</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">{% trans "Camp" %}</th>
+                                    <th colspan="3">{% trans "Tier 1" %}</th>
+                                    <th>{% trans "Tier 2" %}</th>
+                                    <th colspan="2">{% trans "Tier 3" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Others" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Total" %}</th>
+                                </tr>
+                                <tr>
+                                    <th class="hum">{% trans "H1" %}</th>
+                                    <th class="hum">{% trans "H2" %}</th>
+                                    <th class="hum">{% trans "H3" %}</th>
+                                    <th class="hum">{% trans "CHC" %}</th>
+                                    <th class="hum">{% trans "BHC" %}</th>
+                                    <th class="hum">{% trans "SHC" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for parent in panels.tables.adm_healthfacility.parentdata %}
+                                    <td class="boldRow">{{parent}}</td>
+                                {% endfor %}
+                                {% for child in panels.tables.adm_healthfacility.child %}
+                                    <tr class="selectable" onclick="window.document.location='?page=baseline&code={{child.code}}';">
+                                        {% for item in child.values %}
+                                            <td class="">{{item}}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Health Facilities" %}</h2>
+                    <div id="chart_bar_horizontal_hltfac" class="ch-size bar-chart" data-color="colorBar" data-colorpoint="false" data-legend="false" data-xaxis='{% trans "Health Fac" %}' data-yaxis='["Health Fac A", "Health Fac B", "Health Fac C", "Health Fac D"]' data-val='[{"data":[10, 100, 200, 400]}]' ></div>
+                </div>
+            </div>
+        </div>
+        
+        
     </div>
+{% endblock %}
+
+{% block extra_script %}
+    {{ block.super }}
+    <script>
+        var overview_legend = ['{% trans "Population" %}', '{% trans "Area" %}', '{% trans "Building" %}'];
+        var total_category = ['{% trans "Health Facilities" %}', '{% trans "Road (km)" %}'];
+        var hlt_category = ['{% trans "H1" %}', '{% trans "H2" %}', '{% trans "H3" %}', '{% trans "CHC" %}', '{% trans "BHC" %}', '{% trans "SHC" %}', '{% trans "Others" %}']
+        // var hlt_category = panels.charts.healthfacility.title;
+    </script>
 {% endblock %}

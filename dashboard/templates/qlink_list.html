@@ -1,6 +1,7 @@
-<div class="input-field col s6 m3 xl2">
-    <select class="province-dropdown browser-default grey-text text-darken-1">
+<li class="">
+    <select class="province-dropdown">
         <option></option>
+        <option value="01">CAMP 01</option>
         {% if adm_prov %}
             {% for item in adm_prov %}
             <option value="{{ item.code }}">{{ item.name }}</option>
@@ -11,10 +12,10 @@
             {% endfor %}
         {% endif %}
     </select>
-</div>
+</li>
 
-<div class="input-field col s6 m3 xl2">
-    <select class="dist-dropdown browser-default grey-text text-darken-1">
+<li class="">
+    <select class="dist-dropdown">
         <option></option>
         {% if adm_dist %}
             {% for item in adm_dist %}
@@ -26,5 +27,5 @@
             {% endfor %}
         {% endif %}
     </select>
-</div>
+</li>
 

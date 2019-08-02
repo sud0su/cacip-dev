@@ -1,13 +1,96 @@
 {% extends "dashboard_base.html" %}
 {% load i18n %}
 {% load base_tags %}
+{% load app_filters %}
 
 {% block dashboard_breadcrumb %} 
-    <a href="{% url "dashboard_detail" %}?page=floodrisk" class="hide">{% trans "Flood Risk" %}</a>
+    <li class="active">
+        <a href="{% url "dashboard_detail" %}?page=floodrisk" class="">{% trans "Flood Risk" %}</a>
+    </li>
 {% endblock dashboard_breadcrumb %}
 
 {% block dashboard_content %}
-    <div class="embed-responsive embed-responsive-16by9">
-        <iframe class="embed-responsive-item" frameborder="0" scrolling="no" src="https://www.ventusky.com/?p=24.5;90.3;5&l=temperature" style="height: calc(100vh - 150px);"></iframe>
+{% endblock %}
+
+{% block body_outer %}
+    <div class="row g-margin-t-25--xs g-margin-b-45--xs">
+        
+        {% for chart_title, chart_val in panels.charts.items %}
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <div class="panel panel-default card-dashboard">
+                    <div class="panel-body">
+                        <h2>{{ chart_val.title }}</h2>
+                        <div id="frisk_{{ chart_title }}_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='{{ chart_val.child | jsonify | safe }}' data-title='{{ chart_val.title }}' data-show-title='none'></div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Flood Risk Population" %}</h2>
+                    <div id="frisk_pop_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='[100,1000,2000, 3000]' data-title='{{ chart_val.title }}' data-show-title='none'></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-12">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Population Living in Flood Risk Areas" %}</h2>
+                    <p class="">{% trans "Population, buildings and area within 100-year inundation flood zone (source: NATO Flood Map). Flood risk category is estimated based upon potential flood depth: Low flood risk relates to inundation more than 29cm, moderate to 1.21m and high flood risk more than 2.7m. The 100-year inundation interval, implies that every year there is a 1% chance of such a flood event occurring. Most flood events will be in 5,10, 20-year inundation interval." %}</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">{% trans "Camp" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Building" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Settlement" %}</th>
+                                    <th colspan="2">{% trans "Built-Up" %}</th>
+                                    <th colspan="2">{% trans "Cultivated" %}</th>
+                                    <th colspan="2">{% trans "Barren/Rangeland" %}</th>
+                                    <th colspan="2">{% trans "Total" %}</th>
+                                </tr>
+                                <tr>
+                                    <th class="hum">{% trans "Population" %}</th>
+                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
+                                    <!-- <th class="hum">Building</th> -->
+                                    <th class="hum">{% trans "Population" %}</th>
+                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
+                                    <!-- <th class="hum">Building</th> -->
+                                    <th class="hum">{% trans "Population" %}</th>
+                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
+                                    <!-- <th class="hum">Building</th> -->
+                                    <th class="hum">{% trans "Population" %}</th>
+                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
+                                    <!-- <th class="hum">Building</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for parent in panels.tables.adm_lcgroup_pop_area.parentdata %}
+                                    <td class="boldRow">{{parent}}</td>
+                                {% endfor %}
+                                {% for child in panels.tables.adm_lcgroup_pop_area.child %}
+                                    <tr class="selectable" onclick="window.document.location='?page=floodrisk&code={{child.code}}';">
+                                        {% for item in child.value %}
+                                            <td>{{item}}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+{% endblock %}
+
+{% block extra_script %}
+    {{ block.super }}
+    <script>
+        var map_category = ['{% trans "Population at Risk" %}', '{% trans "Settlement at Risk" %}', '{% trans "Building at Risk" %}', '{% trans "Area at Risk" %}'];
+        // var frisk_cat = panels.charts.pop_depth.labels;
+    </script>
 {% endblock %}

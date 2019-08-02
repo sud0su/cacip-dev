@@ -2,10 +2,25 @@
 {% load i18n %}
 {% load url from future %}
 {% load app_filters %}
+{% load static from staticfiles %}
 
 {% block title %} {{ block.super }} {% endblock %}
 
 {% block body_class %}dashboard {{ request.GET.page }}{% endblock %}
+
+{% block extra_head_dashboard %}
+	<!-- DataTables -->
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+	<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"> -->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css">
+
+	<!-- Humanitarian Font -->
+	<link rel="stylesheet" href="{% static 'epr_bgd/lib/font-ocha-v2/style.css' %}">
+
+	<!-- WFP Styles -->
+	<!-- <link rel="stylesheet" type="text/css" href="https://cdn.wfp.org/guides/ui/v1.1.16/assets/css/styles.min.css" /> -->
+{% endblock extra_head_dashboard%}
 
 {% block head %}
 	{{ block.super }}
@@ -15,12 +30,128 @@
 		jsondata = {% if jsondata %}{{ jsondata|safe }}{% else %}{}{% endif %};
 		animate = {% if 'print' in request.build_absolute_uri %}false{% else %}true{% endif %};
 	</script>
-{% endblock %}
+{% endblock head %}
 
 {% block middle %} 
-	{% block dashboard_breadcrumb %} 
-	{% endblock dashboard_breadcrumb %}
+	<section class="breadcrumb-section">
+		<div class="container">
+			<div class="pull-right">
+				<button id="pdf" class="btn btn-primary" title="Download PDF">{% trans "Download PDF" %}</button>
+			</div>
+            <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">
+                <!-- <li>
+                    <a href="{% url "dashboard_detail" %}?page=baseline">{% trans "Dashboard" %}</a>
+				</li> -->
+                {% block dashboard_breadcrumb %} 
+				{% endblock dashboard_breadcrumb %}
+				<li>{% trans "Cox's Bazaar" %}</li>
+				{% include "links_title.html" %}
+				{% include "qlink_list.html" %}
+			</ol>
+        </div>
+    </section>
 	
 	{% block dashboard_content %}{% endblock %}
 	{{ block.super }}
 {% endblock middle %}
+
+{% block dashboard_script %}
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+	<!-- DataTables -->
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+	<script src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/datetime-moment.js"></script>
+
+	<!-- Highcharts -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/7.1.0/highstock.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/7.1.0/highcharts-more.js"></script>
+{% endblock dashboard_script %}
+
+{% block extra_script %}
+	<script src="{% static 'epr_bgd/js/epr_bgd_dashboard.js' %}?ver=300719"></script>
+	<script>
+		var chosen_label = '{{parent_label}}';
+	</script>
+	<script>
+		// Go to another province or district
+		function jump_url(code){
+			var url = window.location.href;
+
+			if (getParameterByName("code") == null){
+				url += '&code='+code;
+			} else {
+				url = updateUrlParameter(url, 'code', code)
+			}
+
+			if (code == 0){
+				url = removeParam('code', url)
+			}
+
+			window.document.location = url;
+
+		}
+
+		function getParameterByName(name, url) {
+			if (!url) url = window.location.href;
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
+
+		function removeParam(key, sourceURL) {
+			var rtn = sourceURL.split("?")[0],
+				param,
+				params_arr = [],
+				queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+			if (queryString !== "") {
+				params_arr = queryString.split("&");
+				for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+					param = params_arr[i].split("=")[0];
+					if (param === key) {
+						params_arr.splice(i, 1);
+					}
+				}
+				rtn = rtn + "?" + params_arr.join("&");
+			}
+			return rtn;
+		}
+
+		function updateUrlParameter(url, param, value){
+			param = encodeURIComponent(param);
+			var r = "([&?]|&amp;)" + param + "\\b(?:=(?:[^&#]*))*";
+			var a = document.createElement('a');
+			var regex = new RegExp(r);
+			var str = param + (value ? "=" + encodeURIComponent(value) : ""); 
+			a.href = url;
+			var q = a.search.replace(regex, "$1"+str);
+			if (q === a.search) {
+				a.search += (a.search ? "&" : "") + str;
+			} else {
+				a.search = q;
+			}
+			return a.href;
+		}
+
+		// Print to PDF
+		var _checked = [];
+		$('button#pdf').on('click', function(event) {
+			var url = $(location).attr("href");
+			$("#loading_pic").fadeIn("slow");
+			window.document.location = url+'&pdf=true&_checked='+_checked;
+			$('#loading_pic').fadeOut();
+		});
+	</script>
+{% endblock extra_script %}

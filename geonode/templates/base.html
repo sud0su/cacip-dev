@@ -52,6 +52,9 @@
             <!-- <link rel="stylesheet" href="http://keenthemes.com/preview/megakit/css/global/global.css"> -->
             <!-- JQueryUIDatepicker CSS -->
             <link rel="stylesheet" href="{% static 'epr_bgd/css/jquery-ui-datepicker-theme.css' %}?ver=160519">
+
+            {% block extra_head_dashboard %}
+            {% endblock extra_head_dashboard%}
             <!-- Custom CSS -->
             <link href="{% static 'epr_bgd/css/epr_bgd.css' %}?ver=180619" rel="stylesheet">
 
@@ -102,6 +105,16 @@
                                     {% trans "Dashboard" %} <i class="fa fa-angle-down fa-lg"></i>
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li class="dropdown-submenu">
+                                        <a class="" tabindex="-1" href="#">{% trans "ReportHub" %} <i class="fa fa-angle-right fa-lg pull-right" style=""></i></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a tabindex="-1" href="#">{% trans "Health Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="#">{% trans "Protection Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="#">{% trans "Shelter/NFI Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="#">{% trans "Site Management Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="#">{% trans "WASH Sector" %}</a></li>
+                                        </ul>
+                                    </li>
                                     <li class="dropdown-submenu hide">
                                         <a class="" tabindex="-1" href="#">coba <i class="fa fa-angle-right fa-lg pull-right" style=""></i></a>
                                         <ul class="dropdown-menu">
@@ -301,7 +314,7 @@
                     <p>Please use a <strong>modern browser</strong> like Mozilla Firefox, Google Chrome or Safari.</p>
                 </div>
         
-                <div id="wrap" class="g-bg-color--sky-light">
+                <div id="wrap" class="bg-color-primary">
                     {% block middle %}
                         <div class="container">
                             {% include "_status_message.html" %}
@@ -624,6 +637,8 @@
         <!-- <script src="{% static 'epr_bgd/lib/smoothscroll/smoothscroll.js' %}"></script> -->
         <script src="{% static 'epr_bgd/lib/mobile-menu/mobile-menu.js' %}"></script>
         <script src="{% static 'epr_bgd/lib/bcSwipe/jquery.bcSwipe.min.js' %}"></script>
+
+        {% block dashboard_script %}{% endblock dashboard_script %}
         <script src="{% static 'epr_bgd/js/scripts.js' %}?ver=180619"></script>
         {% block extra_script %}{% endblock extra_script %}
         

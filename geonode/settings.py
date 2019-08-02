@@ -400,6 +400,9 @@ INSTALLED_APPS = (
     'matrix',
     'userstatistics',
     'dashboard',
+    'dashboard.baseline',
+    'dashboard.flood',
+    'dashboard.landslide',
     'dashboard.weather',
 
 ) + GEONODE_APPS
