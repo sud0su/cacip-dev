@@ -72,6 +72,7 @@ def common(request):
 	flag = 'entireAfg'
 	filterLock = None
 	rawFilterLock = None
+	kwarg = {}
 
 	if 'page' not in request.GET:
 		mutable = request.GET._mutable
@@ -80,15 +81,15 @@ def common(request):
 		request.GET._mutable = mutable
 
 	if 'code' in request.GET:
-		code = int(request.GET['code'])
-		flag = 'currentProvince'
+		kwarg['areacode'] = code = request.GET['code'].strip()
+		# kwarg['areatype'] = flag = 'currentProvince'
 
 	if 'flag' in request.GET:
 		filterLock = request.GET['filter']
 		rawFilterLock = filterLock
-		filterLock = 'ST_GeomFromText(\''+filterLock+'\',4326)'
-		flag = request.GET['flag']
-	
+		kwarg['areageom'] = filterLock = 'ST_GeomFromText(\''+filterLock+'\',4326)'
+		# kwarg['areatype'] = flag = request.GET['flag']
+
 	if 'pdf' in request.GET:
 		# # mapCode = '700'
 		# mapCode = settings.MATRIX_DEFAULT_MAP_CODE
@@ -114,10 +115,9 @@ def common(request):
 		savematrix(request=request, action='Dashboard %s'%(request.GET['page']))
 
 	page_name = request.GET['page']
-	arg = [request, filterLock, flag, code]
+	arg = [request]
 	if page_name in ['accessibility', 'security']:
-		arg = [request, rawFilterLock, flag, code]
-	kwarg = {}
+		arg = [request]
 	page_name = 'avalancheforecast' if page_name == 'avalcheforecast' else page_name
 	if page_name in ['drought']:
 		if 'date' in request.GET:
@@ -126,11 +126,21 @@ def common(request):
 	# get response data by importing module dynamically and run its dashboard functiion
 	if page_name in DASHBOARD_META.get('DASHBOARD_TO_APP', {}).keys() \
 	and DASHBOARD_META.get('DASHBOARD_TO_APP', {})[page_name] in DASHBOARD_META.get('DASHBOARD_APPS', []):
+
+		# import module
 		module = importlib.import_module('%s.views'%(DASHBOARD_META.get('DASHBOARD_TO_APP', {})[page_name]))
 		# page_meta = dict_ext(module.get_dashboard_meta()).pathget('pagenames', page_name)
+
+		# get dashboard meta info
 		dashboard_meta = dict_ext(module.get_dashboard_meta())
+
+		# get dashboard page meta info from dashboard meta
 		page_meta = list_ext([v for v in dashboard_meta.pathget('pages') if v.get('name') == page_name]).get(0,dict_ext)
-		response = dict_ext(page_meta.get('function')(*arg, **kwarg) if page_meta.get('function') else {})
+
+		# call dashboard page data retrieval function
+		function_name = page_meta.get('function')
+		response = dict_ext(getattr(module, function_name)(*arg, **kwarg) if function_name else {})
+
 		response['dashboard_template'] = page_meta.get('template')
 	# elif page_name == 'baseline':
 	# 	response = dashboard_baseline(*arg, **kwarg)
