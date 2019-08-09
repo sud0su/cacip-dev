@@ -1027,6 +1027,7 @@ AUTH_EXEMPT_URLS += (
     '^/autocomplete/UnionBaseAutocomplete',
     '^/api/documents/$',
     '^/api/base/$',
+    '^/dashboard/print',
     '^/gs/',
 )
 

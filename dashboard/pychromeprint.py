@@ -84,9 +84,10 @@ class EventHandler(object):
                 # with open("header_inline.html", "wb") as fd:
                 #     fd.write(html_header)
 
-                ssdata = self.tab.Page.captureScreenshot()
-                with open("%s.png" % (datetime.now().strftime('%c')), "wb") as fd:
-                    fd.write(base64.b64decode(ssdata['data']))
+                # DEBUG: save screenshot to local file
+                # ssdata = self.tab.Page.captureScreenshot()
+                # with open("%s.png" % (datetime.now().strftime('%c')), "wb") as fd:
+                #     fd.write(base64.b64decode(ssdata['data']))
 
                 try:
                     self.tab.Emulation.setEmulatedMedia(
@@ -189,7 +190,8 @@ def print_from_urls(urls, print_option={}):
     merged = StringIO()
     merger.write(merged)
 
-    with open("%s.pdf" % datetime.now().strftime('%c'), "wb") as fd:
-        fd.write(merged.getvalue())
+    # DEBUG: save pdf to local file
+    # with open("%s.pdf" % datetime.now().strftime('%c'), "wb") as fd:
+    #     fd.write(merged.getvalue())
 
     return merged.getvalue()

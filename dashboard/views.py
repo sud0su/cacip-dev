@@ -266,7 +266,7 @@ def dashboard_detail(request):
 				'scale':0.72, # 0.72 roughly equal to 1024 px print width on 1024 screen-width
 				'javascript-delay': 1, # in seconds
 				'timeout': 60, # in seconds
-				'header-html': 'http://%s/static/isdc/head_print/rep_header_chrome.html?%s'%(request.META.get('HTTP_HOST'),headerparam),
+				'header-html': 'http://%s/static/epr_bgd/head_print/rep_header_chrome.html?%s'%(request.META.get('HTTP_HOST'),headerparam),
 				'headerparam':headerparam_dict,
 			}
 			# if re.match('^/v2', request.path):

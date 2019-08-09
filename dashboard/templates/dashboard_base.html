@@ -6,7 +6,7 @@
 
 {% block title %} {{ block.super }} {% endblock %}
 
-{% block body_class %}dashboard {{ request.GET.page }}{% endblock %}
+{% block body_class %}dashboard {{ request.GET.page }} {% if 'print' in request.path %}dashboard-print{% endif %}{% endblock %}
 
 {% block extra_head_dashboard %}
 	<!-- DataTables -->
@@ -28,7 +28,7 @@
 		panels = {% if panels %}{{ panels|jsonify|safe }}{% else %}{}{% endif %};
 		boundary = {% if GeoJson %}{{GeoJson|jsonify|safe}}{% else %}{}{% endif %};
 		jsondata = {% if jsondata %}{{ jsondata|safe }}{% else %}{}{% endif %};
-		animate = {% if 'print' in request.build_absolute_uri %}false{% else %}true{% endif %};
+		animate = {% if 'print' in request.path %}false{% else %}true{% endif %};
 	</script>
 {% endblock head %}
 

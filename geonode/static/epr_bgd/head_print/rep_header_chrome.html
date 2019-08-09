@@ -1,0 +1,172 @@
+<!-- 
+    special header template for print pdf using chrome devtool
+    notes and limitation:
+        - use pt for size unit
+        - javascript do not work
+        - call to external css do not work
+        - font setting using font tag in html
+        - img src url will be converted inline, become data:image;base64:etc
+        - html will be converted to single line (no line break)
+        - {var_name} is chrome devtool variable, options: [date, title, url, pageNumber, totalPages]
+        - {{var_name}} is django template variable
+    reference: 
+        - https://chromedevtools.github.io/devtools-protocol/tot/Page#method-printToPDF
+ -->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            /* @import url('https://fonts.googleapis.com/css?family=Lato'); */
+
+            body {
+                font-family: Helvetica,Arial,sans-serif;
+                /* margin: 0; */
+                /* padding: 0 8pt; */
+                overflow: hidden;
+                /* width: 100%; */
+            }
+
+            .head {
+                height: 30pt;
+                /* padding: 0 15pt; */
+                margin: 0 16pt;
+                border-bottom: .5pt solid #ddd;
+                width:100%; 
+            }
+
+            #logocontainer {
+                height: 22pt;
+                /* display: inline-block; */
+                float: left;
+            }
+
+            #logo {
+                /* background: url(lib/img/USAID-Identity_reduce.png) no-repeat 0 50%; */
+                /* width: 165pt; */
+                height: 100%;
+                /* margin-right: 0pt;
+                margin-left: 0pt; */
+                /* margin-top: 10pt; */
+                /* float: left; */
+                /* font-size: 18pt; */
+                /* line-height: 20pt; */
+                /* text-indent: 80pt; */
+                /* background-size: 140pt 45pt; */
+                display: inline-block;
+            }
+
+            #logo2 {
+                /* width: 280pt; */
+                height: 100%;
+                /* background: url(v2/images/immap.png) no-repeat 0 50%; */
+                /* margin-right: 0pt; */
+                /* margin-left: -16pt; */
+                /* margin-top: 10pt; */
+                /* float: left; */
+                /* font-size: 12em; */
+                /* text-indent: 20pt; */
+                /* background-size: 60pt 65pt; */
+                display: inline-block;
+                /* text-align: center; */
+                /* line-height: 55pt; */
+                /* display: block; */
+            }
+
+            #imglogo1 {
+                height: 120%;
+                /* margin-left: 12pt; */
+                vertical-align: middle;
+            }
+
+            #imglogo2 {
+                height: 120%;
+                margin-left: 6pt;
+                vertical-align: middle;
+            }
+
+            #companytitle {
+                /* font: normal 100 8pt/40pt "futura-pt", sans-serif; */
+                font-family: "futura-pt", sans-serif;
+                /* height: 120%; */
+                margin-left: 3pt;
+                vertical-align: middle;
+                font-size: 5pt;
+                font-weight: normal;
+                color: gray;
+                display: inline;
+            }
+
+            .navbar-brand-immap h1{
+                /* color: #535353; */
+                /* font: normal 100 8pt/40pt "futura-pt", sans-serif; */
+                /* letter-spacing: 0.5pt; */
+                /* text-align: left; */
+                /* margin-top: 8pt; */
+                /* margin-bottom: 10pt; */
+            }
+
+            .detail{
+                font-family: Lato, sans-serif;
+                font-size: 5pt;
+                margin-top: 4pt;
+                /* float:right; */
+                text-align:right;
+                color: #6f6f6f;
+            }
+        </style>
+        
+        <script>
+            function dynvar() {
+                var vars = {};
+                var x = document.location.search.substring(1).split('&');
+        
+                for (var i in x) {
+                    var z = x[i].split('=',2);
+        
+                    if (!vars[z[0]]) {
+                        vars[z[0]] = unescape(z[1]);
+                    }
+                }
+                document.getElementById('title').innerHTML = vars.cust_title;
+                document.getElementById('name').innerHTML = vars.name + ' | ';
+                document.getElementById('organization').innerHTML = vars.organization;
+                document.getElementById('isodate').innerHTML = vars.isodate;
+                document.getElementById('paginate').innerHTML = 'page ' + vars.page + ' of ' + vars.topage;
+            }
+        </script>
+
+        <!-- <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" /> -->
+    </head>
+
+    <body onload="dynvar();">
+        <!-- <div style='margin: 0 8pt;width:100%; text-align:right; font-size:12px; border: 1px solid black;'><text>pychrome custom header</text></div>         -->
+        <div class="head">
+            <div class="navbar-header">
+                <div id="logocontainer">
+                    <a id="logo">
+                        <img id="imglogo1" src="/static/epr_bgd/img/immap_logo/immap.png" alt="image logo 1">
+                    </a>
+                    <a id="logo2" class="navbar-brand-immap">
+                        <img id="imglogo2" src="/static/epr_bgd/img/immap_logo/immap.png" alt="image logo 2">
+                        <h1 id="companytitle">
+                            <font face="Helvetica,Arial,sans-serif">
+                                Emergency Preparedness and Response - Bangladesh
+                            </font>
+                        </h1>
+                    </a>
+                </div>
+            </div>
+            <div class="detail">
+                <font face="Helvetica,Arial,sans-serif">
+                    {% if cust_title %}<strong id="title">{{cust_title}}</strong><br/>{% endif %}
+                    {% if name|cut:" " %}<span id="name">{{name}}</span>{% endif %}
+                    {% if name|cut:" " and organization %} | {% endif %}
+                    {% if organization %}<span id="organization">{{organization}}</span>{% endif %}{% if name|cut:" " or organization %}<br />{% endif %}
+                    <span id="isodate" class="date">{isodate}</span>,
+                    <span id="paginate">page <span class="pageNumber">{page}</span> of <span class="totalPages">{topage}</span></span>
+                </font>
+            </div>
+        </div>
+    </body>
+</html>

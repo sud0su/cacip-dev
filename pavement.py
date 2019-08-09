@@ -1184,3 +1184,30 @@ def str2bool(v):
         return v.lower() in ("yes", "true", "t", "1")
     else:
         return False
+
+@task
+def start_chrome_devtool():
+	"""
+	Start Chrome Devtool process.
+	"""
+	app_path = 'google-chrome'
+	# app_path = 'chromium-browser' # produces smaller pdf size
+	# app_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+	# app_path = '/Applications/Chromium.app/Contents/MacOS/Chromium'
+	cmd_list = [
+		app_path,
+		'--headless',
+		'--disable-gpu',
+		'--remote-debugging-port=9222',
+		'--run-all-compositor-stages-before-draw',
+		# '--virtual-time-budget=10000',
+	] 
+	print ' '.join(cmd_list)
+	p = subprocess.Popen(cmd_list)
+
+@task
+def stop_chrome_devtool():
+	"""
+	Stop Chrome Devtool process.
+	"""
+	sh('lsof -n -i:9222 | grep LISTEN | awk \'{ print $2 }\' | xargs kill')
