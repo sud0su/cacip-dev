@@ -15,48 +15,95 @@
 {% block body_outer %}
 
     {% comment %}
-        {% tolistaddkey "lsi_immap" panels.tables.lsi_immap "lsi_immap" panels.charts.bar.lsi_immap "lsi_immap" panels.charts.donut.lsi_immap as row1 %}
-        {% tolistaddkey "lsi_ku" panels.tables.lsi_ku "lsi_ku" panels.charts.bar.lsi_ku "lsi_ku" panels.charts.donut.lsi_ku as row2 %}
-        {% tolistaddkey "ls_s1_wb" panels.tables.ls_s1_wb "ls_s1_wb" panels.charts.bar.ls_s1_wb "ls_s1_wb" panels.charts.donut.ls_s1_wb as row3 %}
-        {% tolistaddkey "ls_s2_wb" panels.tables.ls_s2_wb "ls_s2_wb" panels.charts.bar.ls_s2_wb "ls_s2_wb" panels.charts.donut.ls_s2_wb as row4 %}
-        {% tolistaddkey "ls_s3_wb" panels.tables.ls_s3_wb "ls_s3_wb" panels.charts.bar.ls_s3_wb "ls_s3_wb" panels.charts.donut.ls_s3_wb as row5 %}
-        {% tolist row1 row2 row3 row4 row5 as rows %}
+        <section id="landslide">
+            {% tolistaddkey "lsi_immap" panels.tables.lsi_immap "lsi_immap" panels.charts.bar.lsi_immap "lsi_immap" panels.charts.donut.lsi_immap as row1 %}
+            {% tolistaddkey "lsi_ku" panels.tables.lsi_ku "lsi_ku" panels.charts.bar.lsi_ku "lsi_ku" panels.charts.donut.lsi_ku as row2 %}
+            {% tolistaddkey "ls_s1_wb" panels.tables.ls_s1_wb "ls_s1_wb" panels.charts.bar.ls_s1_wb "ls_s1_wb" panels.charts.donut.ls_s1_wb as row3 %}
+            {% tolistaddkey "ls_s2_wb" panels.tables.ls_s2_wb "ls_s2_wb" panels.charts.bar.ls_s2_wb "ls_s2_wb" panels.charts.donut.ls_s2_wb as row4 %}
+            {% tolistaddkey "ls_s3_wb" panels.tables.ls_s3_wb "ls_s3_wb" panels.charts.bar.ls_s3_wb "ls_s3_wb" panels.charts.donut.ls_s3_wb as row5 %}
+            {% tolist row1 row2 row3 row4 row5 as rows %}
+    
+            <div class="row g-margin-t-25--xs g-margin-b-45--xs">
+                {% for row in rows %}
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <div class="panel panel-default card-dashboard">
+                            <div class="panel-body">
+                                <h2>{{ row.0.title }}</h2>
+                                <div id="{{ row.2.key }}_donut" class="ch-size donut-chart" data-color=colorLandslide data-val='{{ row.2.child | jsonify | safe }}' data-title='{{ row.2.title }}' data-show-title='none' ></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <div class="panel panel-default card-dashboard">
+                            <div class="panel-body">
+                                <h2>{{ row.0.title }}</h2>
+                                <div id="{{ row.1.key }}_bar" class="ch-size bar-chart" data-color=colorLandslide data-colorpoint="true" data-legend="false" data-xaxis='{% trans "Population" %}' data-yaxis='{{ row.1.labels | jsonify | safe }}' data-val='[{"data": {{ row.1.values | jsonify | safe }}}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h2>{{ row.0.title }}</h2>
+                                <p>
+                                    {% if row1 %}
+                                        {% trans "Population within a weighted index of various landslide susceptibility models of Afghanistan. Landslide susceptibility - S1-S2- S3 (World Bank, 2016). Landslide Susceptibility Index (Schlagel, 2016)." %}
+                                    {% elif row2 %}
+                                        {% trans "Population within each of the Multi-criteria Landslide Susceptibility (LSI) categories. Lithology, fault, river, and road data compiled by the USGS were derived from both pre- and mid-war sources of varying detail. A 10 year subset of earthquake data was used to reduce processing time; earthquake density was weighted by magnitude. An NDVI tile was used as vegetation data covering most of the country. Slope and aspect data were derived from 90m SRTM." %}
+                                    {% elif row3 %}
+                                        {% trans "Afghanistan population within the susceptibility for bedrock landslides in slow evolution, including: rotational slides, translational slides, earth flows and lateral spreading. Susceptibility values are represented according the following scale: 0=Null; 1-3=Low; 4-5=Moderate; 6=High; 7-9=Very High." %}
+                                    {% elif row4 %}
+                                        {% trans "Afghanistan population within landslide susceptibility for bedrock landslides in rapid evolution (S2), nationwide. Indicates the susceptibility for bedrock landslides in rapid evolution, including: falls and toppling. Susceptibility values are represented according the following scale: 0=Null; 1-3=Low; 4-5=Moderate; 6=High; 7-9=Very High" %}
+                                    {% elif row5 %}
+                                        {% trans "Afghanistan population within landslide susceptibility for cover material landslides in rapid evolution (S3). Indicates the susceptibility for cover material landslides in rapid evolution, including: debris- mud flows. Susceptibility values are represented according the following scale: 0=Null; 1-3=Low; 4-5=Moderate; 6=High; 7-9=Very High" %}
+                                    {% endif %}
+                                </p>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
+                                        <thead>
+                                            <tr>
+                                                <th rowspan="2">{% trans "Camp" %}</th>
+                                                <th colspan="4">{% trans "Risk Level" %}</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="landslide_vhigh hum">{% trans "Very High" %}</th>
+                                                <th class="landslide_high hum">{% trans "High" %}</th>
+                                                <th class="landslide_mod hum">{% trans "Moderate" %}</th>
+                                                <th class="landslide_low hum">{% trans "Low" %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for parent in row.0.parentdata %}
+                                                <td class="boldRow">{{parent}}</td>
+                                            {% endfor %} 
+                                            {% for child in row.0.child %}
+                                                <tr class="selectable" onclick="window.document.location='?page=landslide&code={{child.code}}';">
+                                                    {% for item in child.value %}
+                                                        <td>{{item}}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endcomment %}
 
-        <div class="row g-margin-t-25--xs g-margin-b-45--xs">
-            {% for row in rows %}
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                    <div class="panel panel-default card-dashboard">
-                        <div class="panel-body">
-                            <h2>{{ row.0.title }}</h2>
-                            <div id="{{ row.2.key }}_donut" class="ch-size donut-chart" data-color=colorLandslide data-val='{{ row.2.child | jsonify | safe }}' data-title='{{ row.2.title }}' data-show-title='none' ></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                    <div class="panel panel-default card-dashboard">
-                        <div class="panel-body">
-                            <h2>{{ row.0.title }}</h2>
-                            <div id="{{ row.1.key }}_bar" class="ch-size bar-chart" data-color=colorLandslide data-colorpoint="true" data-legend="false" data-xaxis='{% trans "Population" %}' data-yaxis='{{ row.1.labels | jsonify | safe }}' data-val='[{"data": {{ row.1.values | jsonify | safe }}}]'></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <h2>{{ row.0.title }}</h2>
-                            <p>
-                                {% if row1 %}
-                                    {% trans "Population within a weighted index of various landslide susceptibility models of Afghanistan. Landslide susceptibility - S1-S2- S3 (World Bank, 2016). Landslide Susceptibility Index (Schlagel, 2016)." %}
-                                {% elif row2 %}
-                                    {% trans "Population within each of the Multi-criteria Landslide Susceptibility (LSI) categories. Lithology, fault, river, and road data compiled by the USGS were derived from both pre- and mid-war sources of varying detail. A 10 year subset of earthquake data was used to reduce processing time; earthquake density was weighted by magnitude. An NDVI tile was used as vegetation data covering most of the country. Slope and aspect data were derived from 90m SRTM." %}
-                                {% elif row3 %}
-                                    {% trans "Afghanistan population within the susceptibility for bedrock landslides in slow evolution, including: rotational slides, translational slides, earth flows and lateral spreading. Susceptibility values are represented according the following scale: 0=Null; 1-3=Low; 4-5=Moderate; 6=High; 7-9=Very High." %}
-                                {% elif row4 %}
-                                    {% trans "Afghanistan population within landslide susceptibility for bedrock landslides in rapid evolution (S2), nationwide. Indicates the susceptibility for bedrock landslides in rapid evolution, including: falls and toppling. Susceptibility values are represented according the following scale: 0=Null; 1-3=Low; 4-5=Moderate; 6=High; 7-9=Very High" %}
-                                {% elif row5 %}
-                                    {% trans "Afghanistan population within landslide susceptibility for cover material landslides in rapid evolution (S3). Indicates the susceptibility for cover material landslides in rapid evolution, including: debris- mud flows. Susceptibility values are represented according the following scale: 0=Null; 1-3=Low; 4-5=Moderate; 6=High; 7-9=Very High" %}
-                                {% endif %}
-                            </p>
+    
+    <div class="row">
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-12">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Population by Landslide Indexes (iMMAP 2017)" %}</h2>
+                    <p class="">{% trans "Population within a weighted index of various landslide susceptibility models of Afghanistan. Landslide susceptibility - S1-S2- S3 (World Bank, 2016). Landslide Susceptibility Index (Schlagel, 2016)." %}</p>
+                    
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                             <div class="table-responsive">
                                 <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
                                     <thead>
@@ -72,6 +119,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr class="">
+                                            <td class="boldRow">Afghanistan</td>
+                                            <td class="boldRow landslide_vhigh">290</td>
+                                            <td class="boldRow landslide_high">294</td>
+                                            <td class="boldRow landslide_mod">24</td>
+                                            <td class="boldRow landslide_low">351</td>
+                                        </tr>
                                         {% for parent in row.0.parentdata %}
                                             <td class="boldRow">{{parent}}</td>
                                         {% endfor %} 
@@ -86,11 +140,33 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            
+                        </div>
+                        
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 hide">
+                            <div id="lsi_immap_donut" class="ch-size donut-chart" data-color=colorLandslide data-val='[["Low", 350577.0], ["Moderate", 2400347.0], ["High", 2941552.0], ["Very High", 290261.0], ["Not at Risk", 27571772.0]]' data-title='Landslide Indexes (iMMAP 2017)' data-show-title='none' ></div>
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 hide">
+                            <div id="lsi_immap_bar" class="ch-size bar-chart" data-color=colorLandslide data-colorpoint="true" data-legend="false" data-xaxis='{% trans "Population" %}' data-yaxis='["Low", "Moderate", "High", "Very High"]' data-val='[{"data": [350577.0, 2400347.0, 2941552.0, 290261.0]}]'></div>
+                        </div>
                     </div>
+                    
                 </div>
-            {% endfor %}
+            </div>
         </div>
-    {% endcomment %}
+        
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="lsi_immap_bar_donut" class="ch-size combi-bar-donut-chart" data-color=colorLandslide data-colorpoint="true" data-val-donut='[["Low", 350577.0], ["Moderate", 2400347.0], ["High", 2941552.0], ["Very High", 290261.0], ["Not at Risk", 27571772.0]]' data-title='Landslide Indexes (iMMAP 2017)' data-show-title='none' data-xaxis='{% trans "Population" %}' data-yaxis='["Low", "Moderate", "High", "Very High"]' data-val-bar='[350577.0, 2400347.0, 2941552.0, 290261.0]'></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+
 {% endblock %}
 
 {% block extra_script %}

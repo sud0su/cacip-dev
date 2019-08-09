@@ -397,6 +397,7 @@ function init_chart(){
 			},
 			tooltip: {
 				formatter: function() {
+					console.log(this);
 					return '<b>'+ this.x +'</b>: '+ humanizeFormatter(this.y);
 				}
 			},
@@ -451,10 +452,71 @@ function init_chart(){
 				dataLabels:{
 					formatter: pie_label
 				},
-				size: '70%',
-				innerSize: '65%',
+				size: '60%',
+				innerSize: '55%',
 				showInLegend:true
 			}]
+		});
+	}
+
+	// Object Combination Donut & Bar chart
+	function bar_donut_chart(id_val, color_val, data_val_donut, data_val_bar, data_sum_bar, title_val, show_title_val, colorPoint_val, y_title, x_title){
+		$(id_val).highcharts({
+			title: {
+				text: title_val,
+				style: {
+					display: show_title_val
+				}
+			},
+			xAxis: {
+				categories: y_title
+			},
+			yAxis: {
+				title: {
+					text: x_title
+				},
+				type: 'logarithmic'
+			},
+			colors: color_val,
+			series: [
+				{
+					type: 'bar',
+					name: '...',
+					colorByPoint: colorPoint_val,
+					data: data_val_bar,
+					showInLegend: false,
+					tooltip: {
+						pointFormatter: function() {
+							console.log(this);
+							var percentage = (this.y / data_sum_bar) * 100;
+							return humanizeFormatter(this.y) +' (' + Highcharts.numberFormat(percentage,2,'.') + '%)';
+						}
+					},
+					dataLabels: {
+						enabled: true,
+						formatter: function() {
+							var percentage = (this.y / data_sum_bar) * 100;
+							return humanizeFormatter(this.y) +'<br/>(' + Highcharts.numberFormat(percentage,2,'.') + '%)';
+						}
+					}
+				},
+				{
+					type: 'pie',
+					name: '...',
+					data: data_val_donut,
+					center: ['95%', '10%'],
+					size: '30%',
+					innerSize: '55%',
+					showInLegend: true,
+					tooltip: {
+						pointFormatter: pie_label
+					},
+					dataLabels: {
+						enabled: false,
+						formatter: pie_label
+					}
+				}
+			]
 		});
 	}
 
@@ -751,6 +813,39 @@ function init_chart(){
 		console.log(selected_color);
 
 		donut_chart(id_chart, selected_color, data_chart, title_chart, show_title_chart);
+
+	});
+
+	$('.combi-bar-donut-chart').each(function(){
+		console.log(this.id);
+		var id_chart = '#' + this.id;
+		color_chart = $(id_chart).attr('data-color'); 
+		// var color_chart = $(id_chart).data("color");
+		var data_chart_donut = $(id_chart).data("val-donut");
+		var data_chart_bar = $(id_chart).data("val-bar");
+		// id_chart.attr('data-chart');
+		var title_chart = $(id_chart).attr('data-title');
+		var show_title_chart = $(id_chart).attr('data-show-title');
+
+		var colorPoint_bool = $(id_chart).data("colorpoint");
+		var xAxis_chart = $(id_chart).data("xaxis");
+		var yAxis_chart = $(id_chart).data("yaxis");
+
+		selected_color = colorChart[color_chart];
+
+		var data_sum_bar = 0;
+		for (var i=0;i < data_chart_donut.length;i++) {
+			data_sum_bar += data_chart_donut[i][1];
+		}
+
+		console.log(id_chart);
+		console.log(color_chart);
+		console.log(data_chart_donut);
+		console.log(data_chart_bar);
+		console.log(data_sum_bar);
+		console.log(selected_color);
+
+		bar_donut_chart(id_chart, selected_color, data_chart_donut, data_chart_bar, data_sum_bar, title_chart, show_title_chart, colorPoint_bool, yAxis_chart, xAxis_chart);
 
 	});
 

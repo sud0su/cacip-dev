@@ -30,7 +30,7 @@
             <div class="panel panel-default card-dashboard">
                 <div class="panel-body">
                     <h2>{% trans "Flood Risk Population" %}</h2>
-                    <div id="frisk_pop_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='[100,1000,2000, 3000]' data-title='{{ chart_val.title }}' data-show-title='none'></div>
+                    <div id="frisk_pop_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='[["Low", 3190195.0], ["Medium", 3009765.0], ["High", 1293374.0], ["Not at risk", 26061175.0]]' data-title='Flood Risk Population' data-show-title='none'></div>
                 </div>
             </div>
         </div>
@@ -44,30 +44,32 @@
                         <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
                             <thead>
                                 <tr>
-                                    <th rowspan="2">{% trans "Camp" %}</th>
-                                    <th rowspan="2" class="hum">{% trans "Building" %}</th>
-                                    <th rowspan="2" class="hum">{% trans "Settlement" %}</th>
-                                    <th colspan="2">{% trans "Built-Up" %}</th>
-                                    <th colspan="2">{% trans "Cultivated" %}</th>
-                                    <th colspan="2">{% trans "Barren/Rangeland" %}</th>
-                                    <th colspan="2">{% trans "Total" %}</th>
-                                </tr>
-                                <tr>
+                                    <th>{% trans "Camp" %}</th>
+                                    <th class="hum">{% trans "Building" %}</th>
+                                    <th class="hum">{% trans "Settlement" %}</th>
+                                    <!-- <th colspan="2">{% trans "Built-Up" %}</th> -->
+                                    <!-- <th colspan="2">{% trans "Cultivated" %}</th> -->
+                                    <!-- <th colspan="2">{% trans "Barren/Rangeland" %}</th> -->
+                                    <!-- <th colspan="2">{% trans "Total" %}</th> -->
                                     <th class="hum">{% trans "Population" %}</th>
                                     <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
-                                    <!-- <th class="hum">Building</th> -->
-                                    <th class="hum">{% trans "Population" %}</th>
-                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
-                                    <!-- <th class="hum">Building</th> -->
-                                    <th class="hum">{% trans "Population" %}</th>
-                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
-                                    <!-- <th class="hum">Building</th> -->
-                                    <th class="hum">{% trans "Population" %}</th>
-                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
-                                    <!-- <th class="hum">Building</th> -->
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr class="">
+                                    <td class="boldRow">Afghanistan</td>
+                                    <td class="boldRow">104</td>
+                                    <td class="boldRow">253</td>
+                                    <td class="boldRow">749</td>
+                                    <td class="boldRow">728</td>
+                                </tr>
+                                <tr class="selectable" onclick="window.document.location='?page=floodrisk&amp;code=15';">
+                                    <td class="">Badakhshan</td>
+                                    <td>269</td>
+                                    <td>101</td>
+                                    <td>186</td>
+                                    <td>165</td>
+                                </tr>
                                 {% for parent in panels.tables.adm_lcgroup_pop_area.parentdata %}
                                     <td class="boldRow">{{parent}}</td>
                                 {% endfor %}
