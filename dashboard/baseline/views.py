@@ -3,13 +3,15 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import Avg, Count, Sum, Q
+from django.utils.translation import ugettext as _
 
 from geonode.utilscustom import set_query_parameter, dict_ext, list_ext, JSONEncoderCustom, include_section
 from geonode.base.models import Region
-from .models import CampPop032019
-from .enumerations import ADM_TYPES, DASHBOARD_META
+from .models import CampPop032019, BgdCampShelterfootprintUnosatReachV1Jan, CxbHealthFacilities
+from .enumerations import ADM_TYPES, DASHBOARD_META, ADM_FIELDS, AGE_GROUP_TYPES, AGE_GROUP_TYPES_KEYS
 
 import urllib
+import pandas as pd
 import requests
 
 def get_dashboard_meta():
@@ -68,32 +70,57 @@ def get_adm_path_from_table_pop(areacode):
 	if not camps:
 		return {}
 
-	adm_fields = ['district', 'upazila', 'union', 'new_camp_n']
-
 	# for camp in camps:
-	for idx, field in enumerate(adm_fields):
+	for idx, field in enumerate(ADM_FIELDS):
 		checked_area_name = getattr(camps[0], field, '').strip()
-		if area_name:
+		if checked_area_name:
 			if idx not in adm_path:
-				adm_path[idx] = {}
-				adm_path[idx]['name'] = checked_area_name
-				adm_path[idx]['code'] = urllib.quote_plus(checked_area_name)
-				adm_path[idx]['type'] = ADM_TYPES[idx]
-				adm_path[idx]['level'] = idx
-				adm_path[idx]['active'] = area_name == checked_area_name
-				adm_path[idx]['sibling'] = []
+				adm_path[idx] = {
+					'name': checked_area_name,
+					'code': urllib.quote_plus(checked_area_name),
+					'type': ADM_TYPES[idx],
+					'level': idx,
+					'field': ADM_FIELDS[idx],
+					'active': area_name == checked_area_name,
+					'sibling': [],
+				}
 				if adm_path[idx]['active']:
 					break
 
+	child_idx = idx + 1
+	if child_idx in ADM_TYPES:
+		adm_path[child_idx] = {
+			'type': ADM_TYPES[child_idx],
+			'level': child_idx,
+			'field': ADM_FIELDS[child_idx],
+			'active': False,
+			'sibling': [],
+		}
+
 	for idx, p in adm_path.items():
-		field = adm_fields[idx]
+		field = ADM_FIELDS[idx]
 		camps = CampPop032019.objects.distinct(field).order_by(field)
+		if idx > 0:
+			parent_field = ADM_FIELDS[idx - 1]
+			parent_name = adm_path[idx - 1]['name']
+			camps = camps.filter(**{parent_field:parent_name})
 		for camp in camps:
-			checked_area_name = getattr(camps[0], field, '').strip()
+			checked_area_name = getattr(camp, field, '').strip()
 			adm_path[idx]['sibling'] += [{
 				'name': checked_area_name,
 				'code': urllib.quote_plus(checked_area_name),
 			}]
+
+		# # child
+		# if idx < len(ADM_TYPES):
+		# 	child_field = ADM_FIELDS[idx+1]
+		# 	camps = CampPop032019.objects.filter(**{field:p['name']}).distinct(child_field).order_by(child_field)
+		# 	for camp in camps:
+		# 		checked_area_name = getattr(camps[0], child_field, '').strip()
+		# 		adm_path[idx]['child'] += [{
+		# 			'name': checked_area_name,
+		# 			'code': urllib.quote_plus(checked_area_name),
+		# 		}]
 
 	return adm_path
 
@@ -102,24 +129,37 @@ def get_areatype_from_areacode(areacode):
 	areatype = ADM_TYPES[region.level]
 	return areatype
 
-def get_child_from_parents(parentcodes, admlevel):
+def get_camps_from_parents(parentcodes, admlevel):
 	# camp_level = 3
-	adm_fields = ['district', 'upazila', 'union', 'new_camp_n']
-	area = CampPop032019.objects.filter(**{adm_fields[admlevel]+'__in':parentcodes})
+	area = CampPop032019.objects.filter(**{ADM_FIELDS[admlevel]+'__in':parentcodes})
 	# for i in range(admlevel, camp_level):
 	# 	area = CampPop032019.objects.filter(parent__in=area).order_by('name')
 	return area
 
 def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=[], excludes=[], response=dict_ext()):
 
+	# default areacode to 'Cox%27s+Bazar' if none specified
 	if not areacode and not areageom:
-		return {}
+		areacode = 'Cox%27s+Bazar'
 
-	query_camps_pop = CampPop032019.objects.all()
-	adm_path = get_adm_path_from_table_pop(areacode) # for breadcrumb
-	current_region = adm_path[len(adm_path)-1]
+	# base queries
+	query_pop = CampPop032019.objects.all()
+	query_shelter = BgdCampShelterfootprintUnosatReachV1Jan.objects.all()
+	query_hltfac = CxbHealthFacilities.objects.all()
+	
+	# for breadcrumb
+	adm_path = get_adm_path_from_table_pop(areacode) 
 
-	# cached = current_region['type'] in ADM_TYPES.values()
+	# current selected area
+	active_adm = [adm for idx, adm in adm_path.items() if adm['active']][0]
+
+	# child of current selected area
+	child_level = active_adm['level'] + 1
+	child_adm = adm_path[child_level] if child_level in ADM_TYPES else active_adm
+
+	HLTFAC_TYPES = list(query_hltfac.values_list('facility_t', flat=True).order_by('facility_t').distinct('facility_t'))
+
+	# cached = active_adm['type'] in ADM_TYPES.values()
 
 	# # get camps using union, upazila, district
 	# areatype_mappings = {
@@ -130,39 +170,41 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 	# }
 	# if areatype in areatype_mappings:
 	# 	if areatype in ['camp']:
-	# 		query_camps_pop = query_camps_pop.filter(**{areatype_mappings[areatype]:areacode})
+	# 		query_pop = query_pop.filter(**{areatype_mappings[areatype]:areacode})
 	# 	else:
-	# 		query_camps_pop = query_camps_pop.filter(**{areatype_mappings[areatype]:current_region['name']})
+	# 		query_pop = query_pop.filter(**{areatype_mappings[areatype]:active_adm['name']})
 
-	# get camps using get_child_from_parents()
-	admlevel = dict_ext(ADM_TYPES).getkeyfromvalue(current_region['type'])
-	camp_ids = filter(None, [r.new_camp_n for r in get_child_from_parents([current_region['name']], admlevel)]) 
-	query_camps_pop = query_camps_pop.filter(new_camp_n__in=camp_ids)
+	# get camp names using get_camps_from_parents(), use camp names to filter query
+	camp_ids = filter(None, [r.new_camp_n for r in get_camps_from_parents([active_adm['name']], active_adm['level'])]) 
+	query_pop = query_pop.filter(new_camp_n__in=camp_ids)
+	query_shelter = query_shelter.filter(cmp_name__in=camp_ids, area_class='Structure')
+	query_hltfac = query_hltfac.filter(camp_name__in=camp_ids)
 
+	# prepare db field names for query, using mapping as alias for better descriptive names
 	age_groups_fields_mappings = {
 		'infant':{
-			'male':'infant_fem',
-			'female':'infant_mal',
+			'female':'infant_fem',
+			'male':'infant_mal',
 		},
 		'1_4':{
-			'male':'field_1_4_child',
-			'female':'field_1_4_chil_field',
+			'female':'field_1_4_child',
+			'male':'field_1_4_chil_field',
 		},
 		'5_11':{
-			'male':'field_5_11_chil',
-			'female':'field_5_11_chi_field',
+			'female':'field_5_11_chil',
+			'male':'field_5_11_chi_field',
 		},
 		'12_17':{
-			'male':'field_12_17_chi',
-			'female':'field_12_17_ch_field',
+			'female':'field_12_17_chi',
+			'male':'field_12_17_ch_field',
 		},
 		'18_59':{
-			'male':'field_18_59_adu',
-			'female':'field_18_59_ad_field',
+			'female':'field_18_59_adu',
+			'male':'field_18_59_ad_field',
 		},
 		'60':{
-			'male':'field_60_elderl',
-			'female':'field_60_elde_1',
+			'female':'field_60_elderl',
+			'male':'field_60_elde_1',
 		},
 	}
 	age_groups_fields = [f for k, age in age_groups_fields_mappings.items() for f in age.values()]
@@ -176,16 +218,118 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 		'total_indi',
 		'containhh',		
 	]
-	agg_pop = query_camps_pop.aggregate(**{f:Sum(f) for f in agg_fields + age_groups_fields})
+
+	# prepare aggregate/annotate function in a dict
+	agg_func_dict = {f:Sum(f) for f in agg_fields + age_groups_fields}
+
+	# aggregate/annotate query using dict converted to keyword arguments as parameters
+	agg_pop = query_pop.aggregate(**agg_func_dict)
+	annotate_pop = query_pop.values(child_adm['field']).annotate(**agg_func_dict)
+	annotate_shelter = query_shelter.values('cmp_name').annotate(shelter_count=Count('pk'),shelter_area_m2=Sum('area_m2'))
+	annotate_hltfac = query_hltfac.values('camp_name','facility_t').annotate(hltfac_count=Count('pk'))
+
+	# create panda dataframe from pop, the adm data will be used for grouping
+	df_pop = pd.DataFrame.from_records(query_pop.values(*ADM_FIELDS),index='new_camp_n')
+
+	# join shelter to pop then group by adm
+	df_annotate_shelter = pd.DataFrame.from_records(annotate_shelter,index='cmp_name')
+	df_annotate_shelter_pop = df_annotate_shelter.join(df_pop)
+	df_annotate_shelter_pop_groupby = df_annotate_shelter_pop.groupby([child_adm['field']]).sum() \
+		if child_adm['field'] in df_annotate_shelter_pop.keys() \
+		else df_annotate_shelter_pop
+	# df_annotate_shelter_pop_groupby = df_annotate_shelter_pop_groupby.sum()
+
+	# join hltfac to pop then group by adm
+	df_annotate_hltfac = pd.DataFrame.from_records(annotate_hltfac,index='camp_name')
+	df_annotate_hltfac_pop = df_annotate_hltfac.join(df_pop)
+	df_annotate_hltfac_pop_groupby = df_annotate_hltfac_pop.groupby([child_adm['field'],'facility_t']) \
+		if child_adm['field'] in df_annotate_hltfac_pop.keys() \
+		else df_annotate_hltfac_pop.groupby(['facility_t'])
+	df_annotate_hltfac_pop_groupby = df_annotate_hltfac_pop_groupby.sum()
 
 	# generic formatter
-	response.update({f:agg_pop.get(f, '') for f in agg_fields})
-	response.update({
-		'pop_by_age_group': {k:{k2:agg_pop.get(v2,0) for k2,v2 in v.items()} for k,v in age_groups_fields_mappings.items()},
+	response.updateget({
+		f:agg_pop.get(f, '') for f in agg_fields
+	}).updateget({
 		'adm_path': adm_path,
-		'area_code': areacode,
-		'area_type': areatype,
-		'area_name': current_region['name'],
+		'area_code': active_adm['code'],
+		'area_type': active_adm['type'],
+		'area_name': active_adm['name'],
+		'area_level': active_adm['level'],
+		'is_bottom_level': active_adm['level'] == len(ADM_TYPES)-1,
+		'pop_by_age_group': {k:{k2:agg_pop.get(v2,0) for k2,v2 in v.items()} for k,v in age_groups_fields_mappings.items()},
+		'child_area_type': child_adm['type'],
+		'child_area_level': child_adm['level'],
+		'hltfac_count': df_annotate_hltfac_pop_groupby['hltfac_count'].sum(),
+		'shelter_count': df_annotate_shelter_pop_groupby['shelter_count'].sum(),
+		'shelter_area_m2': df_annotate_shelter_pop_groupby['shelter_area_m2'].sum(),
+		'hltfac_count_by_type': dict(df_annotate_hltfac_pop.groupby(['facility_t']).sum()['hltfac_count']),
+		'child': [
+			dict_ext({
+				f:ann.get(f, '') for f in agg_fields
+			}).updateget({
+				'area_code': urllib.quote_plus(ann[child_adm['field']]),
+				'area_type': child_adm['type'],
+				'area_name': ann[child_adm['field']],
+				'pop_by_age_group': {k:{k2:ann.get(v2,0) for k2,v2 in v.items()} for k,v in age_groups_fields_mappings.items()},
+				'hltfac_count': sum(df_annotate_hltfac_pop_groupby['hltfac_count'].get(ann[child_adm['field']], [])),
+				'hltfac_count_by_type': dict(df_annotate_hltfac_pop_groupby['hltfac_count'].get(ann[child_adm['field']], {})),
+				'shelter_count': df_annotate_shelter_pop_groupby['shelter_count'].get(ann[child_adm['field']]),
+				'shelter_area_m2': df_annotate_shelter_pop_groupby['shelter_area_m2'].get(ann[child_adm['field']]),
+			}) for ann in annotate_pop
+		],
+		# 'annotate_hltfac': annotate_hltfac,
+	})
+	
+	# specific formatter
+	response.updateget({
+		'init_data': {
+			'charts': {
+				'pop_by_age_group': {
+					'key': 'chart_pop_by_age_group',
+					'title': _('Population'),
+					'labels_y': [AGE_GROUP_TYPES[k] for k in AGE_GROUP_TYPES_KEYS],
+					'data': {
+						'male': [-response['pop_by_age_group'][k]['male'] for k in AGE_GROUP_TYPES_KEYS],
+						'female': [response['pop_by_age_group'][k]['female'] for k in AGE_GROUP_TYPES_KEYS],
+					}
+				},
+				'hltfac': {
+					'key': 'chart_hltfac',
+					'title': _('Health Facilities'),
+					'labels': HLTFAC_TYPES,
+					'values': [response['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
+				},
+			},
+			'tables': {
+				'pop_shelter': {
+					'key': 'table_pop_shelter',
+					'title': _('Overview of Population'),
+					'parentdata':[
+							response['area_name'],
+							response['total_indi'],
+							response['shelter_count']
+						],
+					'child':[{
+						'values':[
+							v['area_name'],
+							v['total_indi'],
+							v['shelter_count']
+						],
+						'code': v['area_code'],
+					} for v in response['child']],
+				},
+				'hltfac': {
+					'key': 'table_hltfac',
+					'title': _('Health Facilities'),
+					'parentdata': [response['area_name']]+[response['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
+					'child': [{
+						'values': [v['area_name']]+[v['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
+						'code': v['area_code'],
+					} for v in response['child']],
+				},
+			},
+		}
 	})
 
 	return response

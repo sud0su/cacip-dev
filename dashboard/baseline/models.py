@@ -39,3 +39,38 @@ class CampPop032019(models.Model):
     class Meta:
         managed = False
         db_table = 'Camp_pop_03_2019'
+
+class BgdCampShelterfootprintUnosatReachV1Jan(models.Model):
+    fid = models.AutoField(primary_key=True)
+    the_geom = models.MultiPolygonField(blank=True, null=True)
+    id = models.CharField(max_length=80, blank=True, null=True)
+    un_class = models.CharField(max_length=80, blank=True, null=True)
+    area_m2 = models.FloatField(blank=True, null=True)
+    area_class = models.CharField(max_length=80, blank=True, null=True)
+    dig_by = models.CharField(max_length=80, blank=True, null=True)
+    img_src = models.CharField(max_length=80, blank=True, null=True)
+    cmp_name = models.CharField(max_length=80, blank=True, null=True)
+    objects = models.GeoManager()
+
+    class Meta:
+        managed = False
+        db_table = 'BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan'
+
+class CxbHealthFacilities(models.Model):
+    fid = models.AutoField(primary_key=True)
+    the_geom = models.PointField(blank=True, null=True)
+    hf_uid = models.CharField(db_column='HF_UID', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    concantena = models.CharField(db_column='Concantena', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    facility_t = models.CharField(db_column='Facility_T', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    camp_name = models.CharField(db_column='Camp_Name', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    latitude = models.FloatField(db_column='Latitude', blank=True, null=True)  # Field name made lowercase.
+    longitude = models.FloatField(db_column='Longitude', blank=True, null=True)  # Field name made lowercase.
+    functional = models.CharField(db_column='Functional', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    field_24_7_faci = models.CharField(db_column='_24_7_faci', max_length=254, blank=True, null=True)  # Field renamed because it started with '_'.
+    comment_on = models.CharField(db_column='Comment_on', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    objects = models.GeoManager()
+
+    class Meta:
+        managed = False
+        db_table = 'cxb_health_facilities'
+
