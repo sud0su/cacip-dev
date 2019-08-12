@@ -274,7 +274,7 @@ def dashboard_detail(request):
 				'marginLeft':0.3,
 				'marginRight':0.3,
 				'scale':0.72, # 0.72 roughly equal to 1024 px print width on 1024 screen-width
-				'javascript-delay': 1, # in seconds
+				'after-document-loaded-delay': 1, # in seconds
 				'timeout': 60, # in seconds
 				'header-html': 'http://%s/static/epr_bgd/head_print/rep_header_chrome.html?%s'%(request.META.get('HTTP_HOST'),headerparam),
 				'headerparam':headerparam_dict,
@@ -401,7 +401,7 @@ def dashboard_multiple(request):
 			# 'print-media-type':'-',
 			# 'no-stop-slow-scripts':'-',
 			# 'enable-javascript':'-',
-			'javascript-delay': 25000,
+			'after-document-loaded-delay': 25000,
 			# 'window-status': 'ready',
 			'encoding': "UTF-8",
 		}

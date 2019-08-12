@@ -49,7 +49,7 @@ default_print_option = {
     'screen-height':1024,
 
     # used only in this script
-    "javascript-delay":5,
+    "after-document-loaded-delay":3,
     "timeout":30,
 }
 
@@ -67,8 +67,8 @@ class EventHandler(object):
 
     def frame_stopped_loading(self, frameId):
 
-        if self.browser.print_option.get('javascript-delay'):
-            time.sleep(self.browser.print_option.get('javascript-delay'))
+        if self.browser.print_option.get('after-document-loaded-delay'):
+            time.sleep(self.browser.print_option.get('after-document-loaded-delay'))
 
         if self.start_frame == frameId:
             self.tab.Page.stopLoading()
