@@ -322,13 +322,17 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 					'parentdata':[
 							response['area_name'],
 							response['total_indi'],
-							response['shelter_count']
+							response['total_fami'],
+							response['containhh'],
+							response['shelter_count'],
 						],
 					'child':[{
 						'values':[
 							v['area_name'],
 							v['total_indi'],
-							v['shelter_count']
+							v['total_fami'],
+							v['containhh'],
+							v['shelter_count'],
 						],
 						'code': v['area_code'],
 					} for v in response['child']],
