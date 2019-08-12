@@ -140,7 +140,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 
 	# default areacode to 'Cox%27s+Bazar' if none specified
 	if not areacode and not areageom:
-		areacode = 'Cox%27s+Bazar'
+		areacode = 'Cox\'s Bazar'
 
 	# base queries
 	query_pop = CampPop032019.objects.all()
@@ -157,7 +157,8 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 	child_level = active_adm['level'] + 1
 	child_adm = adm_path[child_level] if child_level in ADM_TYPES else active_adm
 
-	HLTFAC_TYPES = list(query_hltfac.values_list('facility_t', flat=True).order_by('facility_t').distinct('facility_t'))
+	HLTFAC_TYPES = list(query_hltfac.values_list('facility_t', flat=True).order_by('facility_t').distinct('facility_t').\
+		exclude(facility_t__isnull=True).exclude(facility_t__exact=''))
 
 	# cached = active_adm['type'] in ADM_TYPES.values()
 
@@ -260,6 +261,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 		'pop_by_age_group': {k:{k2:agg_pop.get(v2,0) for k2,v2 in v.items()} for k,v in age_groups_fields_mappings.items()},
 		'child_area_type': child_adm['type'],
 		'child_area_level': child_adm['level'],
+		'hltfac_types': HLTFAC_TYPES,
 		'hltfac_count': df_annotate_hltfac_pop_groupby['hltfac_count'].sum(),
 		'shelter_count': df_annotate_shelter_pop_groupby['shelter_count'].sum(),
 		'shelter_area_m2': df_annotate_shelter_pop_groupby['shelter_area_m2'].sum(),
@@ -299,6 +301,18 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 					'title': _('Health Facilities'),
 					'labels': HLTFAC_TYPES,
 					'values': [response['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
+				},
+				'chart_pop_by_child_adm': {
+					'key': 'chart_pop_by_child_adm',
+					'title': _('Population'),
+					'labels': [v['area_name'] for v in response['child']],
+					'values': [v['total_indi'] for v in response['child']],
+				},
+				'chart_shelter_by_child_adm': {
+					'key': 'chart_shelter_by_child_adm',
+					'title': _('Shelter'),
+					'labels': [v['area_name'] for v in response['child']],
+					'values': [v['shelter_count'] for v in response['child']],
 				},
 			},
 			'tables': {
