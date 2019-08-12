@@ -322,9 +322,15 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 				'table_hltfac': {
 					'key': 'table_hltfac',
 					'title': _('Health Facilities'),
-					'parentdata': [response['area_name']]+[response['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
+					'parentdata': \
+						[response['area_name']]+\
+						[response['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES]+\
+						[sum(response['hltfac_count_by_type'].values())],
 					'child': [{
-						'values': [v['area_name']]+[v['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
+						'values': \
+							[v['area_name']]+\
+							[v['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES]+\
+							[sum(v['hltfac_count_by_type'].values())],
 						'code': v['area_code'],
 					} for v in response['child']],
 				},
