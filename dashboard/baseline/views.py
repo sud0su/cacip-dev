@@ -285,7 +285,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 	response.updateget({
 		'init_data': {
 			'charts': {
-				'pop_by_age_group': {
+				'chart_pop_by_age_group': {
 					'key': 'chart_pop_by_age_group',
 					'title': _('Population'),
 					'labels_y': [AGE_GROUP_TYPES[k] for k in AGE_GROUP_TYPES_KEYS],
@@ -294,7 +294,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 						'female': [response['pop_by_age_group'][k]['female'] for k in AGE_GROUP_TYPES_KEYS],
 					}
 				},
-				'hltfac': {
+				'chart_hltfac': {
 					'key': 'chart_hltfac',
 					'title': _('Health Facilities'),
 					'labels': HLTFAC_TYPES,
@@ -302,7 +302,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 				},
 			},
 			'tables': {
-				'pop_shelter': {
+				'table_pop_shelter': {
 					'key': 'table_pop_shelter',
 					'title': _('Overview of Population'),
 					'parentdata':[
@@ -319,7 +319,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 						'code': v['area_code'],
 					} for v in response['child']],
 				},
-				'hltfac': {
+				'table_hltfac': {
 					'key': 'table_hltfac',
 					'title': _('Health Facilities'),
 					'parentdata': [response['area_name']]+[response['hltfac_count_by_type'].get(k,0) for k in HLTFAC_TYPES],
