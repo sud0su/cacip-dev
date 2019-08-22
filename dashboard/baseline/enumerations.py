@@ -11,10 +11,10 @@ DASHBOARD_META = {
 }
 
 ADM_TYPES = {
-    0:'district',
-    1:'upazila',
-    2:'union',
-    3:'camp',
+    0: 'district',
+    1: 'upazila',
+    2: 'union',
+    3: 'camp',
 }
 
 ADM_FIELDS = ['district', 'upazila', 'union', 'new_camp_n']

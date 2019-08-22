@@ -77,7 +77,7 @@ def get_adm_path_from_table_pop(areacode):
 			if idx not in adm_path:
 				adm_path[idx] = {
 					'name': checked_area_name,
-					'code': urllib.quote_plus(checked_area_name),
+					'code': urllib.quote(checked_area_name),
 					'type': ADM_TYPES[idx],
 					'level': idx,
 					'field': ADM_FIELDS[idx],
@@ -108,7 +108,7 @@ def get_adm_path_from_table_pop(areacode):
 			checked_area_name = getattr(camp, field, '').strip()
 			adm_path[idx]['sibling'] += [{
 				'name': checked_area_name,
-				'code': urllib.quote_plus(checked_area_name),
+				'code': urllib.quote(checked_area_name),
 			}]
 
 		# # child
@@ -119,7 +119,7 @@ def get_adm_path_from_table_pop(areacode):
 		# 		checked_area_name = getattr(camps[0], child_field, '').strip()
 		# 		adm_path[idx]['child'] += [{
 		# 			'name': checked_area_name,
-		# 			'code': urllib.quote_plus(checked_area_name),
+		# 			'code': urllib.quote(checked_area_name),
 		# 		}]
 
 	return adm_path
@@ -138,7 +138,7 @@ def get_camps_from_parents(parentcodes, admlevel):
 
 def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=[], excludes=[], response=dict_ext()):
 
-	# default areacode to 'Cox%27s+Bazar' if none specified
+	# default areacode to 'Cox\'s Bazar' if none specified
 	if not areacode and not areageom:
 		areacode = 'Cox\'s Bazar'
 
@@ -151,7 +151,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 	adm_path = get_adm_path_from_table_pop(areacode) 
 
 	# current selected area
-	active_adm = [adm for idx, adm in adm_path.items() if adm['active']][0]
+	active_adm = [adm for adm in adm_path.values() if adm.get('active')][0]
 
 	# child of current selected area
 	child_level = active_adm['level'] + 1
@@ -270,7 +270,7 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 			dict_ext({
 				f:ann.get(f, '') for f in agg_fields
 			}).updateget({
-				'area_code': urllib.quote_plus(ann[child_adm['field']]),
+				'area_code': urllib.quote(ann[child_adm['field']]),
 				'area_type': child_adm['type'],
 				'area_name': ann[child_adm['field']],
 				'pop_by_age_group': {k:{k2:ann.get(v2,0) for k2,v2 in v.items()} for k,v in age_groups_fields_mappings.items()},
