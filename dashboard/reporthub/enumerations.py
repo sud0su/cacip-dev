@@ -1,17 +1,17 @@
 DASHBOARD_META = {
     'pages': [
         {
-            'name': 'healthsector',
-            'function': 'get_healthsector',
+            'name': 'reporthub',
+            'function': 'get_reporthub',
             'template': 'dash_healthsector.html',
-            'menutitle': 'Health Sector',
+            'menutitle': 'ReportHub',
         },
-        {
-            'name': 'protectionsector',
-            'function': 'get_protectionsector',
-            'template': 'dash_protectionsector.html',
-            'menutitle': 'Protection Sector',
-        },
+        # {
+        #     'name': 'protectionsector',
+        #     'function': 'get_protectionsector',
+        #     'template': 'dash_protectionsector.html',
+        #     'menutitle': 'Protection Sector',
+        # },
     ],
     'menutitle': 'ReportHub',
 }
@@ -34,8 +34,8 @@ ADM_NAME_FIELDS = {
 ADM_CODE_FIELDS = ['admin0pcode', 'admin1pcode', 'admin2pcode', 'admin3pcode', 'admin4pcode']
 
 FILTER_NAME_FIELDS = {
-    'cluster': 'cluster', 
+    'cluster_id': 'cluster', 
     'organization': 'organization', 
     'activity_description_id': 'activity_description_name', 
 }
-FILTER_CODE_FIELDS = ['cluster', 'organization', 'activity_description_id']
+FILTER_CODE_FIELDS = ['cluster_id', 'organization', 'activity_description_id']

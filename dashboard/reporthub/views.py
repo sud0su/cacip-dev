@@ -14,6 +14,7 @@ from .enumerations import DASHBOARD_META, ADM_CODE_FIELDS, ADM_NAME_FIELDS, ADM_
 import urllib
 import pandas as pd
 import requests
+import functools
 
 def get_dashboard_meta():
 	return DASHBOARD_META
@@ -155,41 +156,105 @@ def get_filter_path_from_table_beneficiaries(filters, FILTER_CODE_FIELDS_SELECTE
 
 	return filter_path
 
-def get_healthsector(request, areageom=None, areatype=None, areacode=None, includes=[], excludes=[], response=dict_ext()):
+def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes=[], excludes=[], response=dict_ext()):
 
 	# default areacode to 'CB' if none specified
 	if not areacode and not areageom:
 		areacode = 'CB'
 
+	# for breadcrumb
+	adm_path = get_adm_path_from_table_beneficiaries(areacode) 
+
 	# base queries
 	query_beneficiaries = TempBeneficiaries.objects.all()
-	beneficiaries_annotated = query_beneficiaries.\
-		values('cluster','activity_description_name','indicator_name').\
+	FILTER_OPTIONAL_FIELDS = ['donor','organization','reporting_period','cluster_id']
+	FILTER_OPTIONAL_FIELDS_NAME = {
+		'donor': 'donor',
+		'organization': 'organization',
+		'reporting_period': 'reporting_period',
+		'cluster_id': 'cluster',
+	}
+
+	beneficiaries_adm_filters = {adm['field']:urllib.unquote(adm['code']) if type(adm['code']) not in [int, long] else adm['code'] for idx, adm in adm_path.items() if 'code' in adm}
+	beneficiaries_filters = beneficiaries_adm_filters.copy()
+	beneficiaries_filters.update({f+'__in':filter(None,request.GET.get(f,'').split(',')) for f in FILTER_OPTIONAL_FIELDS if f in request.GET})
+	# fact=functools.reduce(mult, filter(None,request.GET.get(f,'').split(',')))
+	# print 'beneficiaries_filters', beneficiaries_filters
+	beneficiaries_adm_filtered = query_beneficiaries.filter(**beneficiaries_adm_filters)
+	beneficiaries_filtered = query_beneficiaries.filter(**beneficiaries_filters)
+	# print beneficiaries_filtered.query
+
+	beneficiaries_annotated = beneficiaries_filtered.\
+		values('cluster','activity_description_name','indicator_id','indicator_name').\
 		annotate(
 			population=Sum('total'),
 			population_male=Sum('boys')+Sum('men')+Sum('elderly_men'),
 			population_female=Sum('girls')+Sum('women')+Sum('elderly_women'),
-			# unit_type_names=Func(Func(F('unit_type_name'), function='distinct'), function='string_agg'),
+			# unit_type_names=Func(Func(F('unit_type_name'), function='DISTINCT'), function='STRING_AGG'),
 			units=Sum('units'),
-			unit_type_names=RawSQL_nogroupby("string_agg(distinct(unit_type_name), ', ')",()),
+			unit_type_names=RawSQL_nogroupby("STRING_AGG(DISTINCT(unit_type_name), ', ')",()),
+			unit_type_donors=RawSQL_nogroupby("STRING_AGG(DISTINCT(donor), ', ')",()),
+			unit_type_organizations=RawSQL_nogroupby("STRING_AGG(DISTINCT(organization), ', ')",()),
 		).\
 		exclude(indicator_name__isnull=True)
 	# print beneficiaries_annotated.query
 	
-	# for breadcrumb
-	adm_path = get_adm_path_from_table_beneficiaries(areacode) 
-
-	FILTER_CODE_FIELDS_SELECTED = filter(None, request.GET.get('filter_codes','').split(',')) or FILTER_CODE_FIELDS
-	filters = {f: request.GET[f] for f in FILTER_CODE_FIELDS_SELECTED if f in request.GET}
-	filter_path = get_filter_path_from_table_beneficiaries(filters, FILTER_CODE_FIELDS_SELECTED) 
+	# FILTER_CODE_FIELDS_SELECTED = filter(None, request.GET.get('filter_codes','').split(',')) or FILTER_CODE_FIELDS
+	# filters = {f: request.GET[f] for f in FILTER_CODE_FIELDS_SELECTED if f in request.GET}
+	# filter_path = get_filter_path_from_table_beneficiaries(filters, FILTER_CODE_FIELDS_SELECTED) 
 
 	# query_activities = query_beneficiaries.values('cluster','activity_description_name').annotate(project_count=Count('index'))
 
 	response.updateget({
 		'adm_path': adm_path,
-		'filter_path': filter_path,
+		# 'filter_path': filter_path,
+		'filters': {
+			f:{
+				'key':f,
+				'selected': filter(None,request.GET.get(f,'').split(',')), 
+				'options':[{
+					'key': urllib.quote(f2[f]),
+					'value': f2[FILTER_OPTIONAL_FIELDS_NAME[f]],
+				} for f2 in beneficiaries_adm_filtered.values(f,FILTER_OPTIONAL_FIELDS_NAME[f]).order_by(f).distinct(f).exclude(**{f+'__isnull':True})],
+			}
+		for f in FILTER_OPTIONAL_FIELDS},
 		'areacode': areacode,
 		'beneficiaries_annotated': beneficiaries_annotated,
+		'init_data': {
+			'table': {
+				'table_benficiaries': {
+					'child': [{
+						'values': [
+							i['activity_description_name'],
+							i['indicator_name'],
+							i['cluster'],
+							i['units'],
+							i['population'],
+							i['unit_type_names'],
+							i['unit_type_donors'],
+							i['unit_type_organizations'],
+						],
+						'code': i['activity_description_name'],
+
+					} for i in beneficiaries_annotated],
+					'columns': [
+						_('Activity Description Name'),
+						_('Indicator Name'),
+						_('Cluster'),
+						_('Units'),
+						_('Population'),
+						_('Unit Type Names'),
+						_('Unit Type Donors'),
+						_('Unit Type Organizations'),
+					]
+				}
+			},
+			'total': [{	
+				'key': i['indicator_id'],
+				'value': i['units'],
+				'key': i['indicator_name'],
+			} for i in beneficiaries_annotated.order_by('-units')[:10]],
+		}
 	})
 
 	return response
