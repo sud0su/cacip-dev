@@ -2,7 +2,7 @@ DASHBOARD_META = {
     'pages': [
         {
             'name': 'floodrisk',
-            # 'function': None, 
+            'function': 'get_floodrisk', 
             'template': 'dash_floodrisk.html',
             'menutitle': 'Flood Risk',
         },

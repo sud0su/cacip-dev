@@ -15,48 +15,82 @@
 {% block body_outer %}
     <div class="row g-margin-t-25--xs g-margin-b-45--xs">
         
-        {% for chart_title, chart_val in panels.charts.items %}
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        {% for chart_key, chart_val in init_data.charts.items %}
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                 <div class="panel panel-default card-dashboard">
                     <div class="panel-body">
                         <h2>{{ chart_val.title }}</h2>
-                        <div id="frisk_{{ chart_title }}_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='{{ chart_val.child | jsonify | safe }}' data-title='{{ chart_val.title }}' data-show-title='none'></div>
+                        <div id="frisk_{{ chart_key }}_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='{{ chart_val.values | jsonify | safe }}' data-title='{{ chart_val.title }}' data-show-title='none'></div>
                     </div>
                 </div>
             </div>
         {% endfor %}
 
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        <!-- <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
             <div class="panel panel-default card-dashboard">
                 <div class="panel-body">
                     <h2>{% trans "Flood Risk Population" %}</h2>
                     <div id="frisk_pop_donut" class="ch-size donut-chart" data-color=colorFloodRisk data-val='[["Low", 3190195.0], ["Medium", 3009765.0], ["High", 1293374.0], ["Not at risk", 26061175.0]]' data-title='Flood Risk Population' data-show-title='none'></div>
                 </div>
             </div>
-        </div>
+        </div> -->
         
-        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-12">
+        {% with init_data.tables.table_shelter_hltfac as table %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <div class="panel panel-default card-dashboard">
                 <div class="panel-body">
-                    <h2>{% trans "Population Living in Flood Risk Areas" %}</h2>
+                    <h2>{% trans table.title %}</h2>
                     <p class="">{% trans "Population, buildings and area within 100-year inundation flood zone (source: NATO Flood Map). Flood risk category is estimated based upon potential flood depth: Low flood risk relates to inundation more than 29cm, moderate to 1.21m and high flood risk more than 2.7m. The 100-year inundation interval, implies that every year there is a 1% chance of such a flood event occurring. Most flood events will be in 5,10, 20-year inundation interval." %}</p>
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
                             <thead>
-                                <tr>
-                                    <th>{% trans "Camp" %}</th>
+                                <!-- <tr> -->
+                                    <!-- <th>{% trans "Camp" %}</th>
                                     <th class="hum">{% trans "Building" %}</th>
-                                    <th class="hum">{% trans "Settlement" %}</th>
+                                    <th class="hum">{% trans "Settlement" %}</th> -->
                                     <!-- <th colspan="2">{% trans "Built-Up" %}</th> -->
                                     <!-- <th colspan="2">{% trans "Cultivated" %}</th> -->
                                     <!-- <th colspan="2">{% trans "Barren/Rangeland" %}</th> -->
                                     <!-- <th colspan="2">{% trans "Total" %}</th> -->
-                                    <th class="hum">{% trans "Population" %}</th>
-                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th>
+                                    <!-- <th class="hum">{% trans "Population" %}</th>
+                                    <th class="hum">{% trans "Area" %} ({% blocktrans %}km<sup>2</sup>{% endblocktrans %})</th> -->
+                                    <!-- {% for cell in table.column_keys %}
+                                    <th class="hum">{{cell}}</th>
+                                    {% endfor %} -->
+                                    <!-- <th class="">{{table.column_keys.0}}</th>
+                                    <th class="">{{table.column_keys.1}}</th>
+                                    <th class="">{{table.column_keys.2}}</th>
+                                    <th class="hum">{{table.column_keys.3}}</th>
+                                    <th class="hum">{{table.column_keys.4}}</th>
+                                    <th class="hum">{{table.column_keys.5}}</th>
+                                    <th class="hum">{{table.column_keys.6}}</th>
+                                    <th class="hum">{{table.column_keys.7}}</th>
+                                    <th class="hum">{{table.column_keys.8}}</th>
+                                    <th class="hum">{{table.column_keys.9}}</th>
+                                    <th class="hum">{{table.column_keys.10}}</th>
+                                    <th class="hum">{{table.column_keys.11}}</th>
+                                    <th class="hum">{{table.column_keys.12}}</th> -->
+                                <!-- </tr> -->
+                                <tr>
+                                    <th rowspan="2">{% trans "Camp" %}</th>
+                                    <th rowspan="2">{% trans "Union" %}</th>
+                                    <th rowspan="2">{% trans "Upazila" %}</th>
+                                    <th colspan="3">{% trans "Shelter" %}</th>
+                                    <th colspan="3">{% trans "Health Facilities" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Shelter" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Health Facilities" %}</th>
+                                </tr>
+                                <tr>
+                                    <th class="hum">{% trans "Low" %}</th>
+                                    <th class="hum">{% trans "Med" %}</th>
+                                    <th class="hum">{% trans "High" %}</th>
+                                    <th class="hum">{% trans "Low" %}</th>
+                                    <th class="hum">{% trans "Med" %}</th>
+                                    <th class="hum">{% trans "High" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="">
+                                <!-- <tr class="">
                                     <td class="boldRow">Afghanistan</td>
                                     <td class="boldRow">104</td>
                                     <td class="boldRow">253</td>
@@ -68,24 +102,33 @@
                                     <td>269</td>
                                     <td>101</td>
                                     <td>186</td>
-                                    <td>165</td>
-                                </tr>
-                                {% for parent in panels.tables.adm_lcgroup_pop_area.parentdata %}
-                                    <td class="boldRow">{{parent}}</td>
+                                    <td>165</td> -->
+                                <!-- </tr>
+                                {% for cell in table.parentdata %}
+                                    <td class="boldRow">{{cell}}</td>
                                 {% endfor %}
-                                {% for child in panels.tables.adm_lcgroup_pop_area.child %}
+                                </tr> -->
+                                {% for child in table.child %}
                                     <tr class="selectable" onclick="window.document.location='?page=floodrisk&code={{child.code}}';">
-                                        {% for item in child.value %}
+                                        {% for item in child.values %}
                                             <td>{{item}}</td>
                                         {% endfor %}
                                     </tr>
                                 {% endfor %}
                             </tbody>
+                            <tfoot>
+                            </tr>
+                            {% for cell in table.parentdata %}
+                                <td class="boldRow">{{cell}}</td>
+                            {% endfor %}
+                            </tr>
+                          </tfoot>                            
                         </table>
                     </div>
                 </div>
             </div>
         </div>
+        {% endwith %}
     </div>
 {% endblock %}
 

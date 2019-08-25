@@ -2,7 +2,7 @@ DASHBOARD_META = {
     'pages': [
         {
             'name': 'landslide',
-            # 'function': None, 
+            'function': 'get_landslide', 
             'template': 'dash_landslide.html',
             'menutitle': 'Landslide',
         },
