@@ -1,4 +1,5 @@
 from django.db import models
+# from django.contrib.gis.db import models
 
 class TempBeneficiaries(models.Model):
     index = models.BigIntegerField(blank=True, null=True)

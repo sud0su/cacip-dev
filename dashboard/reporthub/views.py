@@ -15,6 +15,8 @@ import urllib
 import pandas as pd
 import requests
 import functools
+import re
+import operator, functools
 
 def get_dashboard_meta():
 	return DASHBOARD_META
@@ -167,17 +169,22 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 
 	# base queries
 	query_beneficiaries = TempBeneficiaries.objects.all()
-	FILTER_OPTIONAL_FIELDS = ['donor','organization','reporting_period','cluster_id']
+	FILTER_OPTIONAL_FIELDS = ['donor','organization','cluster_id','reporting_period']
+	FILTER_OPTIONAL_FIELDS_EXC_REPORTING_PERIOD = list_ext(FILTER_OPTIONAL_FIELDS).without('reporting_period')
 	FILTER_OPTIONAL_FIELDS_NAME = {
 		'donor': 'donor',
 		'organization': 'organization',
-		'reporting_period': 'reporting_period',
 		'cluster_id': 'cluster',
+		'reporting_period': 'reporting_period',
 	}
 
 	beneficiaries_adm_filters = {adm['field']:urllib.unquote(adm['code']) if type(adm['code']) not in [int, long] else adm['code'] for idx, adm in adm_path.items() if 'code' in adm}
 	beneficiaries_filters = beneficiaries_adm_filters.copy()
-	beneficiaries_filters.update({f+'__in':filter(None,request.GET.get(f,'').split(',')) for f in FILTER_OPTIONAL_FIELDS if f in request.GET})
+	beneficiaries_filters.update({f+'__in':filter(None,request.GET.get(f,'').split(',')) for f in FILTER_OPTIONAL_FIELDS_EXC_REPORTING_PERIOD if f in request.GET})
+	if 'reporting_period' in request.GET:
+		start, end = request.GET['reporting_period'].split(',')
+		beneficiaries_filters.update({'reporting_period__gte':start,'reporting_period__lte':end})
+		# beneficiaries_filters.update({'reporting_period__range':[start,end]})
 	# fact=functools.reduce(mult, filter(None,request.GET.get(f,'').split(',')))
 	# print 'beneficiaries_filters', beneficiaries_filters
 	beneficiaries_adm_filtered = query_beneficiaries.filter(**beneficiaries_adm_filters)
@@ -199,12 +206,25 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 		exclude(indicator_name__isnull=True)
 	# print beneficiaries_annotated.query
 	
+
+	beneficiaries_units = beneficiaries_filtered.\
+		values('unit_type_id','unit_type_name').\
+		annotate(
+			units=Sum('units'),
+		).\
+		exclude(indicator_name__isnull=True).\
+		exclude(units=0).\
+		exclude(unit_type_id__isnull=True)
+
+	# print beneficiaries_units.query
+	
 	# FILTER_CODE_FIELDS_SELECTED = filter(None, request.GET.get('filter_codes','').split(',')) or FILTER_CODE_FIELDS
 	# filters = {f: request.GET[f] for f in FILTER_CODE_FIELDS_SELECTED if f in request.GET}
 	# filter_path = get_filter_path_from_table_beneficiaries(filters, FILTER_CODE_FIELDS_SELECTED) 
 
 	# query_activities = query_beneficiaries.values('cluster','activity_description_name').annotate(project_count=Count('index'))
 
+	replace_list = ['# of ', '# ']
 	response.updateget({
 		'adm_path': adm_path,
 		# 'filter_path': filter_path,
@@ -250,10 +270,10 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 				}
 			},
 			'total': [{	
-				'key': i['indicator_id'],
+				'key': i['unit_type_id'],
 				'value': i['units'],
-				'key': i['indicator_name'],
-			} for i in beneficiaries_annotated.order_by('-units')[:10]],
+				'name': functools.reduce(lambda x,y:  (x or '').replace(y,''), replace_list, i['unit_type_name']),
+			} for i in beneficiaries_units.order_by('-units')[:10]],
 		}
 	})
 
