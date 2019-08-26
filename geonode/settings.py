@@ -400,6 +400,7 @@ INSTALLED_APPS = (
     'matrix',
     'userstatistics',
     'dashboard',
+    'dashboard.reporthub',
     'dashboard.baseline',
     'dashboard.flood',
     'dashboard.landslide',

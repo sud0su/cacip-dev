@@ -2,10 +2,12 @@
     --white: #fff;
     --black: #333;
     --gray: #808080;
+    --shadow: #eee;
+    --lighter-gray: #e4e5e7;
     --light-gray: #f0f1f3;
     --primary-bg: #0a6eb4;
     --light-primary-bg: #e8eaf6;
-    --darken-primary-bg: #131a5d;
+    --darken-primary-bg: #3a4d67;
     --primary-text: #30388a;
     --secondary-bg: #2a93fc;
     --lighten-secondary-bg: #31aae2;
@@ -198,6 +200,18 @@ ul {
     color: var(--white);
 }
 
+.btn-white{
+    background-color: var(--white);
+    border-color: var(--white);
+    color: var(--secondary-bg);
+}
+
+.btn-white:hover{
+    background-color: var(--shadow);
+    border-color: var(--shadow);
+    color: var(--secondary-bg);
+}
+
 button:focus,
 .btn:focus,
 .btn:active:focus {
@@ -212,6 +226,7 @@ button:focus,
     font-size: 12px;
     line-height: 1.42;
     border-radius: 50%;
+    border-color: var(--lighter-gray);
 }
 
 /* nav-pills-defaults */
@@ -574,6 +589,7 @@ Shortcode Content
 
 .latest-search {
     position: relative;
+    top: -135px;
 }
 
 /* Keywords Treeview */
@@ -1191,6 +1207,10 @@ a.ui-state-focus,
     margin-bottom: 60px;
  }
 
+ .section-title h1{
+     font-size: 30px;
+ }
+
 /*---------------------------
  * Service Left Icon section
  *---------------------------*/
@@ -1497,7 +1517,7 @@ a.ui-state-focus,
 
 .filter-toolbar-container{
     margin-bottom: 10px;
-    background-color: var(--white);
+    background-color: var(--darken-primary-bg);
     padding: 8px 15px 0;
     border-radius: 5px;
 }
@@ -1586,7 +1606,7 @@ a.ui-state-focus,
  
 .card{
     background: var(--white);
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .card .card-content{
@@ -1629,13 +1649,18 @@ a.ui-state-focus,
 @media (min-width: 992px){
     .card .card-content.resourcebase-content .description-content{
         /* height: 270px; */
-        height: 155px;
+        height: 120px;
     }
 }
-
 /* End of Scrollbar on hover */
 
-.resourcebase-content .description-content p {
+.resourcebase-snippet .card{
+    border: 1px solid var(--lighter-gray);
+    border-radius: 3px;
+}
+
+.resourcebase-content .description-content p,
+.resourcebase-content-list p {
     line-height: 20px;
     font-size: 13px;
     color: var(--gray);
@@ -1648,13 +1673,13 @@ a.ui-state-focus,
 }
 
 .card .card-content.resourcebase-content-list{
-    padding: 10px 20px 20px 0px;
+    padding: 15px 20px 25px 0px;
 }
 
 .card .card-content h2{
-    font-size: 16px;
+    font-size: 15px;
     word-break: break-word;
-    word-break: break-all;
+    /* word-break: break-all; */
 }
 
 .card-content .meta {
@@ -1680,6 +1705,12 @@ a.ui-state-focus,
 .card-content .meta .month {
     font-size: 16px;
     font-weight: 600;
+}
+
+.card .card-content.resourcebase-content .description-content .meta-desc,
+.card .card-content.resourcebase-content-list .meta-desc {
+    font-size: 13px;
+    line-height: 18px;
 }
 
 .card .card-content.resourcebase-content-list h2{
@@ -1870,11 +1901,24 @@ a.ui-state-focus,
     border: 1px solid #d3d3d3;
 }
 
+.dashboard table thead>tr>th.vertical-head {
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+}
+
+.dashboard table thead>tr>th.hltfac-head {
+    font-size: 9px;
+    padding-right: 20px;
+}
+
 .dashboard table>tbody>tr>td, 
-.dashboard table>tbody>tr>th
-/* .dashboard table>tfoot>tr>td, 
-.dashboard table>tfoot>tr>th, 
-.dashboard table>thead>tr>td, 
+.dashboard table>tbody>tr>th,
+.dashboard table>tfoot>tr>td, 
+.dashboard table>tfoot>tr>th
+/* .dashboard table>thead>tr>td, 
 .dashboard table>thead>tr>th */
 {
     border: 1px solid #F0F0F0;
@@ -1882,7 +1926,8 @@ a.ui-state-focus,
     /* font-size: 13px; */
 }
 
-.dashboard .card-dashboard table>tbody>tr>td{
+.dashboard .card-dashboard table>tbody>tr>td,
+.dashboard .card-dashboard table>tfoot>tr>th{
     text-align: right
 }
 
@@ -2211,7 +2256,7 @@ th.lo
 .dashboard.landslide table>tbody>tr>td,
 .dashboard.landslide table>thead>tr>th,
 .dashboard.landslide table>tbody>tr>th{
-    border: 1px solid #fff !important;
+    /* border: 1px solid #fff !important; */
 }
 
 th.landslide_vhigh, td.landslide_vhigh,
@@ -2941,7 +2986,7 @@ icon-style
     }
 
 .footer-widget-section{
-    padding: 80px 0;
+    padding: 60px 0;
 }
 
 .footer .footer-logo {

@@ -24,7 +24,12 @@
                 <link href="{% static "lib/css/bootstrap.min.css" %}?v={{ VERSION }}" rel="stylesheet"/>
                 <link href="{% static "lib/css/jquery-ui.css" %}?v={{ VERSION }}" rel="stylesheet"/>
             {% else %}
+                {% comment %}
                 <link href="{% static "lib/css/assets.min.css" %}?v={{ VERSION }}" rel="stylesheet"/>
+                {% endcomment %}
+                <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css">
+                <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/css/select2.min.css" rel="stylesheet" /> -->
             {% endif %}
 
             <link href="{% static "geonode/css/ext-compatibility.css" %}?v={{ VERSION }}" rel="stylesheet" />
@@ -51,12 +56,12 @@
             <link rel="stylesheet" href="{% static 'epr_bgd/lib/global/global.css' %}">
             <!-- <link rel="stylesheet" href="http://keenthemes.com/preview/megakit/css/global/global.css"> -->
             <!-- JQueryUIDatepicker CSS -->
-            <link rel="stylesheet" href="{% static 'epr_bgd/css/jquery-ui-datepicker-theme.css' %}?ver=160519">
+            <!-- <link rel="stylesheet" href="{% static 'epr_bgd/css/jquery-ui-datepicker-theme.css' %}?ver=160519"> -->
 
             {% block extra_head_dashboard %}
             {% endblock extra_head_dashboard%}
             <!-- Custom CSS -->
-            <link href="{% static 'epr_bgd/css/epr_bgd.css' %}?ver=180619" rel="stylesheet">
+            <link href="{% static 'epr_bgd/css/epr_bgd.css' %}?ver=260819" rel="stylesheet">
 
             {% block extra_head %}
             {% endblock %}
@@ -105,10 +110,10 @@
                                     {% trans "Dashboard" %} <i class="fa fa-angle-down fa-lg"></i>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li class="dropdown-submenu">
-                                        <a class="" tabindex="-1" href="#">{% trans "ReportHub" %} <i class="fa fa-angle-right fa-lg pull-right" style=""></i></a>
+                                    <li class="dropdown-submenu hide">
+                                        <a class="" href="#">{% trans "ReportHub" %} <i class="fa fa-angle-right fa-lg pull-right" style=""></i></a>
                                         <ul class="dropdown-menu">
-                                            <li><a tabindex="-1" href="#">{% trans "Health Sector" %}</a></li>
+                                            <li><a href="{% url 'dashboard_detail' %}?page=healthsector">{% trans "Health Sector" %}</a></li>
                                             <li><a tabindex="-1" href="#">{% trans "Protection Sector" %}</a></li>
                                             <li><a tabindex="-1" href="#">{% trans "Shelter/NFI Sector" %}</a></li>
                                             <li><a tabindex="-1" href="#">{% trans "Site Management Sector" %}</a></li>
@@ -639,7 +644,7 @@
         <script src="{% static 'epr_bgd/lib/bcSwipe/jquery.bcSwipe.min.js' %}"></script>
 
         {% block dashboard_script %}{% endblock dashboard_script %}
-        <script src="{% static 'epr_bgd/js/scripts.js' %}?ver=180619"></script>
+        <script src="{% static 'epr_bgd/js/scripts.js' %}?ver=260819"></script>
         {% block extra_script %}{% endblock extra_script %}
         
         <script type="text/javascript">

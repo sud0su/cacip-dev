@@ -77,8 +77,8 @@
                                     <th rowspan="2">{% trans "Upazila" %}</th>
                                     <th colspan="3">{% trans "Shelter" %}</th>
                                     <th colspan="3">{% trans "Health Facilities" %}</th>
-                                    <th rowspan="2" class="hum">{% trans "Shelter" %}</th>
-                                    <th rowspan="2" class="hum">{% trans "Health Facilities" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Total Shelter at Risk (%)" %}</th>
+                                    <th rowspan="2" class="hum">{% trans "Total Health Facilities at Risk (%)" %}</th>
                                 </tr>
                                 <tr>
                                     <th class="hum">{% trans "Low" %}</th>
@@ -117,11 +117,14 @@
                                 {% endfor %}
                             </tbody>
                             <tfoot>
-                            </tr>
-                            {% for cell in table.parentdata %}
-                                <td class="boldRow">{{cell}}</td>
-                            {% endfor %}
-                            </tr>
+                                <tr>
+                                    <th colspan="3">{% trans "Total" %}</th>
+                                    {% for cell in table.parentdata %}
+                                        {% if forloop.counter0 != 0 and forloop.counter0 != 1 and forloop.counter0 != 2 %}
+                                            <th class="hum">{{cell}}</th>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
                           </tfoot>                            
                         </table>
                     </div>

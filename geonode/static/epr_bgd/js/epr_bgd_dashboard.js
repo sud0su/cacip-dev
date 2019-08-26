@@ -1,5 +1,5 @@
 function select_region(code){
-	if (code <= 34) {
+	if (code == "Ukhia" || code == "Teknaf") {
 		$(".province-dropdown").select2('val', code);
 	} else if (code > 34 && code < 1000) {
 		$(".dist-dropdown").select2('val', code);
@@ -8,6 +8,7 @@ function select_region(code){
 	}else{
 		$(".dist-dropdown").select2('val', code);
 		prov_code = code.substring(0,2);
+		console.log(prov_code);
 		$(".province-dropdown").select2('val', prov_code);
 	}
 }
@@ -20,8 +21,13 @@ function init_select2_region(){
 		placeholder: "Select Union"
 	});
 
+	$('.area-dropdown.upazila').select2({
+		placeholder: "Select Upazilla"
+	});
+
 	$('.province-dropdown').on('change', function (e) {
 		jump_url(e.val);
+		console.log('ubah' + e);
 	});
 
 	$('.dist-dropdown').on('change', function (e) {
@@ -29,11 +35,99 @@ function init_select2_region(){
 	});
 
 	var code_region = getParameterByName("code");
+	console.log(code_region);
 	if (code_region == null) {
 		$(".dist-dropdown").hide();
 	}else {
 		select_region(code_region);
 	}
+	select2_region();
+}
+
+function addUpdateUrlParameter(url, param, value) {
+	if (url.indexOf(param) == -1) {
+		return url+'&'+param+'='+value;
+	}
+	else {
+		return updateUrlParameter(url, param, value);
+	}
+}
+
+function init_select2_reporthub_filter(){
+	$('.org-dropdown').select2({
+		placeholder: "Select Organization"
+	});
+
+	$('.donor-dropdown').select2({
+		placeholder: "Select Donor"
+	});
+
+	$('.cluster-dropdown').select2({
+		placeholder: "Select Cluster"
+	});
+	
+	var url = $(location).attr("href");
+	var org = getParameterByName("organization");
+	// $('.org-dropdown').on('change', function (e) {
+	// 	console.log(e.val);
+	// 	console.log(url);
+	// 	console.log(org);
+	// });
+
+	$('.org-dropdown').on('select2-selecting', function (e) {
+		console.log(e.val);
+		console.log(url);
+		if (org == null){
+			url += '&organization='+ e.val;
+		}  else {
+			url = updateUrlParameter(url, 'organization', e.val);
+		}
+		console.log(url);
+	});
+
+	// $('.org-dropdown').on("select2-removing", function(e) { 
+	// 	console.log(e.val);
+	// })
+
+    $('.org-dropdown').on("select2-removed", function(e) { 
+		console.log(e.val);
+		console.log(url);
+		// url = removeParam('organization', url);
+		console.log(url);
+	});
+}
+
+function init_date_range_report() {
+	$('#start_date_report').datetimepicker({
+		viewMode: 'months',
+		format: 'MM/YYYY'
+	});
+
+	$('#end_date_report').datetimepicker({
+		viewMode: 'months',
+		format: 'MM/YYYY',
+		useCurrent: false
+	});
+
+	var url = $(location).attr("href");
+	var reportrange = getParameterByName("reporting_period");
+
+	// Linking the date
+	$("#start_date_report").on("dp.change", function (e) {
+		$('#end_date_report').data("DateTimePicker").minDate(e.date);
+		console.log(url);
+		console.log(reportrange);
+		if (reportrange == null){
+			// window.document.location = url+'&reporting_period='+picker.startDate.format('YYYY-MM-DD')+','+picker.endDate.format('YYYY-MM-DD');
+		}  else {
+			// url = updateUrlParameter(url, 'reporting_period', '2019-01-01'+','+ '2019-04-01');
+			// window.document.location = url;
+		}
+		console.log(url);
+	});
+	$("#end_date_report").on("dp.change", function (e) {
+		$('#start_date_report').data("DateTimePicker").maxDate(e.date);
+	});
 }
 
 // Humanizer
@@ -74,7 +168,18 @@ function init_datatable(){
 				return data;
 			},
 			"targets": 'hum'
-		}]
+		}],
+
+		"initComplete": function(settings, json) {
+			var api = this.api();
+			var colLength = api.columns().count();
+
+			for (i = 1; i < colLength; i++) {
+				this_footer = $(api.column(i).footer());
+				dispData = humanizeFormatter(this_footer.html());
+				this_footer.html(dispData);
+			}
+		}
 	});
 
 	$('.online').DataTable({
@@ -122,11 +227,31 @@ function init_datatable(){
 
 		"columnDefs": [{
 			"render": function (data, type, row){
+				// console.log(type);
+				// console.log(data);
 				if (type == 'display') {return humanizeFormatter(data);}
 				return data;
 			},
+			"cellType": "th",
 			"targets": 'hum'
-		}]
+		}],
+
+		"initComplete": function(settings, json) {
+			var api = this.api();
+			var colLength = api.columns().count();
+
+			for (i = 1; i < colLength; i++) {
+				this_footer = $(api.column(i).footer());
+				dispData = humanizeFormatter(this_footer.html());
+				console.log(this_footer);
+				console.log(this_footer.attr('class'));
+				console.log(dispData);
+				if(this_footer.attr('class') == 'hum'){
+					console.log(this_footer);
+					this_footer.html(dispData);
+				}
+			}
+		}
 	});
 
 	$('.online_security').DataTable({
@@ -281,6 +406,11 @@ function init_chart(){
 					// 	}
 					// }
 					// formatter: pie_label
+					allowOverlap: false,
+					connectorPadding: 3,
+					distance: 10,
+					connectorShape: 'crookedLine',
+					crookDistance: '100%'
 				}
 			}
 		},
@@ -424,6 +554,94 @@ function init_chart(){
 		});
 	}
 
+	// Object Pyramid Bar chart
+	function pyramid_bar_chart(id_val, color_val, colorPoint_val, legend_val, y_title, x_title, data_neg_val, data_pos_val, title_val, show_title_val, data_title_neg, data_title_pos){
+		$(id_val).highcharts({
+			chart: {
+				type: 'bar'
+			},
+			title: {
+				text: title_val,
+				style: {
+					display: show_title_val
+				}
+			},
+			xAxis: [{
+				title: 'Age',
+				categories: y_title,
+				reversed: false,
+				labels: {
+					step: 1
+				}
+			}, { // mirror axis on right side
+				title: 'Age',
+				opposite: true,
+				reversed: false,
+				categories: y_title,
+				linkedTo: 0,
+				labels: {
+					step: 1
+				}
+			}],
+			yAxis: {
+				title: {
+					text: x_title,
+					enabled: false
+				},
+				labels: {
+					formatter: function () {
+						return humanizeFormatter(Math.abs(this.value));
+					}
+				}
+			},
+			tooltip: {
+				formatter: function() {
+					console.log(this);
+					return '<b>' + this.series.name + ', age ' + this.point.category + '</b><br/>' + 'Population: ' + humanizeFormatter(Math.abs(this.point.y));
+					// return '<b>'+ this.x +'</b>: '+ humanizeFormatter(this.y);
+				}
+			},
+			legend:{
+				enabled: legend_val
+			},
+			plotOptions:{
+				series: {
+					stacking: 'normal'
+				}
+				// bar: {
+				// 	colorByPoint: colorPoint_val,
+				// 	dataLabels: {
+				// 		enabled: true,
+				// 		formatter: function() {
+				// 			return humanizeFormatter(this.y);
+				// 		}
+				// 	}
+				// }
+			},
+			colors: color_val,
+			// series: [{
+			// 	// name: 'Population',
+			// 	data: data_val
+			// }]
+			series: 
+				[{
+					name: data_title_neg,
+					data: [
+						-13747, -56039, -80028, 
+						-49602, -173328, -14074
+					]
+					// data: data_neg_val
+				}, {
+					name: data_title_pos,
+					data: [
+						13811, 58275, 84495, 
+						50207, 137263, 12744
+					]
+					// data: data_pos_val
+				}]
+		});
+	}
+
 	// Object Donut chart
 	function donut_chart(id_val, color_val, data_val, title_val, show_title_val){
 		$(id_val).highcharts({
@@ -453,7 +671,7 @@ function init_chart(){
 					formatter: pie_label
 				},
 				size: '60%',
-				innerSize: '55%',
+				innerSize: '65%',
 				showInLegend:true
 			}]
 		});
@@ -795,6 +1013,39 @@ function init_chart(){
 
 	});
 
+	$('.pyramid-chart').each(function(){
+		console.log(this.id);
+		var id_chart = '#' + this.id;
+		color_chart = $(id_chart).attr('data-color'); 
+		var dataLeft_chart = $(id_chart).data("val-left");
+		var dataRight_chart = $(id_chart).data("val-right");
+
+		var yAxis_chart = $(id_chart).data("yaxis");
+		var xAxis_chart = $(id_chart).data("xaxis");
+		var colorPoint_bool = $(id_chart).data("colorpoint");
+		var legend_bool = $(id_chart).data("legend");
+		var titleLeft_chart = $(id_chart).attr('data-title-left');
+		var titleRight_chart = $(id_chart).attr('data-title-right');
+		var title_chart = $(id_chart).attr('data-title');
+		var show_title_chart = $(id_chart).attr('data-show-title');
+
+		selected_color = colorChart[color_chart];
+
+		console.log(id_chart);
+		console.log(color_chart);
+		console.log(yAxis_chart);
+		console.log(xAxis_chart);
+		console.log(titleLeft_chart);
+		console.log(dataLeft_chart);
+		console.log(titleRight_chart);
+		console.log(dataRight_chart);
+
+		console.log(selected_color);
+
+		pyramid_bar_chart(id_chart, selected_color, colorPoint_bool, legend_bool, yAxis_chart, xAxis_chart, dataLeft_chart, dataRight_chart, title_chart, show_title_chart, titleLeft_chart, titleRight_chart );
+
+	});
+
 	$('.donut-chart').each(function(){
 		console.log(this.id);
 		var id_chart = '#' + this.id;
@@ -933,4 +1184,6 @@ $(document).ready(function(){
 	init_select2_region();
 	init_datatable();
 	init_chart();
+	init_select2_reporthub_filter();
+	init_date_range_report();
 });
