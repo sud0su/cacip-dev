@@ -1,3 +1,5 @@
+from __future__ import division
+
 import base64
 import copy
 import datetime
@@ -163,6 +165,9 @@ def div_by_zero_is_zero(a, b):
     except ZeroDivisionError:
         return 0
 
+def get_percent(a, b):
+    return div_by_zero_is_zero(a, b)*100
+    
 class dict_ext(dict):
 
     '''
@@ -175,6 +180,10 @@ class dict_ext(dict):
 
     '''
     get or set multi level sub dictionary
+    for assigning, do last level:
+        dict_ext_object.path('level1','level2')['level3'] = value
+    otherwise:
+        SyntaxError: can't assign to function call
     '''
     def path(self, *args):
         d = self

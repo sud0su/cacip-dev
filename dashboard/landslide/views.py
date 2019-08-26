@@ -7,7 +7,7 @@ from django.db import connection, connections
 from django.utils.translation import ugettext as _
 
 from .enumerations import DASHBOARD_META
-from geonode.utilscustom import set_query_parameter, dict_ext, list_ext, JSONEncoderCustom, include_section, RawSQL_nogroupby, query_to_dicts
+from geonode.utilscustom import set_query_parameter, dict_ext, list_ext, JSONEncoderCustom, include_section, RawSQL_nogroupby, query_to_dicts, get_percent
 from .models import MegacampLandslideRisk
 from dashboard.baseline.models import BgdCampShelterfootprintUnosatReachV1Jan, CxbHealthFacilities
 
@@ -38,23 +38,63 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 
 	# print 'landslide_grouped\n', landslide_grouped.query
 
+	# sql_shelter = \
+	# '''
+	# SELECT 
+	# 	public."Camp_pop_03_2019"."Upazila" as upazila,
+	# 	public."Camp_pop_03_2019"."Union" as union,
+	# 	public."Camp_pop_03_2019"."New_Camp_N" as camp,
+	# 	public.megacamp_landslide_risk.dn as risk_level,
+	# 	COUNT(DISTINCT(public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".fid)) as shelter_at_risk_count
+	# FROM 
+	# 	public.megacamp_landslide_risk,
+	# 	public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan" 
+	# 		JOIN public."Camp_pop_03_2019" 
+	# 		ON public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".cmp_name = public."Camp_pop_03_2019"."New_Camp_N"
+	# 		JOIN public."T190310_Outline_RRC_Camp_A11" 
+	# 		ON public."Camp_pop_03_2019"."New_Camp_N" = public."T190310_Outline_RRC_Camp_A11"."New_Camp_N"
+	# WHERE 
+	# 	ST_Intersects(public.megacamp_landslide_risk.geom_4326, public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".the_geom_centroid)
+	# GROUP BY 1, 2, 3, 4
+	# ORDER BY 1, 2, 3, 4	
+	# '''
+
+	# sql_hltfac = \
+	# '''
+	# SELECT 
+	# 	public."Camp_pop_03_2019"."New_Camp_N" as camp,
+	# 	public.megacamp_landslide_risk.dn as risk_level,
+	# 	COUNT(DISTINCT(public."cxb_health_facilities".fid)) as hltfac_at_risk_count
+	# FROM 
+	# 	public.megacamp_landslide_risk,
+	# 	public."cxb_health_facilities" 
+	# 		JOIN public."Camp_pop_03_2019" 
+	# 		ON public."cxb_health_facilities"."Camp_Name" = public."Camp_pop_03_2019"."New_Camp_N"
+	# 		JOIN public."T190310_Outline_RRC_Camp_A11" 
+	# 		ON public."Camp_pop_03_2019"."New_Camp_N" = public."T190310_Outline_RRC_Camp_A11"."New_Camp_N"
+	# WHERE 
+	# 	ST_Intersects(public.megacamp_landslide_risk.geom_4326, public."cxb_health_facilities".the_geom)
+	# GROUP BY 1, 2
+	# ORDER BY 1, 2	
+	# '''
+
 	sql_shelter = \
 	'''
 	SELECT 
 		public."Camp_pop_03_2019"."Upazila" as upazila,
 		public."Camp_pop_03_2019"."Union" as union,
 		public."Camp_pop_03_2019"."New_Camp_N" as camp,
-		public.megacamp_landslide_risk.dn as risk_level,
+		public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".landsliderisk_level as risk_level,
 		COUNT(DISTINCT(public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".fid)) as shelter_at_risk_count
 	FROM 
-		public.megacamp_landslide_risk,
 		public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan" 
 			JOIN public."Camp_pop_03_2019" 
 			ON public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".cmp_name = public."Camp_pop_03_2019"."New_Camp_N"
 			JOIN public."T190310_Outline_RRC_Camp_A11" 
 			ON public."Camp_pop_03_2019"."New_Camp_N" = public."T190310_Outline_RRC_Camp_A11"."New_Camp_N"
-	WHERE 
-		ST_Intersects(public.megacamp_landslide_risk.geom_4326, public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".the_geom)
+	where
+		public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".landsliderisk_level is not null
+		and area_class='Structure'
 	GROUP BY 1, 2, 3, 4
 	ORDER BY 1, 2, 3, 4	
 	'''
@@ -63,17 +103,16 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 	'''
 	SELECT 
 		public."Camp_pop_03_2019"."New_Camp_N" as camp,
-		public.megacamp_landslide_risk.dn as risk_level,
+		public.cxb_health_facilities.landsliderisk_level as risk_level,
 		COUNT(DISTINCT(public."cxb_health_facilities".fid)) as hltfac_at_risk_count
 	FROM 
-		public.megacamp_landslide_risk,
 		public."cxb_health_facilities" 
 			JOIN public."Camp_pop_03_2019" 
 			ON public."cxb_health_facilities"."Camp_Name" = public."Camp_pop_03_2019"."New_Camp_N"
 			JOIN public."T190310_Outline_RRC_Camp_A11" 
 			ON public."Camp_pop_03_2019"."New_Camp_N" = public."T190310_Outline_RRC_Camp_A11"."New_Camp_N"
-	WHERE 
-		ST_Intersects(public.megacamp_landslide_risk.geom_4326, public."cxb_health_facilities".the_geom)
+	where
+		public."cxb_health_facilities".landsliderisk_level is not null
 	GROUP BY 1, 2
 	ORDER BY 1, 2	
 	'''
@@ -128,6 +167,8 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 		row['shelter_total'] = camp.get('shelter_count',0)
 		row['shelter_at_risk'] = row.get('shelter_at_risk', 0) + camp.get('shelter_at_risk_count',0)
 		row['hltfac_at_risk'] = row.get('hltfac_at_risk', 0) + camp.get('hltfac_at_risk_count',0)
+		row['shelter_at_risk_pct'] = get_percent(row.get('shelter_at_risk', 0), row.get('shelter_total',0))
+		row['hltfac_at_risk_pct'] = get_percent(row.get('hltfac_at_risk', 0), row.get('hltfac_total',0))
 		row['shelter_not_at_risk'] = row['shelter_total'] - row['shelter_at_risk']
 		row['hltfac_not_at_risk'] = row['hltfac_total'] - row['hltfac_at_risk']
 
@@ -145,8 +186,10 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 			'hltfac_med',
 			'hltfac_high',
 			'shelter_at_risk',
+			'shelter_not_at_risk',
 			'shelter_total',
 			'hltfac_at_risk',
+			'hltfac_not_at_risk',
 			'hltfac_total',		
 		],
 	}
@@ -164,6 +207,8 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 	landslide['totals'].updateget({
 		'shelter_not_at_risk': landslide['totals']['shelter_total'] - landslide['totals']['shelter_at_risk'],
 		'hltfac_not_at_risk': landslide['totals']['hltfac_total'] - landslide['totals']['hltfac_at_risk'],
+		'shelter_at_risk_pct': get_percent(landslide['totals']['shelter_at_risk'], landslide['totals']['shelter_total']),
+		'hltfac_at_risk_pct': get_percent(landslide['totals']['hltfac_at_risk'], landslide['totals']['hltfac_total']),
 	})
 
 	# landslide['totals'] = {
@@ -193,9 +238,11 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 		'hltfac_med',
 		'hltfac_high',
 		# 'shelter_at_risk',
-		'shelter_total',
+		'shelter_at_risk_pct',
+		# 'shelter_total',
 		# 'hltfac_at_risk',
-		'hltfac_total',	
+		'hltfac_at_risk_pct',
+		# 'hltfac_total',	
 	]
 
 	response.updateget({
