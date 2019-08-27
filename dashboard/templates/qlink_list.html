@@ -1,31 +1,85 @@
+{% for idx, adm in adm_path.items %}
 <li class="">
-    <select class="province-dropdown">
-        <option></option>
-        <option value="01">CAMP 01</option>
-        {% if adm_prov %}
-            {% for item in adm_prov %}
-            <option value="{{ item.code }}">{{ item.name }}</option>
-            {% endfor %}
-        {% else %}
-            {% for item in adm_child %}
-            <option value="{{ item.code }}">{{ item.name }}</option>
-            {% endfor %}
+    <select class="area-dropdown {{adm.type}}">
+        <!-- {#% comment %} -->
+        {% if not adm.code %}
+        <option value="0" disabled hidden>Select {{adm.type}}</option>
         {% endif %}
+        <!-- {#% endcomment %} -->
+        {% for sibling in adm.sibling %}
+        <option value="{{sibling.code}}" {% if adm.code == sibling.code %}selected="selected"{% endif %}>{{sibling.name}}</option>
+        {% endfor %}
     </select>
 </li>
+{% endfor %}
 
-<li class="">
-    <select class="dist-dropdown">
-        <option></option>
-        {% if adm_dist %}
-            {% for item in adm_dist %}
-            <option value="{{ item.code }}">{{ item.name }}</option>
-            {% endfor %}
-        {% elif not adm_dist and adm_prov %}
-            {% for item in adm_child %}
-            <option value="{{ item.code }}">{{ item.name }}</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</li>
+{% comment %}
+    {% for idx, adm in adm_path.items %}
+        {% for sibling in adm.sibling %}
+            {{adm.code}}
+            {{sibling.code}}
+        {% endfor %}
+    {% endfor %}
+{% endcomment %}
+
+<script>
+    function select2_region(){
+        $('.area-dropdown').select2({
+        });
+        {% for idx, adm in adm_path.items %}
+            {% if adm.code %}
+                $(".area-dropdown.{{adm.type}}").select2('val', '{{adm.code}}');
+            {% else %}
+                $(".area-dropdown.{{adm.type}}").select2('val', '0');
+            {% endif %}
+        {% endfor %}
+    }
+</script>
+
+{% comment %}
+    {% for idx, adm in adm_path.items %}
+        <li class="">
+            <select class="region-dropdown {{adm.type}}">
+                {% if not adm.code %}
+                <option value="0" disabled hidden>Select {{adm.type}}</option>
+                {% endif %}
+                {% for sibling in adm.sibling %}
+                <option value="{{sibling.code}}" {% if adm.code == sibling.code %}selected="selected"{% endif %}>{{sibling.name}}</option>
+                {% endfor %}
+            </select>
+        </li>
+    {% endfor %}
+
+    <li class="">
+        <select class="province-dropdown">
+            <option></option>
+            <option value="01">CAMP 01</option>
+            {% if adm_prov %}
+                {% for item in adm_prov %}
+                <option value="{{ item.code }}">{{ item.name }}</option>
+                {% endfor %}
+            {% else %}
+                {% for item in adm_child %}
+                <option value="{{ item.code }}">{{ item.name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+    </li>
+
+    <li class="">
+        <select class="dist-dropdown">
+            <option></option>
+            {% if adm_dist %}
+                {% for item in adm_dist %}
+                <option value="{{ item.code }}">{{ item.name }}</option>
+                {% endfor %}
+            {% elif not adm_dist and adm_prov %}
+                {% for item in adm_child %}
+                <option value="{{ item.code }}">{{ item.name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+    </li>
+{% endcomment %}
+
 

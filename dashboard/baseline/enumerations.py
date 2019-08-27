@@ -20,11 +20,11 @@ ADM_TYPES = {
 ADM_FIELDS = ['district', 'upazila', 'union', 'new_camp_n']
 
 AGE_GROUP_TYPES = {
-    'infant': '1 >',
+    'infant': '< 1',
     '1_4': '1 - 4',
     '5_11': '5 - 11',
     '12_17': '12 - 17',
     '18_59': '18 - 59',
-    '60': '60 <',
+    '60': '60 +',
 }
 AGE_GROUP_TYPES_KEYS = ['infant', '1_4', '5_11', '12_17', '18_59', '60']
