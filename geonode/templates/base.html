@@ -138,7 +138,7 @@
                                                 </ul>
                                             </li>
                                         {% else %}
-                                            <li>
+                                            <li class="{% if dash.title == 'Baseline' %}hide{% endif %}">
                                                 <a href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">{{dash.title}}</a>
                                             </li>
                                         {% endif %}
