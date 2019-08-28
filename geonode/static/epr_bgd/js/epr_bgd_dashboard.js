@@ -21,9 +21,9 @@ function init_select2_region(){
 		placeholder: "Select Union"
 	});
 
-	$('.area-dropdown.upazila').select2({
-		placeholder: "Select Upazilla"
-	});
+	// $('.area-dropdown.upazila').select2({
+	// 	placeholder: "Select Upazilla"
+	// });
 
 	$('.province-dropdown').on('change', function (e) {
 		jump_url(e.val);
@@ -41,7 +41,9 @@ function init_select2_region(){
 	}else {
 		select_region(code_region);
 	}
-	select2_region();
+	if (typeof select2_region === "function") { 
+		select2_region();
+	}
 }
 
 function addUpdateUrlParameter(url, param, value) {

@@ -138,8 +138,8 @@
                                                 </ul>
                                             </li>
                                         {% else %}
-                                            <li class="{% if dash.title == 'Baseline' %}hide{% endif %}">
-                                                <a href="{% url 'dashboard_detail' %}?page={{dash.name}}{{add_link}}">{{dash.title}}</a>
+                                            <li class="{% if dash.title == '' %}hide{% endif %}">
+                                                <a href="{% url 'dashboard_detail' %}?page={{dash.name}}">{{dash.title}}</a>
                                             </li>
                                         {% endif %}
                                     {% endfor %}
@@ -311,7 +311,7 @@
                     <div class="status-mes">{% trans "Loading" %}</div>
                 </div>
             </div>
-
+            
             <div class="" {% block extra_controller %}{% endblock %}>
                 <div class="alert alert-danger alert-dismissible" role="alert" id="ieflag" style="display:none">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -320,6 +320,11 @@
                 </div>
         
                 <div id="wrap" class="bg-color-primary">
+
+                    {% comment %} 
+                    <div style="background-image: url(/static/epr_bgd/img/ruler.png);height:61px"></div>
+                    {% endcomment %}
+            
                     {% block middle %}
                         <div class="container">
                             {% include "_status_message.html" %}

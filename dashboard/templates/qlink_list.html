@@ -1,11 +1,9 @@
 {% for idx, adm in adm_path.items %}
 <li class="">
-    <select class="area-dropdown {{adm.type}}">
-        <!-- {#% comment %} -->
+    <select class="area-dropdown {{adm.type}}" data-placeholder="Select {{adm.type}}">
         {% if not adm.code %}
-        <option value="0" disabled hidden>Select {{adm.type}}</option>
+        <option></option>
         {% endif %}
-        <!-- {#% endcomment %} -->
         {% for sibling in adm.sibling %}
         <option value="{{sibling.code}}" {% if adm.code == sibling.code %}selected="selected"{% endif %}>{{sibling.name}}</option>
         {% endfor %}
@@ -25,17 +23,23 @@
 <script>
     function select2_region(){
         $('.area-dropdown').select2({
+            dropdownAutoWidth: true,
         });
-        {% for idx, adm in adm_path.items %}
-            {% if adm.code %}
-                $(".area-dropdown.{{adm.type}}").select2('val', '{{adm.code}}');
-            {% else %}
-                $(".area-dropdown.{{adm.type}}").select2('val', '0');
-            {% endif %}
-        {% endfor %}
+        $('.area-dropdown').on('select2-selecting', function (e) {
+            jump_url(e.val);
+        });
+        // {% for idx, adm in adm_path.items %}
+        //     {% if adm.code %}
+        //         // $(".area-dropdown.{{adm.type}}").select2('val', '{{adm.code}}');
+        //     {% comment %}
+        //     // {% else %}
+        //     //     $(".area-dropdown.{{adm.type}}").select2('val', '0');
+        //     {% endcomment %}
+        //     {% endif %}
+        // {% endfor %}
     }
 </script>
-
+<!-- 
 {% comment %}
     {% for idx, adm in adm_path.items %}
         <li class="">
@@ -80,6 +84,6 @@
             {% endif %}
         </select>
     </li>
-{% endcomment %}
+{% endcomment %} -->
 
 
