@@ -1,0 +1,31 @@
+.dashboard #wrap{
+    background: transparent !important;
+    padding-top: 0;
+}
+
+.navbar {
+    display: none;
+}
+
+footer.footer,
+footer.footer .copyright-section{
+    background-color: transparent;
+}
+
+/* Breadcrumb Select2 */
+.dashboard .select2-container.area-dropdown{
+    border: none;
+}
+
+.dashboard .select2-container.area-dropdown .select2-choice .select2-arrow,
+.dashboard .select2-container.area-dropdown .select2-choice .select2-arrow b{
+    display: none;
+}
+
+.dashboard .select2-container.area-dropdown .select2-choice{
+    padding: 0;
+}
+
+.dashboard .select2-container.area-dropdown .select2-choice>.select2-chosen{
+    margin-right: 0;
+}

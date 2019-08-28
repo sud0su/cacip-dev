@@ -15,7 +15,7 @@
 {% block body_outer %}
     <div class="row g-margin-t-25--xs g-margin-b-45--xs">
         
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-4">
             <div class="info-box">
                 <div class="icon">
                     <i class="icon-Affected-population"></i>
@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-4">
             <div class="info-box">
                 <div class="icon">
                     <i class="fa fa-users" aria-hidden="true"></i>
@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-4">
             <div class="info-box">
                 <div class="icon">
                     <i class="fa fa-home" aria-hidden="true"></i>
@@ -51,7 +51,7 @@
             </div>
         </div>
         
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-4">
             <div class="info-box">
                 <div class="icon">
                     <i class="icon-Shelter"></i>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-md-offset-3 col-lg-4 col-lg-offset-0">
             <div class="info-box">
                 <div class="icon">
                     <i class="icon-Health-facility"></i>
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-4">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-4">
             <div class="info-box">
                 <div class="icon">
                     <i class="fa fa-map-marker" aria-hidden="true"></i>
@@ -89,7 +89,7 @@
 
         {% for chart_title, chart_val in init_data.charts.items %}
             {% if  chart_title == 'chart_pop_by_age_group' or chart_title == 'chart_pop_by_child_adm' or chart_title == 'chart_shelter_by_child_adm' %}
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
                 <div class="panel panel-default card-dashboard">
                     <div class="panel-body">
                         {% if chart_title == 'chart_pop_by_age_group' %}
@@ -145,7 +145,7 @@
             </div>
         </div>
 
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-8">
+        <div class="col-xs-12 col-sm-12 col-md-10 col-lg-8">
             <div class="panel panel-default card-dashboard">
                 <div class="panel-body">
                     <h2>{% trans "Health Facilities" %}</h2>
@@ -154,7 +154,7 @@
             </div>
         </div>
         
-        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-12">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <div class="panel panel-default card-dashboard">
                 <div class="panel-body">
                     <h2>{% trans "Health Facilities" %}</h2>

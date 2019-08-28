@@ -1743,10 +1743,11 @@ a.ui-state-focus,
     height: 80px;
     display: flex;
     cursor: default;
-    background-color: #fff;
+    background-color: var(--white);
     position: relative;
     overflow: hidden;
     margin-bottom: 30px; 
+    border: 1px solid var(--shadow);
 }
 
 .info-box .icon {
@@ -2658,7 +2659,7 @@ icon-style
 }
 
 .panel-default {
-    border-color: #eee;
+    border-color: var(--shadow);
 }
 
 /*----------------------

@@ -22,6 +22,10 @@
 
 	<!-- WFP Styles -->
 	<!-- <link rel="stylesheet" type="text/css" href="https://cdn.wfp.org/guides/ui/v1.1.16/assets/css/styles.min.css" /> -->
+
+	{% if 'print' in request.build_absolute_uri %}
+	<link href="{% static 'epr_bgd/css/epr_bgd_print.css' %}?ver=260819" rel="stylesheet">
+	{% endif %}
 {% endblock extra_head_dashboard%}
 
 {% block head %}
@@ -36,8 +40,8 @@
 
 {% block middle %} 
 	<section class="breadcrumb-section">
-		<div class="container">
-			<div class="pull-right">
+		<div class="{% if 'print' in request.build_absolute_uri %}container-fluid{% else %}container{% endif %}">
+			<div class="pull-right {% if 'print' in request.build_absolute_uri %}hide{% endif %}">
 				<button id="pdf" class="btn btn-primary" title="Download PDF">{% trans "Download PDF" %}</button>
 			</div>
             <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">

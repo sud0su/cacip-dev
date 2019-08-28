@@ -21,8 +21,20 @@ function init_select2_region(){
 		placeholder: "Select Union"
 	});
 
+	// $('.area-dropdown.district').select2({
+	// 	placeholder: "Select District"
+	// });
+
 	// $('.area-dropdown.upazila').select2({
 	// 	placeholder: "Select Upazilla"
+	// });
+
+	// $('.area-dropdown.union').select2({
+	// 	placeholder: "Select Union"
+	// });
+
+	// $('.area-dropdown').on('change', function (e) {
+	// 	jump_url(e.val);
 	// });
 
 	$('.province-dropdown').on('change', function (e) {
@@ -179,7 +191,9 @@ function init_datatable(){
 			for (i = 1; i < colLength; i++) {
 				this_footer = $(api.column(i).footer());
 				dispData = humanizeFormatter(this_footer.html());
-				this_footer.html(dispData);
+				if(this_footer.attr('class') == 'hum'){
+					this_footer.html(dispData);
+				}
 			}
 		}
 	});

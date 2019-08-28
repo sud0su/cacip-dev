@@ -326,7 +326,7 @@
                     {% endcomment %}
             
                     {% block middle %}
-                        <div class="container">
+                        <div class="{% if 'print' in request.build_absolute_uri %}container-fluid{% else %}container{% endif %}">
                             {% include "_status_message.html" %}
                             {% include "_announcements.html" %}
                             {% include "_messages.html" %}
@@ -426,7 +426,7 @@
 
                 <footer class="footer">
                     <!-- Footer Widget Section -->
-                    <div class="footer-widget-section">
+                    <div class="footer-widget-section {% if 'print' in request.build_absolute_uri %}hide{% endif %}">
                         <div class="container">
                             <div class="row hide">
                                 <div class="col-md-4">
@@ -530,10 +530,10 @@
                     </div><!-- /.Footer Widget Section -->
     
                     <div class="copyright-section">
-                        <div class="container clearfix">
+                        <div class="{% if 'print' in request.build_absolute_uri %}container-fluid{% else %}container{% endif %} clearfix">
                             <span class="copytext">Copyright &copy; 2019 <a href="https://immap.org" target="_blank">iMMAP</a></span>
     
-                            <ul class="list-inline pull-right">
+                            <ul class="list-inline pull-right {% if 'print' in request.build_absolute_uri %}hide{% endif %}">
                                 {% with request.resolver_match.view_name as url_name %}
                                 <li class="{% if url_name == 'home' %}active{% endif %}"><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
                                 {% endwith %}
