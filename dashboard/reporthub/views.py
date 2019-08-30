@@ -199,16 +199,17 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 		beneficiaries_adm_filters = {adm['field']:urllib.unquote(adm['code']) if type(adm['code']) not in [int, long] else adm['code'] for idx, adm in adm_path.items() if 'code' in adm}
 	beneficiaries_filters = beneficiaries_adm_filters.copy()
 	beneficiaries_base_filtered = query_beneficiaries.filter(**beneficiaries_adm_filters)
-	cluster_id = list_ext(DASHBOARD_META['pages']).findchilddict('name', kwargs.get('page_name')).get('cluster_id')
-	if cluster_id:
-		beneficiaries_filters.update({'cluster_id': cluster_id})
-		beneficiaries_base_filtered = beneficiaries_base_filtered.filter(**{'cluster_id': cluster_id})
-		response.update({'cluster_id': cluster_id})
-		cluster_list = list_ext(get_beneficiaries_optional_filtered(beneficiaries_base_filtered, 'cluster_id'))
-		cluster_name = cluster_list.findchilddict('cluster_id', cluster_id).get(FILTER_OPTIONAL_FIELDS_NAME['cluster_id'])
-		# cluster_name = [i for i in get_beneficiaries_optional_filtered(beneficiaries_base_filtered, 'cluster_id') if i['cluster_id'] == cluster_id]
-		# response.update({'cluster': cluster_name[0].get(FILTER_OPTIONAL_FIELDS_NAME['cluster_id']) if cluster_name else None})
-		response.update({'cluster': cluster_name})
+	if request.GET.get('page'):
+		cluster_id = list_ext(DASHBOARD_META['pages']).findchilddict('name', request.GET['page']).get('cluster_id')
+		if cluster_id:
+			beneficiaries_filters.update({'cluster_id': cluster_id})
+			beneficiaries_base_filtered = beneficiaries_base_filtered.filter(**{'cluster_id': cluster_id})
+			response.update({'cluster_id': cluster_id})
+			cluster_list = list_ext(get_beneficiaries_optional_filtered(beneficiaries_base_filtered, 'cluster_id'))
+			cluster_name = cluster_list.findchilddict('cluster_id', cluster_id).get(FILTER_OPTIONAL_FIELDS_NAME['cluster_id'])
+			# cluster_name = [i for i in get_beneficiaries_optional_filtered(beneficiaries_base_filtered, 'cluster_id') if i['cluster_id'] == cluster_id]
+			# response.update({'cluster': cluster_name[0].get(FILTER_OPTIONAL_FIELDS_NAME['cluster_id']) if cluster_name else None})
+			response.update({'cluster': cluster_name})
 	beneficiaries_filters.update({f+'__in':filter(None,request.GET.get(f,'').split(',')) for f in FILTER_OPTIONAL_FIELDS_EXC_REPORTING_PERIOD_EXC_DONOR if f in request.GET})
 	if 'reporting_period' in request.GET:
 		start, end = request.GET['reporting_period'].split(',')
