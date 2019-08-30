@@ -255,6 +255,10 @@ class list_ext(list):
     def without(self, values=[]):
         return [i for i in self if i not in values]
 
+    def findchilddict(self, key, value):
+        found = [d for d in self if d.get(key) == value]
+        return found[0] if found else {}
+
 def set_query_parameter(url, param_name, param_value):
     """Given a URL, set or replace a query parameter and return the
     modified URL.

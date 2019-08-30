@@ -1,17 +1,20 @@
 DASHBOARD_META = {
     'pages': [
         {
-            'name': 'reporthub',
+            'name': 'reporthubhealthsector',
+            # 'name': 'reporthubhealthsector',
             'function': 'get_reporthub',
             'template': 'dash_healthsector.html',
-            'menutitle': 'ReportHub',
+            'menutitle': 'Health Sector',
+            'cluster_id': 'health',
         },
-        # {
-        #     'name': 'protectionsector',
-        #     'function': 'get_protectionsector',
-        #     'template': 'dash_protectionsector.html',
-        #     'menutitle': 'Protection Sector',
-        # },
+        {
+            'name': 'reporthubfoodsecuritysector',
+            'function': 'get_reporthub',
+            'template': 'dash_healthsector.html',
+            'menutitle': 'Food Security Sector',
+            'cluster_id': 'fss',
+        },
     ],
     'menutitle': 'ReportHub',
 }
@@ -39,3 +42,12 @@ FILTER_NAME_FIELDS = {
     'activity_description_id': 'activity_description_name', 
 }
 FILTER_CODE_FIELDS = ['cluster_id', 'organization', 'activity_description_id']
+
+FILTER_OPTIONAL_FIELDS = ['donor','organization','reporting_period','unit_type_id']
+FILTER_OPTIONAL_FIELDS_NAME = {
+    'donor': 'donor',
+    'organization': 'organization',
+    'cluster_id': 'cluster',
+    'reporting_period': 'reporting_period',
+    'unit_type_id': 'unit_type_name',
+}
