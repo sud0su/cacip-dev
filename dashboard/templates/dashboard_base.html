@@ -134,22 +134,30 @@
 			return rtn;
 		}
 
-		function updateUrlParameter(url, param, value){
-			param = encodeURIComponent(param);
-			var r = "([&?]|&amp;)" + param + "\\b(?:=(?:[^&#]*))*";
-			var a = document.createElement('a');
-			var regex = new RegExp(r);
-			// var str = param + (value ? "=" + encodeURIComponent(value) : ""); 
-			var str = param + (value ? "=" + (value) : ""); 
-			a.href = url;
-			var q = a.search.replace(regex, "$1"+str);
+		// function updateUrlParameter(url, param, value){
+		// 	param = encodeURIComponent(param);
+		// 	var r = "([&?]|&amp;)" + param + "\\b(?:=(?:[^&#]*))*";
+		// 	var a = document.createElement('a');
+		// 	var regex = new RegExp(r);
+		// 	// var str = param + (value ? "=" + encodeURIComponent(value) : ""); 
+		// 	var str = param + (value ? "=" + (value) : ""); 
+		// 	a.href = url;
+		// 	var q = a.search.replace(regex, "$1"+str);
 			
-			if (q === a.search) {
-				a.search += (a.search ? "&" : "") + str;
-			} else {
-				a.search = q;
-			}
-			return a.href;
+		// 	if (q === a.search) {
+		// 		a.search += (a.search ? "&" : "") + str;
+		// 	} else {
+		// 		a.search = q;
+		// 	}
+
+		// 	console.log(url);
+		// 	console.log(a.href);
+		// 	return a.href;
+		// }
+
+		function updateUrlParameter(url, param, value){
+			var regex = new RegExp('([?|&]'+param+'=)[^\&]+');
+			return url.replace( regex , '$1' + value);
 		}
 
 		// Print to PDF

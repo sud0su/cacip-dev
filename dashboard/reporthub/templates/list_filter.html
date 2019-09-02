@@ -1,0 +1,55 @@
+{% load i18n %}
+{% load app_filters %}
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="panel panel-default card-dashboard">
+        <div class="panel-body">
+            <h2>{% trans "Additional Filter" %}</h2>
+            <button id="add_filter" type="button" class="btn btn-primary pull-right">{% trans "Apply Filter" %}</button>
+            <div class="row">
+                {% for idx, filter in filters.items %}
+                    {% if idx != 'reporting_period' %}
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                            <select class="{{idx}}-dropdown" multiple="multiple" data-placeholder="{% trans 'Select ' %}{{idx}}">
+                                {% for opt in filter.options %}
+                                    <option value="{{opt.key}}">{{opt.value}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <script>
+                            selected_{{idx}} = {{filter.selected | jsonify | safe }};
+                        </script>
+                    {% endif %}
+                {% endfor %}
+                <div class="col-xs-12 col-sm-6 col-md-2 col-lg-2 hide">
+                    <div class="form-group" style="margin: 0;">
+                        <div class='input-group date' id='start_date_report'>
+                            <input type='text' class="form-control" style="height: 40px;"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xs-12 col-sm-6 col-md-2 col-lg-2 hide">
+                    <div class="form-group">
+                        <div class='input-group date' id='end_date_report'>
+                            <input type='text' class="form-control" style="height: 40px;"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // $(".organization-dropdown").select2({tags:["red", "green", "blue"]});
+</script>
+
+

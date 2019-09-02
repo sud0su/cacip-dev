@@ -1,0 +1,93 @@
+{% extends "dashboard_base.html" %}
+{% load i18n %}
+{% load app_filters %}
+
+{% block dashboard_breadcrumb %} 
+    <li class="">
+        <a href="" class="">{% trans "ReportHub" %}</a>
+    </li>
+    {% block reporthub_breadcrumb %}
+    {% endblock %}
+{% endblock dashboard_breadcrumb %}
+
+{% block dashboard_content %}
+{% endblock %}
+
+{% block body_outer %}
+
+    <div class="row g-margin-t-25--xs g-margin-b-45--xs">
+        {% include "list_filter.html" %}
+
+        {% block reporthub_content %}
+        {% endblock %}
+
+        {% for summary in init_data.total %}
+            <div class="col-xs-12 {% if summary.key == 'num_community_hp_volunteers_mobilizers' or summary.key == 'num_community_hp_sessions_group' or summary.key == 'adolescent_friendly_spaces' %}col-sm-8 col-md-5 col-lg-4{% elif summary.key == 'num_ring_wells' or summary.key == 'still_births' or summary.key == 'adolescent_youth_hub' or summary.key == 'girl_friendly_spaces' %}col-sm-6 col-md-4 col-lg-3{% elif summary.key == 'sops' %}col-sm-3 col-lg-2{% elif summary.key == 'nurses' %}col-sm-4 col-lg-2{% elif summary.key == 'child_friendly_spaces' %}col-sm-5 col-lg-3{% elif summary.key == 'num_wells_equipped' %}col-sm-4 col-md-3{% elif summary.key == 'paramedic' %}col-sm-4 col-md-3 col-lg-2{% elif summary.key == 'medical_assistant' or summary.key == 'clubs' or summary.key == 'num_tube_wells' or summary.key == 'groups' or summary.key == 'committees'%}col-sm-4 col-md-3{% else %}col-sm-4 col-md-4 col-lg-3{% endif %}">
+                <div class="info-box">
+                    <div class="icon">
+                        <i class="icon-Affected-population"></i>
+                    </div>
+                    <div class="content">
+                        <div class="text">{{summary.name}}</div>
+                        <div class="number">{% readable summary.value %}</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default card-dashboard">
+                <div class="panel-body">
+                    <h2>{% trans "Detail Activity" %}</h2>
+                    <p class="">{% trans "Put Description Here..." %}</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover {% if 'print' in request.build_absolute_uri %}print{% else %}online{% endif %}">
+                            <thead>
+                                <tr>
+                                    <!-- <th>{% trans "Region" %}</th> -->
+                                    <!-- <th>{{child_area_type}}</th>
+                                    <th class="hum" title="{% trans 'Activity' %}">{% trans "Activity" %}</th>
+                                    <th class="hum" title="{% trans 'Activity Type' %}">{% trans "Activity Type" %}</th>
+                                    <th class="hum" title="{% trans 'Cluster' %}">{% trans "Cluster" %}</th>
+                                    <th class="hum" title="{% trans 'Start Date' %}">{% trans "Start Date" %}</th>
+                                    <th class="hum" title="{% trans 'End Date' %}">{% trans "End Date" %}</th>
+                                    <th class="hum" title="{% trans 'Organization' %}">{% trans "Organization" %}</th>
+                                    <th class="hum" title="{% trans 'Donor' %}">{% trans "Donor" %}</th>
+                                    <th class="hum" title="{% trans 'Total Unit' %}">{% trans "Total Unit" %}</th>
+                                    <th class="hum" title="{% trans 'Unit Type' %}">{% trans "Unit Type" %}</th> -->
+                                    {% for table_header in init_data.table.table_benficiaries.columns %}
+                                        <th class="{% if  table_header == 'Units' or table_header == 'Population' %}hum{% endif %}" title="{{table_header}}">{{table_header}}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for child in init_data.table.table_benficiaries.child %}
+                                    <tr class="selectable" onclick="window.document.location='?page=healthsector&code={{child.code}}';">
+                                        {% for item in child.values %}
+                                            <td class="">{{item}}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    {% for parent in init_data.table.table_benficiaries.parentdata %}
+                                        <th class="hum">{{parent}}</th>
+                                    {% endfor %}
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+
+{% endblock %}
+
+{% block extra_script %}
+    {{ block.super }}
+    
+{% endblock %}

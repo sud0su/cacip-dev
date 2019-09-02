@@ -68,46 +68,196 @@ function addUpdateUrlParameter(url, param, value) {
 }
 
 function init_select2_reporthub_filter(){
-	$('.org-dropdown').select2({
-		placeholder: "Select Organization"
+	$('.organization-dropdown').select2({
+		placeholder: "Select Organization",
 	});
 
 	$('.donor-dropdown').select2({
 		placeholder: "Select Donor"
 	});
 
-	$('.cluster-dropdown').select2({
+	$('.cluster_id-dropdown').select2({
 		placeholder: "Select Cluster"
 	});
-	
-	var url = $(location).attr("href");
-	var org = getParameterByName("organization");
-	// $('.org-dropdown').on('change', function (e) {
-	// 	console.log(e.val);
-	// 	console.log(url);
-	// 	console.log(org);
-	// });
 
-	$('.org-dropdown').on('select2-selecting', function (e) {
-		console.log(e.val);
-		console.log(url);
-		if (org == null){
-			url += '&organization='+ e.val;
-		}  else {
-			url = updateUrlParameter(url, 'organization', e.val);
-		}
-		console.log(url);
+	$('.unit_type_id-dropdown').select2({
+		placeholder: "Select Unit Type"
 	});
 
-	// $('.org-dropdown').on("select2-removing", function(e) { 
-	// 	console.log(e.val);
-	// })
+	$('.organization-dropdown').select2('val', selected_organization);
+	$('.donor-dropdown').select2('val', selected_donor);
+	// $('.cluster_id-dropdown').select2('val', selected_cluster_id);
+	$('.unit_type_id-dropdown').select2('val', selected_unit_type_id);
+	
+	var url = $(location).attr("href");
+	console.log(url);
 
-    $('.org-dropdown').on("select2-removed", function(e) { 
-		console.log(e.val);
+	var org = getParameterByName("organization");
+	var donor = getParameterByName("donor");
+	var cluster = getParameterByName("cluster_id");
+	var unit = getParameterByName("unit_type_id");
+
+	var org_array = [];
+	var donor_array = [];
+	var cluster_array = [];
+
+	current_selection_org = [];
+	current_selection_donor = [];
+	current_selection_cluster = [];
+	current_selection_unit = [];
+
+	// $('.organization-dropdown').on('select2-selecting', function (e) {
+	// 	console.log(e.val);
+	// 	org_array = e.val;
+	// 	// console.log(url);
+
+	// 	// // type_org += e.val;
+	// 	// if (org == null){
+	// 	// 	// url += '&organization='+ e.val;
+	// 	// }  else {
+	// 	// 	// url = updateUrlParameter(url, 'organization', e.val);
+	// 	// }
+		
+	// 	// console.log(url);
+	// });
+
+	// $('.organization-dropdown').on('select2-selecting', function (e) {
+	// 	org_array = e.val;
+	// 	console.log(org_array);
+	// });
+
+	// $('.donor-dropdown').on('select2-selecting', function (e) {
+	// 	donor_array = e.val;
+	// 	console.log(donor_array);
+	// });
+
+	// $('.cluster_id-dropdown').on('select2-selecting', function (e) {
+	// 	cluster_array = e.val;
+	// 	console.log(cluster_array);
+	// });
+
+	// $('.organization-dropdown').on('change', function (e) {
+	// 	org_array = e.val;
+	// 	console.log(org_array);
+	// });
+
+	// $('.donor-dropdown').on('change', function (e) {
+	// 	donor_array = e.val;
+	// 	console.log(donor_array);
+	// });
+
+	// $('.cluster_id-dropdown').on('change', function (e) {
+	// 	cluster_array = e.val;
+	// 	console.log(cluster_array);
+	// });
+
+	$('#add_filter').on('click', function(event) {
+		type_org = '';
+		// type_org += org_array;
+
+		type_donor = '';
+		// type_donor += donor_array;
+
+		type_cluster = '';
+		// type_cluster += cluster_array;
+
+		type_unit = '';
+		
+		console.log(type_org);
+		console.log(type_donor);
+		console.log(type_cluster);
+
+		current_selection_org = $(".organization-dropdown").select2("val");
+		current_selection_donor = $(".donor-dropdown").select2("val");
+		current_selection_cluster = $(".cluster_id-dropdown").select2("val");
+		current_selection_unit = $(".unit_type_id-dropdown").select2("val");
+
+		console.log(current_selection_org);
+		console.log(current_selection_donor);
+		console.log(current_selection_cluster);
+
+		if(current_selection_org != ''){
+			console.log('ga kosong');
+			console.log(type_org);
+			type_org += current_selection_org;
+			console.log(type_org);
+		}
+
+		if(current_selection_donor != ''){
+			console.log('ga kosong');
+			console.log(type_donor);
+			type_donor += current_selection_donor;
+			console.log(type_donor);
+		}
+
+		if(current_selection_cluster != ''){
+			console.log('ga kosong');
+			console.log(type_cluster);
+			type_cluster += current_selection_cluster;
+			console.log(type_cluster);
+		}
+
+		if(current_selection_unit != ''){
+			console.log('ga kosong');
+			console.log(type_unit);
+			type_unit += current_selection_unit;
+			console.log(type_unit);
+		}
+
 		console.log(url);
-		// url = removeParam('organization', url);
+
+		if (type_org != ''){
+			console.log(org);
+			console.log(type_org);
+			console.log(url);
+			if (org == null){
+				url += '&organization='+ type_org;
+			}  else {
+				url = updateUrlParameter(url, 'organization', type_org);
+			}
+		}else {
+			url = removeParam('organization', url);
+		}
+
+		if (type_donor != ''){
+			console.log(donor);
+			console.log(type_donor);
+			if (donor == null){
+				url += '&donor='+ type_donor;
+			}  else {
+				url = updateUrlParameter(url, 'donor', type_donor);
+			}
+		}else {
+			url = removeParam('donor', url);
+		}
+
+		// if (type_cluster != ''){
+		// 	console.log(cluster);
+		// 	console.log(type_cluster);
+		// 	if (cluster == null){
+		// 		url += '&cluster_id='+ type_cluster;
+		// 	}  else {
+		// 		url = updateUrlParameter(url, 'cluster_id', type_cluster);
+		// 	}
+		// }else {
+		// 	url = removeParam('cluster_id', url);
+		// }
+
+		if (type_unit != ''){
+			console.log(unit);
+			console.log(type_unit);
+			if (unit == null){
+				url += '&unit_type_id='+ type_unit;
+			}  else {
+				url = updateUrlParameter(url, 'unit_type_id', type_unit);
+			}
+		}else {
+			url = removeParam('unit_type_id', url);
+		}
+
 		console.log(url);
+
+		window.document.location = url;
 	});
 }
 
