@@ -35,7 +35,7 @@ default_print_option = {
     'landscape':False,
     # 'scale':1,
     'marginTop':0.78,
-    'marginBottom':0.3,
+    'marginBottom':0.45,
     'paperWidth':8.27,
     'paperHeight':11.69,
     'marginLeft':0.3,

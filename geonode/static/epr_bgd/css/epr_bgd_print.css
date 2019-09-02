@@ -29,3 +29,7 @@ footer.footer .copyright-section{
 .dashboard .select2-container.area-dropdown .select2-choice>.select2-chosen{
     margin-right: 0;
 }
+
+.area-dropdown.unselected {
+    display: none;
+}

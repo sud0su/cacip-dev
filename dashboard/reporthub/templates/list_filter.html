@@ -10,9 +10,9 @@
                 {% for idx, filter in filters.items %}
                     {% if idx != 'reporting_period' %}
                         <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
-                            <select class="{{idx}}-dropdown" multiple="multiple" data-placeholder="{% trans 'Select ' %}{{idx}}">
+                            <select class="{{idx}}-dropdown" multiple="multiple" data-placeholder="{% trans 'Select ' %}{{filter.label}}">
                                 {% for opt in filter.options %}
-                                    <option value="{{opt.key}}">{{opt.value}}</option>
+                                    <option value="{{opt.key}}" {% if opt.key in filter.selected %}selected="selected"{% endif %}>{{opt.value}}</option>
                                 {% endfor %}
                             </select>
                         </div>

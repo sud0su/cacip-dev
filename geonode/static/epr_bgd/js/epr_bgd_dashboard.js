@@ -84,10 +84,10 @@ function init_select2_reporthub_filter(){
 		placeholder: "Select Unit Type"
 	});
 
-	$('.organization-dropdown').select2('val', selected_organization);
-	$('.donor-dropdown').select2('val', selected_donor);
+	// $('.organization-dropdown').select2('val', selected_organization);
+	// $('.donor-dropdown').select2('val', selected_donor);
 	// $('.cluster_id-dropdown').select2('val', selected_cluster_id);
-	$('.unit_type_id-dropdown').select2('val', selected_unit_type_id);
+	// $('.unit_type_id-dropdown').select2('val', selected_unit_type_id);
 	
 	var url = $(location).attr("href");
 	console.log(url);

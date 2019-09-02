@@ -84,3 +84,10 @@ FILTER_OPTIONAL_FIELDS_NAME = {
     'reporting_period': 'reporting_period',
     'unit_type_id': 'unit_type_name',
 }
+FILTER_OPTIONAL_FIELDS_LABEL = {
+    'donor': 'donor',
+    'organization': 'organization',
+    'cluster_id': 'cluster',
+    'reporting_period': 'reporting period',
+    'unit_type_id': 'unit type name',
+}

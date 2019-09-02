@@ -10,7 +10,7 @@ from geonode.utilscustom import set_query_parameter, dict_ext, list_ext, JSONEnc
 from geonode.base.models import Region
 from .models import TempBeneficiaries
 from .enumerations import (DASHBOARD_META, ADM_CODE_FIELDS, ADM_NAME_FIELDS, ADM_TYPES, FILTER_CODE_FIELDS, FILTER_NAME_FIELDS,
-	FILTER_OPTIONAL_FIELDS, FILTER_OPTIONAL_FIELDS_NAME)
+	FILTER_OPTIONAL_FIELDS, FILTER_OPTIONAL_FIELDS_NAME, FILTER_OPTIONAL_FIELDS_LABEL)
 
 import urllib
 import pandas as pd
@@ -221,7 +221,7 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 	if 'donor' in request.GET:
 		donors = filter(None, request.GET['donor'].split(','))
 		if donors:
-			donors_filter = functools.reduce(lambda x, y: x | y, [Q(donor__contains=d)for d in donors])
+			donors_filter = functools.reduce(lambda x, y: x | y, [Q(donor__contains=d) for d in donors])
 			beneficiaries_filtered = beneficiaries_filtered.filter(donors_filter)
 	# print beneficiaries_filtered.query
 
@@ -246,9 +246,9 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 		annotate(
 			units=Sum('units'),
 		).\
-		exclude(indicator_name__isnull=True).\
 		exclude(units=0).\
 		exclude(unit_type_id__isnull=True)
+		# exclude(indicator_name__isnull=True).\
 
 	# print beneficiaries_units.query
 	
@@ -265,7 +265,8 @@ def get_reporthub(request, areageom=None, areatype=None, areacode=None, includes
 		'filters': {
 			f:{
 				'key':f,
-				'selected': filter(None,request.GET.get(f,'').split(',')), 
+				'label':FILTER_OPTIONAL_FIELDS_LABEL[f],
+				'selected': map(urllib.quote, filter(None,request.GET.get(f,'').split(','))), 
 				'options':[{
 					'key': urllib.quote(f2[f]),
 					'value': f2[FILTER_OPTIONAL_FIELDS_NAME[f]],

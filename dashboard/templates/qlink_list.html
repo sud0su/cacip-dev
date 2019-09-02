@@ -1,6 +1,6 @@
 {% for idx, adm in adm_path.items %}
 <li class="">
-    <select class="area-dropdown {{adm.type}}" data-placeholder="Select {{adm.type}}">
+    <select class="area-dropdown {{adm.type}} {% if not adm.code %}unselected{% endif %}" data-placeholder="Select {{adm.type}}">
         {% if not adm.code %}
         <option></option>
         {% endif %}

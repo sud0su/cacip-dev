@@ -270,10 +270,10 @@ def dashboard_detail(request):
 				'paperWidth':8.27,
 				'paperHeight':11.69,
 				'marginTop':0.78,
-				'marginBottom':0.3,
+				'marginBottom':0.45,
 				'marginLeft':0.3,
 				'marginRight':0.3,
-				'scale':0.72, # 0.72 roughly equal to 1024 px print width on 1024 screen-width
+				'scale':0.71, # 0.71 roughly equal to 1024 px print width on 1024 screen-width
 				'after-document-loaded-delay': 1, # in seconds
 				'timeout': 60, # in seconds
 				'header-html': 'http://%s/static/epr_bgd/head_print/rep_header_chrome.html?%s'%(request.META.get('HTTP_HOST'),headerparam),
@@ -307,6 +307,7 @@ def dashboard_print(request):
 	if request.GET.get('lang'):
 		translation.activate(request.GET.get('lang'))
 	response = common(request)
+	response['is_dashboard_print'] = True
 	template = response['dashboard_template']
 	return render_to_response(
 		template,
