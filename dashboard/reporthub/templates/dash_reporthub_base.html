@@ -22,9 +22,14 @@
         {% endblock %}
 
         {% for summary in init_data.total %}
-            <div class="col-xs-12 {% if summary.key == 'num_community_hp_volunteers_mobilizers' or summary.key == 'num_community_hp_sessions_group' or summary.key == 'adolescent_friendly_spaces' %}col-sm-8 col-md-5 col-lg-4{% elif summary.key == 'num_ring_wells' or summary.key == 'still_births' or summary.key == 'adolescent_youth_hub' or summary.key == 'girl_friendly_spaces' %}col-sm-6 col-md-4 col-lg-3{% elif summary.key == 'sops' %}col-sm-3 col-lg-2{% elif summary.key == 'nurses' %}col-sm-4 col-lg-2{% elif summary.key == 'child_friendly_spaces' %}col-sm-5 col-lg-3{% elif summary.key == 'num_wells_equipped' %}col-sm-4 col-md-3{% elif summary.key == 'paramedic' %}col-sm-4 col-md-3 col-lg-2{% elif summary.key == 'medical_assistant' or summary.key == 'clubs' or summary.key == 'num_tube_wells' or summary.key == 'groups' or summary.key == 'committees'%}col-sm-4 col-md-3{% else %}col-sm-4 col-md-4 col-lg-3{% endif %}">
-                <div class="info-box">
-                    <div class="icon">
+            <div class="{% comment %}col-xs-12 {% if summary.key == 'num_community_hp_volunteers_mobilizers' or summary.key == 'num_community_hp_sessions_group' or summary.key == 'adolescent_friendly_spaces' %}col-sm-8 col-md-5 col-lg-4{% elif summary.key == 'num_ring_wells' or summary.key == 'still_births' or summary.key == 'adolescent_youth_hub' or summary.key == 'girl_friendly_spaces' %}col-sm-6 col-md-4 col-lg-3{% elif summary.key == 'sops' %}col-sm-3 col-lg-2{% elif summary.key == 'nurses' %}col-sm-4 col-lg-2{% elif summary.key == 'child_friendly_spaces' %}col-sm-5 col-lg-3{% elif summary.key == 'num_wells_equipped' %}col-sm-4 col-md-3{% elif summary.key == 'paramedic' %}col-sm-4 col-md-3 col-lg-2{% elif summary.key == 'medical_assistant' or summary.key == 'clubs' or summary.key == 'num_tube_wells' or summary.key == 'groups' or summary.key == 'committees'%}col-sm-4 col-md-3{% else %}col-sm-4 col-md-4 col-lg-3{% endif %}{% endcomment %}
+            {% if summary.key == 'num_community_hp_volunteers_mobilizers' or summary.key == 'num_community_hp_sessions_group' or summary.key == 'adolescent_friendly_spaces' or summary.key == 'adolescent_youth_hub' or summary.key == 'girl_friendly_spaces' or summary.key == 'child_friendly_spaces' %} col-xs-12 col-sm-6 col-lg-4
+            {% else %}
+            col-xs-6 col-sm-3 col-md-3 col-lg-2
+            {% endif %}
+            ">
+                <div class="info-box-4">
+                    <div class="icon hide">
                         <i class="icon-Affected-population"></i>
                     </div>
                     <div class="content">
@@ -36,7 +41,7 @@
         {% endfor %}
 
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <div class="panel panel-default card-dashboard">
+            <div class="panel panel-default card-dashboard card-table">
                 <div class="panel-body">
                     <h2>{% trans "Detail Activity" %}</h2>
                     <p class="">{% trans "Put Description Here..." %}</p>
