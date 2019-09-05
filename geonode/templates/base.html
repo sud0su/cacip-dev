@@ -110,7 +110,7 @@
                                     {% trans "Dashboard" %} <i class="fa fa-angle-down fa-lg"></i>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li class="dropdown-submenu">
+                                    <li class="dropdown-submenu hide">
                                         <a class="" href="#">{% trans "ReportHub" %} <i class="fa fa-angle-right fa-lg pull-right" style=""></i></a>
                                         <ul class="dropdown-menu">
                                             <li><a href="{% url 'dashboard_detail' %}?page=healthsector&cluster_id=health">{% trans "Health Sector" %}</a></li>
@@ -130,7 +130,7 @@
                                     </li>
                                     {% for dash in DASHBOARD_META.DASHBOARD_PAGE_MENU %}
                                         {% if dash.child %}
-                                            <li class="dropdown-submenu hide">
+                                            <li class="dropdown-submenu">
                                                 <a class="" tabindex="-1" href="#">{{dash.title}} <i class="fa fa-angle-right fa-lg pull-right"></i></a>
                                                 <ul class="dropdown-menu">
                                                     {% for dash_sub in dash.child %}
