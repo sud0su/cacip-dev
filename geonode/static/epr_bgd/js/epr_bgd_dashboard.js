@@ -152,11 +152,16 @@ function init_select2_reporthub_filter(){
 	// });
 
 	var reportrange = getParameterByName("reporting_period");
+
+	current_selection_date = [];
 	start_reporting_date = $("#start_date_report").data("DateTimePicker").date();
 	end_reporting_date = $("#end_date_report").data("DateTimePicker").date();
 
+	console.log($("#start_date_report").data("DateTimePicker").defaultDate());
+
 	if (start_reporting_date != null){
 		start_reporting_date_formatted = start_reporting_date.format('YYYY-MM-DD');
+		$("#end_date_report").data("DateTimePicker").minDate(start_reporting_date);
 	}
 
 	if (end_reporting_date != null){
@@ -166,16 +171,21 @@ function init_select2_reporthub_filter(){
 	// Linking the date
 	$("#start_date_report").on("dp.change", function (e) {
 		$('#end_date_report').data("DateTimePicker").minDate(e.date);
+		start_reporting_date = $("#start_date_report").data("DateTimePicker").date();
 		start_reporting_date_formatted = $("#start_date_report").data("DateTimePicker").date().format('YYYY-MM-DD');
 		console.log(url);
 		console.log(reportrange);
 		console.log(start_reporting_date_formatted);
+		if(end_reporting_date == null ){
+			$('#end_date_report').data("DateTimePicker").defaultDate(e.date);
+		}
 	});
 	$("#end_date_report").on("dp.change", function (e) {
 		$('#start_date_report').data("DateTimePicker").maxDate(e.date);
 		if(start_reporting_date == null ){
 			$('#start_date_report').data("DateTimePicker").defaultDate(e.date);
 		}
+		end_reporting_date = $("#end_date_report").data("DateTimePicker").date();
 		start_reporting_date_formatted = $("#start_date_report").data("DateTimePicker").date().format('YYYY-MM-DD');
 		end_reporting_date_formatted = $("#end_date_report").data("DateTimePicker").date().format('YYYY-MM-DD');
 		console.log(url);
@@ -288,14 +298,26 @@ function init_select2_reporthub_filter(){
 			url = removeParam('unit_type_id', url);
 		}
 
-		if (reportrange == null){
-			url += '&reporting_period='+ start_reporting_date_formatted +','+ end_reporting_date_formatted;
-		}  else {
-			url = updateUrlParameter(url, 'reporting_period', start_reporting_date_formatted +','+ end_reporting_date_formatted);
+		if (start_reporting_date != null && end_reporting_date != null ) {
+			if (reportrange == null){
+				console.log(url);
+				url += '&reporting_period='+ start_reporting_date_formatted +','+ end_reporting_date_formatted;
+			}  else {
+				url = updateUrlParameter(url, 'reporting_period', start_reporting_date_formatted +','+ end_reporting_date_formatted);
+			}
 		}
 
 		console.log(url);
 
+		window.document.location = url;
+	});
+
+	$('#reset_filter').on('click', function(event) {
+		url = removeParam('organization', url);
+		url = removeParam('donor', url);
+		url = removeParam('unit_type_id', url);
+		url = removeParam('reporting_period', url);
+		console.log(url);
 		window.document.location = url;
 	});
 }
@@ -1397,6 +1419,4 @@ $(document).ready(function(){
 	init_select2_region();
 	init_datatable();
 	init_chart();
-	init_date_range_report();
-	init_select2_reporthub_filter();
 });
