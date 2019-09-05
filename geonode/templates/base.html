@@ -29,7 +29,7 @@
                 {% endcomment %}
                 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css">
-                <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/css/select2.min.css" rel="stylesheet" /> -->
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
             {% endif %}
 
             <link href="{% static "geonode/css/ext-compatibility.css" %}?v={{ VERSION }}" rel="stylesheet" />
@@ -110,14 +110,15 @@
                                     {% trans "Dashboard" %} <i class="fa fa-angle-down fa-lg"></i>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li class="dropdown-submenu hide">
+                                    <li class="dropdown-submenu">
                                         <a class="" href="#">{% trans "ReportHub" %} <i class="fa fa-angle-right fa-lg pull-right" style=""></i></a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="{% url 'dashboard_detail' %}?page=healthsector">{% trans "Health Sector" %}</a></li>
-                                            <li><a tabindex="-1" href="#">{% trans "Protection Sector" %}</a></li>
-                                            <li><a tabindex="-1" href="#">{% trans "Shelter/NFI Sector" %}</a></li>
-                                            <li><a tabindex="-1" href="#">{% trans "Site Management Sector" %}</a></li>
-                                            <li><a tabindex="-1" href="#">{% trans "WASH Sector" %}</a></li>
+                                            <li><a href="{% url 'dashboard_detail' %}?page=healthsector&cluster_id=health">{% trans "Health Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page=protectionsector&cluster_id=protection">{% trans "Protection Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page=foodsecuritysector&cluster_id=fss">{% trans "Food Security Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page=nutritionsector&cluster_id=nutrition">{% trans "Nutrition Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page=washsector&cluster_id=wash">{% trans "WASH Sector" %}</a></li>
+                                            <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page=smsdsector&cluster_id=smsd">{% trans "Site Management, Site Development and DRR Sector" %}</a></li>
                                         </ul>
                                     </li>
                                     <li class="dropdown-submenu hide">
@@ -129,7 +130,7 @@
                                     </li>
                                     {% for dash in DASHBOARD_META.DASHBOARD_PAGE_MENU %}
                                         {% if dash.child %}
-                                            <li class="dropdown-submenu">
+                                            <li class="dropdown-submenu hide">
                                                 <a class="" tabindex="-1" href="#">{{dash.title}} <i class="fa fa-angle-right fa-lg pull-right"></i></a>
                                                 <ul class="dropdown-menu">
                                                     {% for dash_sub in dash.child %}
@@ -634,7 +635,14 @@
             <script src="{% static "lib/js/select2.js" %}?v={{ VERSION }}"></script>
             <script src="{% static "lib/js/waypoints.js" %}?v={{ VERSION }}"></script>
         {% else %}
-            <script src="{% static "lib/js/assets.min.js" %}?v={{ VERSION }}"></script>
+        <script src="{% static "lib/js/assets.min.js" %}?v={{ VERSION }}"></script>
+            {% comment %}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+            {% endcomment %}
         {% endif %}
         <script src="{% static "geonode/js/utils/utils.js" %}?v={{ VERSION }}"></script>
         <script src="{% static "geonode/js/base/base.js" %}?v={{ VERSION }}"></script>
