@@ -12,7 +12,7 @@
             <div class="row">
                 {% for idx, filter in filters.items %}
                     {% if idx != 'reporting_period' %}
-                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <div class="col-xs-12 {% if 'print' in request.path %}col-sm-2{% else %}col-sm-12{% endif %} col-md-2 col-lg-2">
                             <div class="form-group">
                                 <label for="{{idx}}">{{filter.label}}</label>
                                 <select id="{{idx}}" class="{{idx}}-dropdown" multiple="multiple" data-placeholder="{% trans 'Select ' %}{{filter.label}}">
@@ -35,7 +35,7 @@
                         </script>
                     {% endif %}
                 {% endfor %}
-                <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2">
+                <div class="col-xs-12 {% if 'print' in request.path %}col-sm-3{% else %}col-sm-6{% endif %} col-md-3 col-lg-2">
                     <div class="form-group" style="margin: 0;">
                         <label for"start_date_report">{% trans 'Start Report Date' %}</label>
                         <div class='input-group date' id='start_date_report'>
@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 
-                <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2">
+                <div class="col-xs-12 {% if 'print' in request.path %}col-sm-3{% else %}col-sm-6{% endif %} col-md-3 col-lg-2">
                     <div class="form-group">
                         <label for"end_date_report">{% trans 'End Report Date' %}</label>
                         <div class='input-group date' id='end_date_report'>

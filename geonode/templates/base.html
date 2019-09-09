@@ -134,13 +134,13 @@
                                                 <a class="" tabindex="-1" href="#">{{dash.title}} <i class="fa fa-angle-right fa-lg pull-right"></i></a>
                                                 <ul class="dropdown-menu">
                                                     {% for dash_sub in dash.child %}
-                                                        <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page={{dash_sub.name}}{{add_link}}">{{dash_sub.title}}</a></li>
+                                                        <li><a tabindex="-1" href="{% url 'dashboard_detail' %}?page={{dash_sub.name}}{{add_link_reporthub}}">{{dash_sub.title}}</a></li>
                                                     {% endfor %}
                                                 </ul>
                                             </li>
                                         {% else %}
                                             <li class="{% if dash.title == '' %}hide{% endif %}">
-                                                <a href="{% url 'dashboard_detail' %}?page={{dash.name}}">{{dash.title}}</a>
+                                                <a href="{% url 'dashboard_detail' %}?page={{dash.name}}{% if dash.name == 'baseline' %}{{add_link}}{% endif %}">{{dash.title}}</a>
                                             </li>
                                         {% endif %}
                                     {% endfor %}

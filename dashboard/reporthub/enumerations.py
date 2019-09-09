@@ -85,9 +85,9 @@ FILTER_OPTIONAL_FIELDS_NAME = {
     'unit_type_id': 'unit_type_name',
 }
 FILTER_OPTIONAL_FIELDS_LABEL = {
-    'donor': 'donor',
-    'organization': 'organization',
-    'cluster_id': 'cluster',
-    'reporting_period': 'reporting period',
-    'unit_type_id': 'unit type',
+    'cluster_id': 'Cluster',
+    'organization': 'Organization',
+    'donor': 'Donor',
+    'unit_type_id': 'Unit Type',
+    'reporting_period': 'Reporting Period',
 }

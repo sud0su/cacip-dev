@@ -171,8 +171,15 @@ def common(request):
 	# 	response = getLandslideRisk(request, filterLock, flag, code)
 	# elif request.GET['page'] == 'main':
 	# 	response = getQuickOverview(request, filterLock, flag, code)
-
-	response['add_link'] = '&code='+str(code) if 'code' in request.GET else ''
+	
+	try:
+		int(code)
+		response['add_link_reporthub'] = '&code='+str(code) if 'code' in request.GET else ''
+		response['add_link'] = ''
+	except:
+		response['add_link'] = '&code='+str(code) if 'code' in request.GET else ''	
+		response['add_link_reporthub'] = ''
+	
 	# if 'code' in request.GET:
 	# 	response['add_link'] = '&code='+str(code)
 
