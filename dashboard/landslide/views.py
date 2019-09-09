@@ -88,9 +88,9 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 		COUNT(DISTINCT(public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".fid)) as shelter_at_risk_count
 	FROM 
 		public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan" 
-			JOIN public."Camp_pop_03_2019" 
+		JOIN public."Camp_pop_03_2019" 
 			ON public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".cmp_name = public."Camp_pop_03_2019"."New_Camp_N"
-			JOIN public."T190310_Outline_RRC_Camp_A11" 
+		JOIN public."T190310_Outline_RRC_Camp_A11" 
 			ON public."Camp_pop_03_2019"."New_Camp_N" = public."T190310_Outline_RRC_Camp_A11"."New_Camp_N"
 	where
 		public."BGD_Camp_ShelterFootprint_UNOSAT_REACH_v1_Jan".landsliderisk_level is not null
@@ -107,9 +107,9 @@ def get_landslide(request, areageom=None, areatype=None, areacode=None, includes
 		COUNT(DISTINCT(public."cxb_health_facilities".fid)) as hltfac_at_risk_count
 	FROM 
 		public."cxb_health_facilities" 
-			JOIN public."Camp_pop_03_2019" 
+		JOIN public."Camp_pop_03_2019" 
 			ON public."cxb_health_facilities"."Camp_Name" = public."Camp_pop_03_2019"."New_Camp_N"
-			JOIN public."T190310_Outline_RRC_Camp_A11" 
+		JOIN public."T190310_Outline_RRC_Camp_A11" 
 			ON public."Camp_pop_03_2019"."New_Camp_N" = public."T190310_Outline_RRC_Camp_A11"."New_Camp_N"
 	where
 		public."cxb_health_facilities".landsliderisk_level is not null

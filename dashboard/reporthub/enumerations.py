@@ -89,5 +89,5 @@ FILTER_OPTIONAL_FIELDS_LABEL = {
     'organization': 'organization',
     'cluster_id': 'cluster',
     'reporting_period': 'reporting period',
-    'unit_type_id': 'unit type name',
+    'unit_type_id': 'unit type',
 }

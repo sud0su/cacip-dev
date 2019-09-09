@@ -235,16 +235,18 @@ def get_baseline(request, areageom=None, areatype=None, areacode=None, includes=
 	# join shelter to pop then group by adm
 	df_annotate_shelter = pd.DataFrame.from_records(annotate_shelter,index='cmp_name')
 	df_annotate_shelter_pop = df_annotate_shelter.join(df_pop)
+	df_annotate_shelter_pop.index.rename('new_camp_n',inplace=True)
 	df_annotate_shelter_pop_groupby = df_annotate_shelter_pop.groupby([child_adm['field']]).sum() \
-		if child_adm['field'] in df_annotate_shelter_pop.keys() \
+		if child_adm['field'] in list(df_annotate_shelter_pop.keys())+[df_annotate_shelter_pop.index.name] \
 		else df_annotate_shelter_pop
 	# df_annotate_shelter_pop_groupby = df_annotate_shelter_pop_groupby.sum()
 
 	# join hltfac to pop then group by adm
 	df_annotate_hltfac = pd.DataFrame.from_records(annotate_hltfac,index='camp_name')
 	df_annotate_hltfac_pop = df_annotate_hltfac.join(df_pop)
+	df_annotate_hltfac_pop.index.rename('new_camp_n',inplace=True)
 	df_annotate_hltfac_pop_groupby = df_annotate_hltfac_pop.groupby([child_adm['field'],'facility_t']) \
-		if child_adm['field'] in df_annotate_hltfac_pop.keys() \
+		if child_adm['field'] in list(df_annotate_hltfac_pop.keys())+[df_annotate_hltfac_pop.index.name] \
 		else df_annotate_hltfac_pop.groupby(['facility_t'])
 	df_annotate_hltfac_pop_groupby = df_annotate_hltfac_pop_groupby.sum()
 

@@ -1,6 +1,8 @@
 {% for idx, adm in adm_path.items %}
+{% if not adm.code and 'print' in request.path %}
+{% else %}
 <li class="">
-    <select class="area-dropdown {{adm.type}} {% if not adm.code %}unselected{% endif %}" data-placeholder="Select {{adm.type}}">
+    <select class="area-dropdown {{adm.type}}" data-placeholder="Select {{adm.type}}">
         {% if not adm.code %}
         <option></option>
         {% endif %}
@@ -9,6 +11,7 @@
         {% endfor %}
     </select>
 </li>
+{% endif %}
 {% endfor %}
 
 {% comment %}

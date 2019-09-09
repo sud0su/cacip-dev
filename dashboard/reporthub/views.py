@@ -164,7 +164,7 @@ def get_filter_path_from_table_beneficiaries(filters, FILTER_CODE_FIELDS_SELECTE
 
 def get_beneficiaries_optional_filtered(beneficiaries_base_filtered, field):
 	beneficiaries_optional_filtered = beneficiaries_base_filtered.values(field,FILTER_OPTIONAL_FIELDS_NAME[field]).order_by(field).distinct(field).exclude(**{field+'__isnull':True})
-	print beneficiaries_optional_filtered.query
+	# print beneficiaries_optional_filtered.query
 	if field == 'donor':
 		donors = set()
 		for row in beneficiaries_optional_filtered:
