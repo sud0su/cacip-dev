@@ -1190,9 +1190,9 @@ def start_chrome_devtool():
 	"""
 	Start Chrome Devtool process.
 	"""
-	app_path = 'google-chrome'
+	# app_path = 'google-chrome'
 	# app_path = 'chromium-browser' # produces smaller pdf size
-	# app_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+	app_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 	# app_path = '/Applications/Chromium.app/Contents/MacOS/Chromium'
 	cmd_list = [
 		app_path,

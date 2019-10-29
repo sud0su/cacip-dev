@@ -193,6 +193,9 @@ function init_select2_reporthub_filter(){
 		console.log(end_reporting_date_formatted);
 	});
 
+	$("#start_date_report").on("dp.update", function (e) {
+		console.log('update');
+	});
 
 	$('#add_filter').on('click', function(event) {
 		type_org = '';
@@ -329,6 +332,8 @@ function init_date_range_report() {
 		viewMode: 'months',
 		format: 'DD/MM/YYYY',
 		maxDate: new Date(),
+		// minDate: available_date[0],
+		// maxDate: available_date[available_date.length-1],
 		useCurrent: false
 	});
 
@@ -338,6 +343,8 @@ function init_date_range_report() {
 		viewMode: 'months',
 		format: 'DD/MM/YYYY',
 		maxDate: new Date(),
+		// minDate: available_date[0],
+		// maxDate: available_date[available_date.length-1],
 		useCurrent: false
 	});
 
