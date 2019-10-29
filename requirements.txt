@@ -156,7 +156,7 @@ odfpy<=1.3.6 # python-odfpy (1.3.6 in our ppa)
 openpyxl<=2.5.0 # (2.5.0 in our ppa)
 pbr<=3.1.1 # (1.8.0 in ppa) FIXME
 python-dateutil<=2.6.1 # (2.6.1 in our ppa)
-python-gnupg<=0.4.1 # (0.4.1 in our ppa)
+python-gnupg<0.4.5 # (0.4.1 in our ppa)
 python-mimeparse<=1.6.0 # (1.6.0 in our ppa)
 pytz<=2018.3 # python-pytz (2018.3 in our ppa)
 regex<=2016.7.21 # (0.1.20160110 in ppa)
