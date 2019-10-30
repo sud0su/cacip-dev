@@ -10,47 +10,11 @@
 
     <style>
         #paneltbar {
-            /* margin-top: 1px !important; */
-            margin-top: 61px !important;
-        }
-
-        .header-top,
-        .navbar.m-menu{
-            position: fixed;
-            right: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        .header-top{
-            top: 0;
-        }
-
-        .m-menu{
-            top: 50px;
-        }
-
-        @media screen and (max-width: 768px){
-            #paneltbar {
-                margin-top: 72px !important;
-                /* margin-top: 60px !important; */
-            }
-
-            .m-menu{
-                top: 0px !important;
-            }
+            margin-top: 90px !important;
         }
     </style>
 
-{{ block.super }}
-{% endblock %}
-
-{% block extra_top_class %}{% endblock %}
-{% block extra_nav_class %}{% endblock %}
-
-{% block middle %}
     {% get_map_view %}
+	{{ block.super }}
 {% endblock %}
-
-
 {% block footer %}{% endblock %}

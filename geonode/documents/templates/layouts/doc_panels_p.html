@@ -1,0 +1,418 @@
+{% extends "layouts/panels.html" %}
+{% load floppyforms %}
+{% load i18n %}
+
+{% block body_outer %}
+    
+    <div role="tabpanel" class="tabOne">
+        <!-- Nav tabs -->
+        <ul id="md_tabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" id="metadata_edit_tab" class="active">
+                <a href="#edit-metadata" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-pencil"></i>&nbsp;{% trans "Edit" %}</a>
+            </li>
+            <!-- li id="preview_tab" data-toggle="tab" dhref="#preview">
+                <a data-toggle="tab" href="#preview">Preview</a>
+            </li -->
+            <li role="presentation" id="">
+                <a href="#settings" aria-controls="tab" role="tab" data-toggle="tab"><i class="fa fa-cog"></i>&nbsp;{% trans "Settings" %}</a>
+            </li>
+        </ul>
+    
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="edit-metadata">
+                <div class="tab-content-container">
+                    <div id="completeness-hints" class="progress">
+                        <div class="mandatory-hint progress-bar" role="progressbar" style="width:33%">
+                            {% trans "Mandatory" %}
+                        </div>
+                        <div class="advanced-hint progress-bar" role="progressbar" style="width:34%">
+                            {% trans "Mandatory" %}
+                        </div>
+                        <div class="progress-bar" role="progressbar" style="width:33%">
+                            {% trans "Optional" %}
+                        </div>
+                    </div>
+                    <ul class="wizard--progress wizard--progress--medium">
+                        <li data-step="1" id="first" class="is-active" data-toggle="tab" href="#mandatory">
+                            <a>{% trans "Basic Metadata" %}</a>
+                        </li>
+                        <li data-step="2" id="second" data-toggle="tab" href="#advanced">
+                            <a>{% trans "Location and Licenses" %}</a>
+                        </li>
+                        <li data-step="3" data-toggle="tab" href="#ownership">
+                            <a>{% trans "Optional Metadata" %}</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content">
+                        <div id="mandatory" class="tab-pane fade in active">
+                            <!--<br />-->
+                            <div class="panel-group">
+                                <div class="panel panel-default">
+                                    <!-- div class="panel-heading">Data info</div -->
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div id="basicInfo" class="container-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="">
+                                                <div id="basicDescriptiveInfo" class="container-fluid">
+                                                    <div class="col-lg-7">
+                                                        <span><label for="{{ document_form.title|id }}">{{ document_form.title.label }}</label></span>
+                                                        <!--<p class="xxs-font-size">(Name by which the cited resource is known)</p>-->
+                                                        {{ document_form.title }}
+                                                        <span><label for="{{ document_form.title|id }}">{{ document_form.links.label }}</label></span>
+                                                        {{ document_form.links }}
+                                                        <div>
+                                                            <span><label for="{{ document_form.abstract|id }}">{{ document_form.abstract.label }}</label></span>
+                                                            <!--<p class="xxs-font-size">(Brief narrative summary of the content of the resource/s)</p>-->
+                                                            {{ document_form.abstract }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-5">
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                {{ document_form.keywords }}
+                                                            </div>
+                                                            <div class="col-lg-12 thesauri_keywords">
+                                                                {{ tkeywords_form }}
+                                                            </div>
+                                                            <div class="col-lg-6 col-xs-12">
+                                                                <span>
+                                                                    <label for="{{ document_form.date_type|id }}">{{ document_form.date_type.label }}</label>
+                                                                </span>
+                                                                <!--<p class="xxs-font-size">(Identification of when a given event occurred)</p>-->
+                                                                {{ document_form.date_type }}
+                                                            </div>
+                                                            <div class="col-lg-6 col-xs-12">
+                                                                <span>
+                                                                    <label for="{{ document_form.date|id }}">{{ document_form.date.label }}</label>
+                                                                </span>
+                                                                <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
+                                                                {{ document_form.date }}
+                                                            </div>
+                                                            <div id="basicCategoryInfo" class="col-lg-12">
+                                                                <span>
+                                                                    <label for="{{ category_form.category_choice_field|id }}" class="control-label required-field">{% trans "Sectors" %}</label>
+                                                                </span>
+                                                                <select data-live-search="true" data-size="5" name="category_choice_field"
+                                                                    id="category_form" class="selectpicker form-control">
+                                                                    <option {% if not category_form.initial %} selected="selected"{% endif %} value="">---</option>
+                                                                    {% for choice in category_form.category_choice_field.field.choices %}
+                                                                    <option {% ifequal category_form.initial choice.0 %} selected="selected"{% endifequal %} value="{{ choice.0 }}"
+                                                                        data-content="<span class='has-popover' data-container='body' data-toggle='popover' data-placement='top'  data-content=' {{ choice.2.description }}' rigger='hover'><i class='fa {{choice.2.fa_class}}'></i> {{ choice.2.gn_description }}<span>">
+                                                                        {{ choice.2.gn_description }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div id="basicGroupInfo" class="col-lg-12">
+                                                                <span><label for="id_resource-group"
+                                                                        class="control-label required-field">{% trans "Group" %}</label></span>
+                                                                <select title="Choose one of the following..." data-live-search="true"
+                                                                    data-size="5" name="resource-group" id="id_resource-group"
+                                                                    class="selectpicker form-control">
+                                                                    <option {% if not group %} selected="selected" {% endif %} value="">---
+                                                                    </option>
+                                                                    {% for group in metadata_author_groups %}
+                                                                    <option value="{{ group.group.id }}"
+                                                                        {% ifequal resource.group group.group %} selected="selected"
+                                                                        {% endifequal %}>
+                                                                        {{ group.title }}
+                                                                    </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-xs-12">
+                                                                <span>
+                                                                    <label for="{{ document_form.doc_type|id }}">{{ document_form.doc_type.label }}</label>
+                                                                </span>
+                                                                <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
+                                                                {{ document_form.doc_type }}
+                                                            </div>                                                        
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <div id="advanced" class="tab-pane fade">
+                            <div class="panel-group">
+                                <div class="panel panel-default">
+                                    <!-- div class="panel-heading">Metadata info</div -->
+                                    <div class="panel-body">
+                                        <div class="" id="mdinfo">
+                                            <div class="">
+                                                {% if document_form.language or document_form.license %}
+                                                    <div class="col-lg-4">
+                                                        {% if document_form.language %}
+                                                            <div>
+                                                                <span>
+                                                                    <label for="{{ document_form.language|id }}">{{ document_form.language.label }}</label>
+                                                                </span>
+                                                                <!--<p class="xxs-font-size">(Language used within the dataset)</p>-->
+                                                                {{ document_form.language }}
+                                                            </div>
+                                                        {% endif %}
+                                                        {% if document_form.license %}
+                                                            <div>
+                                                                <span>
+                                                                    <label for="{{ document_form.license|id }}">{{ document_form.license.label }}</label>
+                                                                </span>
+                                                                <!--<p class="xxs-font-size">(License of the dataset)</p>-->
+                                                                {{ document_form.license }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="col-lg-4">
+                                                    <div id="regions_multiselect_container">
+                                                        <span>
+                                                            <label for="{{ document_form.regions|id }}">{{ document_form.regions.label }}</label>
+                                                        </span>
+                                                        {{ document_form.regions }}
+                                                    </div>
+                                                    {% if document_form.data_quality_statement %}
+                                                    <div>
+                                                        <span>
+                                                            <label for="{{ document_form.data_quality_statement|id }}">{{ document_form.data_quality_statement.label }}</label>
+                                                        </span>
+                                                        <!--<p class="xxs-font-size">(General explanation of the data producer's knowledge about the lineage)</p>-->
+                                                        {{ document_form.data_quality_statement }}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                {% if document_form.restriction_code_type or document_form.constraints_other%}
+                                                    <div class="col-lg-4">
+                                                        {% if document_form.restriction_code_type %}
+                                                        <div>
+                                                            <span>
+                                                                <label for="{{ document_form.restriction_code_type|id }}">{{ document_form.restriction_code_type.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Limitation/s placed upon the access or use of data)</p>-->
+                                                            {{ document_form.restriction_code_type }}
+                                                        </div>
+                                                        {% endif %}
+                                                        {% if document_form.constraints_other %}
+                                                        <div>
+                                                            <span>
+                                                                <label for="{{ document_form.constraints_other|id }}">{{ document_form.constraints_other.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Other restrictions and legal prerequisites for accessing or use data and metadata)</p>-->
+                                                            {{ document_form.constraints_other }}
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <div id="ownership" class="tab-pane fade">
+                            <div class="">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div>
+                                            <div class="col-xs-12 col-lg-4">
+                                                <p>
+                                                    <strong>
+                                                        {% trans "Other, Optional, Metadata" %}
+                                                    </strong>
+                                                </p>
+                                                <div>
+                                                    <span>
+                                                        <label for="{{ document_form.edition|id }}">{{ document_form.edition.label }}</label>
+                                                    </span>
+                                                    <!--<p class="xxs-font-size">(Version of the cited resource)</p>-->
+                                                    {{ document_form.edition }}
+                                                </div>
+                                                <div>
+                                                    <span>
+                                                        <label for="{{ document_form.purpose|id }}">{{ document_form.purpose.label }}</label>
+                                                    </span>
+                                                    <!--<p class="xxs-font-size">(Brief narrative summary of the intentions with which the resource/s ...)</p>-->
+                                                    {{ document_form.purpose }}
+                                                </div>
+                                                <div>
+                                                    <span>
+                                                        <label for="{{ document_form.supplemental_information|id }}">{{ document_form.supplemental_information.label }}</label>
+                                                    </span>
+                                                    <!--<p class="xxs-font-size">(Any other descriptive information about the dataset)</p>-->
+                                                    {{ document_form.supplemental_information }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-5">
+                                                <div class="row">
+                                                    {% if document_form.temporal_extent_start %}
+                                                    <div class="col-xs-12 col-lg-6">
+                                                        <div class="input-group date">
+                                                            <span>
+                                                                <label for="{{ document_form.temporal_extent_start|id }}">{{ document_form.temporal_extent_start.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
+                                                            {{ document_form.temporal_extent_start }}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if document_form.temporal_extent_end %}
+                                                    <div class="col-xs-12 col-lg-6">
+                                                        <div class="input-group date">
+                                                            <span>
+                                                                <label for="{{ document_form.temporal_extent_end|id }}">{{ document_form.temporal_extent_end.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Identification of when a given event occurred)</p>-->
+                                                            {{ document_form.temporal_extent_end }}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    <div class="col-xs-12">
+                                                        {% if document_form.maintenance_frequency %}
+                                                        <div style="margin-top: 5px">
+                                                            <span>
+                                                                <label for="{{ document_form.maintenance_frequency|id }}">{{ document_form.maintenance_frequency.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Identification of when a given event occurred)</p>-->
+                                                            {{ document_form.maintenance_frequency }}
+                                                        </div>
+                                                        {% endif %}
+                                                        {% if document_form.spatial_representation_type %}
+                                                        <div style="margin-top: 5px">
+                                                            <span>
+                                                                <label for="{{ document_form.spatial_representation_type|id }}">{{ document_form.spatial_representation_type.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Method used to represent geographic information in the dataset)</p>-->
+                                                            {{ document_form.spatial_representation_type }}
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-3">
+                                                <div class="panel panel-default" style="margin-top: 5px">
+                                                    <div class="panel-heading">{% trans "Responsible Parties" %}</div>
+                                                    <div class="panel-body">
+                                                        <span>
+                                                            <label for="{{ document_form.poc|id }}">{{ document_form.poc.label }}</label>
+                                                        </span>
+                                                        {{ document_form.poc }}
+                                                    </div>
+                                                </div>
+            
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">{% trans "Owner and Permissions" %}</div>
+                                                    <div class="panel-body">
+                                                        <div>
+                                                            <span>
+                                                                <label for="{{ document_form.owner|id }}">{{ document_form.owner.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Owner of the cited resource)</p>-->
+                                                            {{ document_form.owner }}
+                                                        </div>
+                                                        <div>
+                                                            <span>
+                                                                <label for="{{ document_form.metadata_author|id }}">{{ document_form.metadata_author.label }}</label>
+                                                            </span>
+                                                            <!--<p class="xxs-font-size">(Author of the metadata)</p>-->
+                                                            {{ document_form.metadata_author }}
+                                                        </div>
+                                                        {% if GEONODE_SECURITY_ENABLED %}
+                                                        <!--<hr />
+                                                            <div class="modal-body" id="_permissions" tabindex="-1" role="dialog"
+                                                                aria-labelledby="myModalLabel" aria-hidden="true">
+                                                                {# include "_permissions.html" #}
+                                                            </div>
+                                                            <div class="modal fade" id="_permissions_feedbacks" tabindex="-1"
+                                                                role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                                aria-label="Close"><span
+                                                                                    aria-hidden="true">&times;</span></button>
+                                                                            <h4 class="modal-title" id="exampleModalLabel">Message
+                                                                                box</h4>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            ...
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-default"
+                                                                                data-dismiss="modal">OK</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>-->
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <input type="button" id="btn_back_dwn" class="btn btn-primary" style="display: none" value="{% trans "<< Back" %}" />
+                    <input type="submit" id="btn_upd_md_dwn" class="btn btn-primary" value="{% trans "Update" %}" />
+                    <input type="button" id="btn_next_dwn" class="btn btn-primary" value="{% trans "Next >>" %}" />
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="settings" style="overflow: hidden;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{% trans "Publishing" %}</h3>
+                    </div>
+                    <div class="panel-body">
+                        {% if document_form.metadata_uploaded_preserve %}
+                            <div>
+                                <span>
+                                    <label for="{{ document_form.metadata_uploaded_preserve|id }}">
+                                        {{ document_form.metadata_uploaded_preserve.label }}
+                                    </label>
+                                </span>
+                                {{ document_form.metadata_uploaded_preserve }}
+                            </div>
+                        {% endif %}
+                        {% if document_form.is_approved %}
+                            <div>
+                                <span>
+                                    <label for="{{ document_form.is_approved|id }}">{{ document_form.is_approved.label }}</label>
+                                </span>
+                                {{ document_form.is_approved }}
+                            </div>
+                        {% endif %}
+                        {% if document_form.is_published %}
+                            <div>
+                                <span>
+                                    <label for="{{ document_form.is_published|id }}">{{ document_form.is_published.label }}</label>
+                                </span>
+                                {{ document_form.is_published }}
+                            </div>
+                        {% endif %}
+                        {% if document_form.featured %}
+                            <div>
+                                <span>
+                                    <label for="{{ document_form.featured|id }}">{{ document_form.featured.label }}</label>
+                                </span>
+                                {{ document_form.featured }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

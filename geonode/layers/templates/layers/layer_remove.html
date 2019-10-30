@@ -3,52 +3,38 @@
 
 {% block title %}{{ layer.alternate }} — {{ block.super }}{% endblock %}
 
-{% block layer_title %}
-    <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-inverse pull-right">{% trans "Explore Layers" %}</a>
-    <h2>{% trans "Remove Layers" %}</h2>
-{% endblock layer_title %}
-
-{% block breadcrumb %}
-    <li>
-        <a href="{{ layer.get_absolute_url }}">{{ layer.alternate }}</a>
-    </li>
-    <li class="active">{% trans "Remove Layer" %}</li>
-{% endblock breadcrumb %}
-
 {% block body %}
-   
-   <div class="panel panel-default g-margin-t-25--xs g-margin-b-45--xs">
-       <div class="panel-body">
-           <div class="row">
-               <div class="text-center">
-                   <p class="lead">
-                       {% blocktrans with layer.alternate as layer_title %}
-                       Are you sure you want to remove <a href="{{ layer.get_absolute_url }}">{{ layer_title }}</a>?
-                       {% endblocktrans %}
-                   </p>
-                   <form action="{% url "layer_remove" layer.service_typename %}" method="POST">
-                       {% csrf_token %}
-                       <input type="hidden" value="{{ layer.service_typename }}" />
-                       <div class="form-actions">
-                           <input type="submit" value="{% trans "Yes, I am sure" %}" class="btn btn-danger" />
-                           <a href="{{ layer.get_absolute_url }}" class="btn btn-default">{% trans "No, don't remove it" %}</a>
-                       </div>
-                   </form>
-               </div>
-               {% if layer.maps %}
-               <div class="col-md-4">
-                   <ul class="nav nav-list">
-                       <li class="nav-header">{% trans "This action affects the following maps:" %}</li>
-                       {% for map_layer in layer.maps %}
-                       <li><a href="{{ map_layer.map.get_absolute_url }}">{{ map_layer.map.title }}</a></li>
-                       {% empty %}
-                       <li>{% trans "No maps are using this layer" %}</li>
-                       {% endfor %}
-                   </ul>
-               </div>
-               {% endif %}
-           </div>
-       </div>
-   </div>
-   
+<div class="page-header">
+  <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Layers" %}</a>
+  <h2 class="page-title">{% trans "Remove Layers" %}</h2>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <p class="lead">
+        {% blocktrans with layer.alternate as layer_title %}
+          Are you sure you want to remove <a href="{{ layer.get_absolute_url }}">{{ layer_title }}</a>?
+        {% endblocktrans %}
+      </p>
+    <form action="{% url "layer_remove" layer.service_typename %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" value="{{ layer.service_typename }}" />
+      <div class="form-actions">
+        <input type="submit" value="{% trans "Yes, I am sure" %}" class="btn btn-danger" />
+        <a href="{{ layer.get_absolute_url }}" class="btn btn-default">{% trans "No, don't remove it" %}</a>
+      </div>
+    </form>
+  </div>
+  {% if layer.maps %}
+    <div class="col-md-4">
+    <ul class="nav nav-list">
+    <li class="nav-header">{% trans "This action affects the following maps:" %}</li>
+    {% for map_layer in layer.maps %}
+      <li><a href="{{ map_layer.map.get_absolute_url }}">{{ map_layer.map.title }}</a></li>
+    {% empty %}
+      <li>{% trans "No maps are using this layer" %}</li>
+    {% endfor %}
+    </ul>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

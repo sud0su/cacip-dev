@@ -1,0 +1,51 @@
+{% extends "documents/document_upload_base.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Replace Document" %} - {{ block.super }} {% endblock %}
+
+{% block body_class %}documents replace{% endblock body_class %}
+
+{% block head %}
+    {% include "geoext/app_header.html" %}
+    {{ block.super }}
+{% endblock %}
+
+{% block upload_doc_title %}
+    <h2>{% trans "Replace Static Map" %}</h2>
+{% endblock upload_doc_title %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="{{ document.get_absolute_url }}">{{ document.title }}</a>
+    </li>
+    <li class="active">{% trans "Replace" %}</li>
+{% endblock breadcrumb %}
+
+{% block body_outer %}
+    <div class="block">
+        <div class="panel panel-default g-margin-t-45--xs g-margin-b-45--xs">
+            <div class="panel-body">
+                <h2 class="page-title text-center">{% trans "Replace " %}{{ document.title }}</h2>
+                <div class="col-md-8 col-md-push-2">
+                    <div id="upload_form">
+                        <form method="post" enctype="multipart/form-data" action="{% url "document_replace" document.id %}">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                            {{ form.errors }}
+                            {% if document.doc_file %}
+                                {{ form.doc_file }}
+                            {% elif document.doc_url %}
+                                {{ form.doc_url }}
+                            {% endif %}
+                            <section class="text-center">
+                                <button id="clear-button" type="reset" class="btn btn-default">{% trans "Clear" %}</button>
+                                <button id="upload-button" type="submit" class="btn btn-danger"
+                                    value="Update">{% trans "Replace Document" %}</button>
+                            </section>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block extra_head %}
+<link href="{% static "geonode/css/social_twitter.css" %}" rel="stylesheet" />
+{% endblock %}
+
+{% block social_links %}
+    <div class="g-text-center--xs g-margin-t-45--xs">
+        <ul class="list-inline">
+            {% for social_link in social_links %}
+                {% if social_link.url %}
+                <li><a href="{{ social_link.url }}" class=""><i class="fa ico-{{ social_link.css_class }}"></i></a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

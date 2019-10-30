@@ -15,131 +15,104 @@
 
 {% block body_class %}groups{% endblock %}
 
-{% block group_title %}
-    <h2>{{ object.title|default:object.slug }}</h2>
-{% endblock group_title %}
-
-{% block breadcrumb %}
-    <li class="active">{{ object.title|default:object.slug }}</li>
-{% endblock breadcrumb %}
-
 {% block body_outer %}
-
-    <div class="row ">
-        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-xs-4 col-sm-3 col-md-2 col-lg-3">
-                            {% if object.logo %}
-                                <img src="{{ object.logo.url }}" class="img-responsive" alt="{{ object.title }}" />
-                            {% else %}
-                                <!-- <p>{% trans "This group has not created a logo." %}</p> -->
-                            {% endif %}
-                        </div>
-                        <div class="col-xs-8 col-sm-8 col-md-10 col-lg-9">
-                            <h2 class="g-margin-b-0--xs">{{ object.title|default:object.slug }}</h2>
-                            <p>
-                                {% trans "Last Modified" %}: {{ object.last_modified }}
-                            </p>
-                            <p class="g-margin-b-0--xs">
-                                {% trans "Managed by" %}
-                                {% for manager in object.get_managers %}
-                                    {% with manager as profile %}
-                                        <a href="{{ profile.get_absolute_url }}">{{ profile.username }}</a>
-                                    {% endwith %}
-                                {% endfor %}
-                            </p>
-                            {% if object.email %}
-                                <p>
-                                    <i class="fa fa-envelope-o"></i>
-                                    <a href="mailto:{{ object.email }}">{{ object.email }}</a>
-                                </p>
-                            {% endif %}
-                            {% if object.keyword_list %}
-                                <p class="pull-right">
-                                    {% for keyword in object.keyword_list %}
-                                        <span class="label label-default">{{ keyword }}</span>
-                                    {% endfor %}
-                                </p>
-                            {% endif %}
-                            {% if object.categories.exists %}
-                                <p>
-                                    {% for category in object.categories.all %}
-                                        <a href="{{ category.get_absolute_url }}"><span class="label label-info">{{ category.name }}</span></a>
-                                    {% endfor %}
-                                </p>
-                            {% endif %}
-                            <div>
-                                {% if is_manager %}
-                                    <br>
-                                    <br>
-                                    <a href="{% url "group_update" object.slug %}" class="btn btn-default">{% trans "Edit Group Details" %}</a>
-                                    <a href="{% url "group_members" object.slug %}" class="btn btn-default">{% trans "Manage Group Members" %}</a>
-                                    <a href="{% url "group_remove" object.slug %}" class="btn btn-danger">{% trans "Delete Group" %}</a>
-                                {% endif %}
-                                {% comment %}
-                                    {% if can_view %}
-                                        <a href="{% url "group_activity" object.slug %}" class="btn btn-default">{% trans "Group Activities" %}</a>
-                                    {% endif %}
-                                {% endcomment %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="page-header">
+    <h2 class="page-title">{{ object.title|default:object.slug }}</h2>
+    <p>
+        {% trans "Last Modified" %}: {{ object.last_modified }}
+    </p>
+</div>
+<div class="row">
+    <div class="col-md-8 group-details">
+        <div class="row">
+            <div class="col-xs-4 col-md-3 group-logo">
+                {% if object.logo %}
+                    <img src="{{ object.logo.url }}" alt="{{ object.title }}" />
+                {% else %}
+                    <!-- <p>{% trans "This group has not created a logo." %}</p> -->
+                {% endif %}
             </div>
-            
-            {% if can_view %}
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    {% include "groups/activity.html" %}
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <h2>{% trans "Members" %}</h2>
-                    <div class="tab-content paginate paginate-auto" id="search-content">
-                        {% include 'people/_profile_list_item.html' %}
-                    </div>
-                    {% include 'search/_pagination.html' %}
-                </div>
-            </div>
-            
-        </div>
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <h4 class="list-group-item-heading">{% trans "Permissions" %}</h4>
-                    <p class="list-group-item-text">
-                        {% blocktrans with object.get_access_display as access %}
-                            This group is <strong>{{ access }}</strong>.
-                        {% endblocktrans %}
-                        {% if object.access == "public" %}
-                            {% trans "Anyone may join this group." %}
-                            <br>
-                            <br>
-                            <form class="uniForm" method="POST" action="{% url "group_join" object.slug %}">
-                                {% csrf_token %}
-                                {% if not is_member %}
-                                    <input type="submit" class="btn btn-default btn-md btn-block" value="Join Group" />
-                                {% endif %}
-                            </form>
-                        {% else %} 
-                            {% if object.access == "public-invite" %}
-                                {% trans "Anyone may view this group but membership is by invitation only." %}
-                            {% else %} 
-                                {% if object.access == "private" %}
-                                    {% trans "Membership is by invitation only." %}
-                                {% endif %} 
-                            {% endif %} 
-                        {% endif %}
+            <div class="col-xs-8 col-md-9 group-details">
+                <p class="group-desc">{{ object.description }}</p>
+                {% if object.keyword_list %}
+                    <p>
+                        {% for keyword in object.keyword_list %}
+                            <span class="label label-default">{{ keyword }}</span>
+                        {% endfor %}
                     </p>
-                </div>
+                {% else %}
+                {% endif %}
+                {% if object.email %}
+                    <p><i class="fa fa-envelope-o"></i>
+                        <a href="mailto:{{ object.email }}">{{ object.email }}</a>
+                    </p>
+                {% endif %}
+
+                {% if object.categories.exists %}
+                    <p>
+                        {% for category in object.categories.all %}
+                            <a href="{{ category.get_absolute_url }}"><span class="label label-info">{{ category.name }}</span></a>
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+        <ul class="list-group">
+            {% if is_manager %}
+                <li class="list-group-item"><a href="{% url "group_update" object.slug %}">{% trans "Edit Group Details" %}</a></li>
+                <li class="list-group-item"><a href="{% url "group_members" object.slug %}">{% trans "Manage Group Members" %}</a></li>
+                <li class="list-group-item"><a href="{% url "group_remove" object.slug %}">{% trans "Delete this Group" %}</a></li>
+            {% endif %}
+            {% if can_view %}
+                <li class="list-group-item"><a href="{% url "group_activity" object.slug %}">{% trans "Group Activities" %}</a></li>
+            {% endif %}
+            <li class="list-group-item">
+                <h4>{% trans "Permissions" %}</h4>
+                <p>
+                    {% blocktrans with object.get_access_display as access %}
+                        This group is <strong>{{ access }}</strong>.
+                    {% endblocktrans %}
+                    {% if object.access == "public" %}
+                        {% trans "Anyone may join this group." %}
+                        <form class="uniForm" method="POST" action="{% url "group_join" object.slug %}">
+                            {% csrf_token %}
+                            {% if not is_member %}
+                                <input type="submit" class="btn btn-default btn-md btn-block" value="Join Group" />
+                            {% endif %}
+                        </form>
+                    {% else %} 
+                        {% if object.access == "public-invite" %}
+                            {% trans "Anyone may view this group but membership is by invitation only." %}
+                        {% else %} 
+                            {% if object.access == "private" %}
+                                {% trans "Membership is by invitation only." %}
+                            {% endif %} 
+                        {% endif %} 
+                    {% endif %}
+                </p>
+            </li>
+            <li class="list-group-item">
+                <h4>{% trans "Managers" %}</h4>
+                {% for manager in object.get_managers %}
+                    {% with manager as profile %}
+                        {% include "people/_profile_about_item.html" %}
+                    {% endwith %}
+                {% endfor %}
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+      <h4>{% trans "Members" %}</h4>
+      <div class="tab-content paginate paginate-auto" id="search-content">
+      {% include 'people/_profile_list_item.html' %}
+      </div>
+    </div>
+    {% include 'search/_pagination.html' %}
+</div>
 {% endblock %}
 
 

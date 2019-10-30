@@ -1,8 +1,24 @@
 {% load i18n %}
-<div class="row">
-    <div class="list-container">
-        <div id="filter_controller" style="">
-            <div class="col-sm-4 col-md-3">
+<div class="row" ng-controller="CartList">
+    <div class="col-md-3">
+        <resource-cart data-facet-type="{{ facet_type }}"></resource-cart>
+        <div class="row">
+            <div class="col-xs-12">
+                {% block bulk_perms_button %}
+                <div class="btn-group btn-group-justified" role="group" aria-label="tools">
+                    {% if request.user.is_authenticated %}
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" ng-disabled="!cart.getCart().items.length" data-toggle="modal" data-target="#_bulk_permissions">{% trans "Set permissions" %}</button>
+                        </div>
+                    {% endif %}
+                    {% if facet_type == 'layers' %}
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" ng-disabled="!cart.getCart().items.length" ng-click="newMap()">{% trans "Create a Map" %}</button>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endblock %}
+
                 <div class="selections">
                     {% trans "Filters" %}
                     <a href="." id="clear-search" class="pull-right">{% trans "Clear" %}</a>
@@ -11,8 +27,8 @@
                         {% include "search/_text_filter.html" %}
                     {% endif  %}
                 <div id="slide-pane">
-                    {% if SEARCH_FILTERS.REGION_ENABLED %}
-                        {% include "search/_region_filter.html" %}
+                    {% if SEARCH_FILTERS.H_KEYWORDS_ENABLED %}
+                        {% include "search/_h_keywords_filter.html" %}
                     {% endif %}
                     {% if SEARCH_FILTERS.T_KEYWORDS_ENABLED %}
                         {% include "search/_t_keywords_filter.html" %}
@@ -21,8 +37,8 @@
                         {% include "search/_type_filters.html" %}
                     {% endif %}
                     {% include "search/_general_filters.html" %}
-                    {% if SEARCH_FILTERS.H_KEYWORDS_ENABLED %}
-                        {% include "search/_h_keywords_filter.html" %}
+                    {% if SEARCH_FILTERS.REGION_ENABLED %}
+                        {% include "search/_region_filter.html" %}
                     {% endif %}
                     {% if SEARCH_FILTERS.EXTENT_ENABLED %}
                         {% include "search/_extent_filter.html" %}
@@ -30,37 +46,18 @@
                 </div>
             </div>
         </div>
-        <div id="resource_list">
-            <div class="col-sm-8 col-md-9">
-                <div class="filter-toolbar-container">
-                    {% include "search/_filter_toolbar.html" %}
-                </div>
-                <div>
-                    <span ng-bind="'Total : ' + total_counts + ' {{ facet_type | title }}'" class="pull-left"></span>
-                    <div class="g-margin-b-20--xs text-right">
-                        {% if 'documents' in request.path %}
-                            <a href="{% url "document_upload" %}" class="btn btn-primary">{% trans "Upload Documents" %}</a>
-                        {% elif 'maps' in request.path %}
-                            {% if user.is_superuser %}
-                                <a href="{% url "new_map" %}" class="btn btn-primary">{% trans "Create a New Map" %}</a>
-                            {% endif %}
-                        {% elif 'layers' in request.path %}
-                            <a href="{% url "layer_upload" %}" class="btn btn-primary">{% trans "Upload Layers" %}</a>
-                        {% endif %}
-                    </div>
-                </div>
-                <resource-cart data-facet-type="{{ facet_type }}"></resource-cart>
-                {% include 'search/_set_permission_btn_group.html' %}
-                <div class="row hide">
-                    <div class="col-md-12"><span ng-bind="'Total : ' + total_counts + ' {{ facet_type | title }}'" class="pull-right"></span></div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 grid-spacer">
-                        {% include 'base/_resourcebase_snippet.html' %}
-                    </div>
-                </div>
+    </div>
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-10"><span style="font-size: 34px;" ng-bind="total_counts + ' {{ facet_type | title }} found'"></span></div>
+            <div class="col-md-2">{% include "search/_sort_filters.html" %}</div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 grid-spacer">
+                {% include 'base/_resourcebase_snippet.html' %}
+                {% include 'search/_pagination.html' %}
             </div>
-            <!-- {#% include "_bulk_permissions_form.html" %} -->
         </div>
     </div>
+    <!-- {#% include "_bulk_permissions_form.html" %} -->
 </div>

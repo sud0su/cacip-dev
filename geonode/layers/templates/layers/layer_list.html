@@ -6,14 +6,8 @@
 
 {% block body_class %}layers explore{% endblock %}
 
-{% block extra_controller %}ng-controller="CartList"{% endblock %}
-
-{% block add_on_btn %}
-    <a href="{% url "layer_upload" %}" class="btn btn-inverse pull-right">{% trans "Upload Layers" %}</a>
-{% endblock add_on_btn %}
-
 {% block body %}
-    <div class="page-header hide">
+    <div class="page-header">
         <a href="{% url "layer_upload" %}" class="btn btn-primary pull-right">{% trans "Upload Layers" %}</a>
         <h2 class="page-title">{% trans "Explore Layers" %}</h2>
     </div>
@@ -26,10 +20,8 @@
         {% endwith %}
     {% endwith %}
 
-{% endblock %}
-
-{% block modal %}
     {% include "_bulk_permissions_form.html" %}
+
 {% endblock %}
 
 {% block extra_script %}
@@ -49,5 +41,4 @@
     {% with include_spatial='true' %}
         {% include 'search/search_scripts.html' %}
     {% endwith %}
-    {% include 'base/_resourcebase_script.html' %}
 {% endblock extra_script %}

@@ -5,52 +5,16 @@
 {% load client_lib_tags %}
 
 {% block title %} {% trans "New Map" %} - {{ block.super }} {% endblock %}
-
 {% block head %}
 
     <style>
         #paneltbar {
-            /* margin-top: 1px !important; */
-            margin-top: 61px !important;
+            margin-top: 90px !important;
         }
-
-        .header-top,
-        .navbar.m-menu{
-            position: fixed;
-            right: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        .header-top{
-            top: 0;
-        }
-
-        .m-menu{
-            top: 50px;
-        }
-
-        @media screen and (max-width: 768px){
-            #paneltbar {
-                margin-top: 72px !important;
-                /* margin-top: 60px !important; */
-            }
-
-            .m-menu{
-                top: 0px !important;
-            }
-        }
-
     </style>
 
+    {% get_map_new %}
 	{{ block.super }}
 {% endblock %}
-
-<!-- {#% block extra_top_class %}navbar-fixed-top{#% endblock %} -->
-<!-- {#% block extra_nav_class %}navbar-fixed-top{#% endblock %} -->
-
-{% block middle %}
-    {% get_map_new %}
-{% endblock middle %}
 
 {% block footer %}{% endblock %}

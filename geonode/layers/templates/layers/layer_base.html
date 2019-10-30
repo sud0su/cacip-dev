@@ -1,40 +1,9 @@
-
 {% extends "geonode_base.html" %}
 {% load i18n %}
 
 {% block title %} {{ block.super }} {% endblock %}
 
 {% block body_class %}data{% endblock body_class %}
-
-{% block middle %}
-    <section class="single-page-title single-page-title-about hide">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    {% block layer_title %}
-                    <h2>{% trans "Layers" %}</h2>
-                    {% endblock layer_title %}
-                    {% block add_on_btn %}
-                    {% endblock add_on_btn %}
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- .page-title -->
-
-    <section class="breadcrumb-section">
-        <div class="container">
-            <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">
-                <li>
-                    <a href="{% url 'layer_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Layers" %}</a>
-                </li>
-                {% block breadcrumb %}
-                {% endblock breadcrumb %}
-            </ol>
-        </div>
-    </section>
-    {{ block.super }}
-{% endblock middle %}
 
 {% block body_outer %}
     {% block body %}{% endblock body %}

@@ -1,0 +1,128 @@
+{% load i18n %}
+
+<div class="profile-snippet">
+    {% verbatim %}
+    <div class="row">
+        <div id="grid_view">
+            <div class="col-sm-6 col-md-6 col-lg-4" ng-repeat="profile in results" ng-cloak class="ng-cloak">
+                <div class="card">
+                    <div class="card-image">
+                        <a href="{{ profile.profile_detail_url }}">
+                            <img class="img-responsive center-block" ng-src="{{ profile.avatar_100 }}" />
+                        </a>
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <h2>
+                                <a href="{{ profile.profile_detail_url }}">
+                                    {{ profile.first_name != '' ? profile.first_name : profile.username }}
+                                    {{ profile.last_name != '' ? profile.last_name : '' }}
+                                </a>
+                            </h2>
+                            <p>
+                                <small ng-hide="profile.organization">
+                                    No Organization Info
+                                </small>
+                                <small ng-show="profile.organization">
+                                    {{ profile.organization | limitTo:30 }} <small
+                                        ng-if="profile.organization.length > 30">...</small>
+                                </small>
+                            </p>
+                            <!-- <p>{{ profile.username }}</p> -->
+                            <!-- <a href="mailto:{{ profile.email }}" ng-if="profile.email != ''"><i class="fa fa-envelope"></i></a> -->
+                            <ul class="list-inline">
+                                <li>
+                                    <a href="{{ profile.profile_detail_url }}?content=layers">
+                                        <i class="fa fa-square-o rotate-45"></i>
+                                        &nbsp;{{ profile.layers_count }}
+                                        <!-- <ng-pluralize count="profile.layers_count" when="{'1': 'Layer', 'other': 'Layers'}"></ng-pluralize> -->
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ profile.profile_detail_url }}?content=maps">
+                                        <i class="fa fa-map-marker"></i>
+                                        &nbsp;{{ profile.maps_count }}
+                                        <!-- <ng-pluralize count="profile.maps_count" when="{'1': 'Map', 'other': 'Maps'}"></ng-pluralize> -->
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ profile.profile_detail_url }}?content=documents">
+                                        <i class="fa fa-file-text-o"></i>
+                                        &nbsp;{{ profile.documents_count }}
+                                        <!-- <ng-pluralize count="profile.documents_count" when="{'1': 'Doc', 'other': 'Docs'}"></ng-pluralize> -->
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="text-right">
+                            <a href="{{ profile.profile_detail_url }}" class="btn">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="list_view" style="display: none;">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-repeat="profile in results" ng-cloak class="ng-cloak">
+                <div class="card">
+                    <div class="row">
+                        <div class="col-xs-5 col-sm-3 col-md-3 col-lg-3">
+                            <a href="{{ profile.profile_detail_url }}">
+                                <img class="img-responsive center-block" ng-src="{{ profile.avatar_100 }}" />
+                            </a>
+                        </div>
+                        <div class="col-xs-7 col-sm-9 col-md-9 col-lg-9">
+                            <div class="card-content resourcebase-content-list">
+                                <div>
+                                    <a href="{{ profile.profile_detail_url }}">
+                                        <h2>
+                                            {{ profile.first_name != '' ? profile.first_name : profile.username }}
+                                            {{ profile.last_name != '' ? profile.last_name : '' }}
+                                        </h2>
+                                    </a>
+                                    <p>
+                                        <small ng-hide="profile.organization">
+                                            No Organization Info
+                                        </small>
+                                        <small ng-show="profile.organization">
+                                            {{ profile.organization | limitTo:30 }} <small
+                                                ng-if="profile.organization.length > 30">...</small>
+                                        </small>
+                                    </p>
+                                    <!-- <p>{{ profile.username }}</p> -->
+                                    <!-- <a href="mailto:{{ profile.email }}" ng-if="profile.email != ''"><i class="fa fa-envelope"></i></a> -->
+                                    <ul class="list-inline">
+                                        <li>
+                                            <a href="{{ profile.profile_detail_url }}?content=layers">
+                                                <i class="fa fa-square-o rotate-45"></i>
+                                                &nbsp;{{ profile.layers_count }}
+                                                <!-- <ng-pluralize count="profile.layers_count" when="{'1': 'Layer', 'other': 'Layers'}"></ng-pluralize> -->
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ profile.profile_detail_url }}?content=maps">
+                                                <i class="fa fa-map-marker"></i>
+                                                &nbsp;{{ profile.maps_count }}
+                                                <!-- <ng-pluralize count="profile.maps_count" when="{'1': 'Map', 'other': 'Maps'}"></ng-pluralize> -->
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ profile.profile_detail_url }}?content=documents">
+                                                <i class="fa fa-file-text-o"></i>
+                                                &nbsp;{{ profile.documents_count }}
+                                                <!-- <ng-pluralize count="profile.documents_count" when="{'1': 'Doc', 'other': 'Docs'}"></ng-pluralize> -->
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="text-right">
+                                    <a href="{{ profile.profile_detail_url }}" class="btn">{% endverbatim %}{% trans "Details" %}{% verbatim %}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+</div>

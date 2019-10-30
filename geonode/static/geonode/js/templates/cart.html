@@ -1,18 +1,14 @@
-<div id="composerCart" class="panel panel-default" ng-show="cart.getCart().items.length > 0">
-    <div class="panel-heading">
-        <span ng-bind="'Selected ' + (facetType | default_if_blank : 'objects') | title "></span>
-        <div class="pull-right container-tools-set">
-        </div>
+<div id="composerCart" class="panel panel-default">
+    <div
+        class="panel-heading"
+        ng-bind="'Selected ' + (facetType | default_if_blank : 'objects') | title ">
     </div>
     <div
         ng-show="!cart.getCart().items.length"
         class="panel-body">
-        <p class="g-margin-b-0--xs">Add {{ facetType | default_if_blank : 'objects' }} through the "checkboxes".</p>
+        <p>Add {{ facetType | default_if_blank : 'objects' }} through the "checkboxes".</p>
     </div>
     <ul class="list-group">
-        <li class="list-group-item clearfix list-group-inline-chips" ng-repeat="resource in cart.getCart().items">{{ resource.title | limitTo: 25}}{{ resource.title.length > 25 ? '...' : '' }}
-            <button class="btn btn-default btn-xs btn-circle pull-right" ng-click="cart.removeItem(resource)"><i class="fa fa-remove"></i></button>
-        </li>
+        <li class="list-group-item clearfix" ng-repeat="resource in cart.getCart().items">{{ resource.title | limitTo: 25}}{{ resource.title.length > 25 ? '...' : '' }}<button class="btn btn-default btn-xs pull-right" ng-click="cart.removeItem(resource)"><i class="fa fa-remove fa-lg"></i></button></li>
     </ul>
 </div>
-    

@@ -1704,3 +1704,6 @@ if USE_WORLDMAP:
     HYPERMAP_REGISTRY_URL = os.getenv('HYPERMAP_REGISTRY_URL', 'http://localhost:8001')
     SOLR_URL = os.getenv('SOLR_URL', 'http://localhost:8983/solr/hypermap/select/')
     MAPPROXY_URL = os.getenv('MAPPROXY_URL', 'http://localhost:8001')
+
+# added by Dodi
+UPDATE_RESOURCE_LINKS_AT_MIGRATE = False

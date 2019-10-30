@@ -6,12 +6,8 @@
 
 {% block body_class %}groups explore{% endblock %}
 
-{% block group_title %}
-    <h2>{% trans "Group Category" %}</h2>
-{% endblock group_title %}
-
 {% block body %}
-    <div class="page-header hide">
+    <div class="page-header">
         {% if user.is_authenticated %}
             <a href="{% url "group_category_create" %}" class="btn btn-primary pull-right">{% trans "Create a New Group Category" %}</a>
         {% endif %}
@@ -34,5 +30,4 @@
     {% with include_spatial='false' %}
         {% include 'search/search_scripts.html' %}
     {% endwith %}
-    {% include 'base/_resourcebase_script.html' %}
 {% endblock extra_script %}

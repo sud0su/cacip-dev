@@ -1,0 +1,39 @@
+{% extends "geonode_base.html" %}
+{% load i18n %}
+
+{% block body_outer %}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-md-push-2 col-lg-8 col-lg-push-2">
+        <div class="panel panel-default g-margin-t-35--xs">
+            <div class="panel-body">
+                <h2>
+                    {% if error_title %}
+                        {{ error_title }}
+                    {% else %}
+                        {% trans "Not Permitted" %}
+                    {% endif %}
+                </h2>
+                <p>
+                    {% if error_message %}
+                        {{ error_message }}
+                    {% else %}
+                        {% blocktrans %}
+                            You are not allowed to perform this operation.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% if not request.user.is_anonymous %}
+                        {% blocktrans %}Please verify that you are logged in as the correct user.{%endblocktrans%}
+                    {% else %}
+                        {% blocktrans %}Please login or register and retry.{% endblocktrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}

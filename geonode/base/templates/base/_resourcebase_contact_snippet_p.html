@@ -1,0 +1,90 @@
+{% load i18n %}
+
+{% if resource.owner == resource.poc and resource.owner == resource.metadata_author %}
+    {% with resource.owner as profile %}
+        <div class="media">
+            <div class="media-left"> 
+                {% include "people/_profile_about_item.html" %}
+            </div>
+            <div class="media-body">
+                <p class="media-heading">
+                    <a href="{{ profile.get_absolute_url }}">{{ profile.username }}</a>
+                    {{ username }}
+                </p>
+                <p class="no-margin">
+                    {% if profile.organization %}
+                        {{ profile.organization }}
+                    {% else %}
+                        {% trans "No Group" %}
+                    {% endif %}
+                </p>
+                <p>{% trans "Owner, Point of Contact, Metadata Author" %}</p>
+            </div>
+        </div>
+    {% endwith %}
+{% else %}
+    {% with resource.owner as profile %}
+        <div class="media">
+            <div class="media-left"> 
+                {% include "people/_profile_about_item.html" %}
+            </div>
+            <div class="media-body">
+                <p class="media-heading">
+                    <a href="{{ profile.get_absolute_url }}">{{ profile.username }}</a>
+                    {{ username }}
+                </p>
+                <p class="no-margin">
+                    {% if profile.organization %}
+                        {{ profile.organization }}
+                    {% else %}
+                        {% trans "No Group" %}
+                    {% endif %}
+                </p>
+                <p>{% trans "Owner" %}</p>
+            </div>
+        </div>
+    {% endwith %}
+    {% with resource.poc as profile %}
+        <div class="media">
+            <div class="media-left"> 
+                {% include "people/_profile_about_item.html" %}
+            </div>
+            <div class="media-body">
+                <p class="media-heading">
+                    <a href="{{ profile.get_absolute_url }}">{{ profile.username }}</a>
+                    {{ username }}
+                </p>
+                <p class="no-margin">
+                    {% if profile.organization %}
+                        {{ profile.organization }}
+                    {% else %}
+                        {% trans "No Group" %}
+                    {% endif %}
+                </p>
+                <p>{% trans "Point of Contact" %}</p>
+            </div>
+        </div>
+        {% include "people/_profile_about_item.html" %}
+    {% endwith %}
+    {% with resource.metadata_author as profile %}
+        <div class="media">
+            <div class="media-left"> 
+                {% include "people/_profile_about_item.html" %}
+            </div>
+            <div class="media-body">
+                <p class="media-heading">
+                    <a href="{{ profile.get_absolute_url }}">{{ profile.username }}</a>
+                    {{ username }}
+                </p>
+                <p class="no-margin">
+                    {% if profile.organization %}
+                        {{ profile.organization }}
+                    {% else %}
+                        {% trans "No Group" %}
+                    {% endif %}
+                </p>
+                <p>{% trans "Metadata Author" %}</p>
+            </div>
+        </div>
+    {% endwith %}
+{% endif %} 

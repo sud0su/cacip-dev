@@ -8,49 +8,19 @@
 
 {% block body_class %}documents{% endblock %}
 
-{% block middle %}
-    <section class="single-page-title single-page-title-about hide">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    {% block upload_doc_title %}
-                        <h2>{% trans "Upload Static Maps" %}</h2>
-                    {% endblock upload_doc_title %}
-                    {% block add_on_btn %}
-                    {% endblock add_on_btn %}
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- .page-title -->
-
-    <section class="breadcrumb-section">
-        <div class="container">
-            <ol class="breadcrumb g-padding-x-0--xs g-margin-b-0--xs">
-                <li>
-                    <a href="{% url 'document_browse' %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Static Maps" %}</a>
-                </li>
-                {% block breadcrumb %}
-                {% endblock breadcrumb %}
-            </ol>
-        </div>
-    </section>
-    {{ block.super }}
-{% endblock middle %}
-
 {% block body_outer %}
-<div class="page-header hide">
-    <a href="{% url "document_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Documents" %}</a>
-    <h2 class="page-title">{% trans "Upload Documents" %}</h2>
-    <p>Allowed document types:</p>
-    <p>
-        {% for doc in ALLOWED_DOC_TYPES %}
-        <span class="label label-default">.{{ doc }}</span>
-        {% endfor %}
-    </p>
+<div class="page-header">
+  <a href="{% url "document_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Documents" %}</a>
+  <h2 class="page-title">{% trans "Upload Documents" %}</h2>
+	<p>Allowed document types:</p>
+	<p>
+	{% for doc in ALLOWED_DOC_TYPES %}
+		<span class="label label-default">.{{ doc }}</span>
+	{% endfor %}
+	</p>
 </div>
 <div class="row">
-    {% block body %}{% endblock body %}
-    {% block sidebar %}{% endblock sidebar %}
+  {% block body %}{% endblock body %}
+  {% block sidebar %}{% endblock sidebar %}
 </div>
 {% endblock body_outer %}

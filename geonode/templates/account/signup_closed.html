@@ -4,13 +4,8 @@
 
 {% block title %}{% trans "Sign Up Closed" %}{% endblock %}
 
-{% block middle %}
-    <section class="contact-section white-bg">
-        <div class="container">
-            <div class="section-title text-center">
-                <h2>{% trans "Sign Up Closed" %}</h2>
-                <p>{% trans "We are sorry, but the sign up is currently closed." %}</p>
-            </div>
-        </div>
-    </section>
+{% block body_outer %}
+    <h1>{% trans "Sign Up Closed" %}</h1>
+
+    <p>{% trans "We are sorry, but the sign up is currently closed." %}</p>
 {% endblock %}

@@ -1,0 +1,80 @@
+{% load i18n %}
+
+    <div class="row" ng-controller="CartList">
+        <div class="list-container">
+            <div id="filter_controller">
+                <div class="col-sm-4 col-md-3">
+                    <div class="text-filter-container">
+                        {% load base_tags %}
+                        <div class="input-group">
+                            <input name="text_search_input" id="text_search_input" ng-model="text_query" type="text"
+                                placeholder="Search by name" class="form-control" data-query-key='name__icontains'>
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="submit" id="text_search_btn">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    {% if facet_type == 'groups' %}
+                        <nav class="filter">
+                            <h4>
+                                <a href="#" class="toggle toggle-nav">
+                                    <i class="fa fa-chevron-right"></i>{% trans "Categories" %}
+                                </a>
+                            </h4>
+                            <div class="nav closed" id="groupcategories">
+                                {% verbatim %}
+                                <div ng-repeat="category in categories" ng-if="category.member_count > 0">
+                                    <a data-value="{{ category.slug }}" data-filter="categories__slug"
+                                        ng-click="multiple_choice_listener($event)" class="{{category.active}}">
+                                        <div class="fa-stack fa-1g">
+                                            <i class="fa fa-square-o fa-stack-2x"></i>
+                                            <i class="fa {{category.fa_class}} fa-stack-1x"></i>
+                                        </div>
+                                        {{ category.name | limitTo: 25 }}{{ category.name.length > 25 ? '...' : ''}}
+                                        <span class="badge pull-right">{{ category.member_count }}</span>
+                                    </a>
+                                </div>
+                                {% endverbatim %}
+                            </div>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="resource_list">
+                <div class="col-sm-8 col-md-9">
+                    <div class="filter-toolbar-container">
+                        {% include "search/_filter_toolbar.html" %}
+                    </div>
+                    <div>
+                        <span class="pull-left">Total: 
+                            <span ng-bind="total_counts"></span>
+                        </span>
+                        {% if user.is_authenticated %}
+                        <div class="g-margin-b-20--xs text-right">
+                            {% if facet_type == 'groups' %}
+                                <a href="{% url "group_create" %}" class="btn btn-primary">{% trans "Create New Group" %}</a>
+                            {% elif facet_type == 'groupcategories' %}
+                                <a href="{% url "group_category_create" %}" class="btn btn-primary">{% trans "Create New Group Category" %}</a>
+                            {% elif facet_type == 'people' %}
+
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 grid-spacer">
+                            {% if facet_type == 'groups' %}
+                                {% include 'search/_group_snippet.html' %}
+                            {% elif facet_type == 'groupcategories' %}
+                                {% include 'search/_groupcategory_snippet.html' %}
+                            {% elif facet_type == 'people' %}
+                                {% include "people/_profile_list_item.html" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
