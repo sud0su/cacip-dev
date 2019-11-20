@@ -205,8 +205,10 @@ class RegionsSelect(forms.Select):
         def _region_id_from_choice(choice):
             if isinstance(choice, int):
                 return choice
-            else:
+            elif hasattr(choice, 'id'):
                 return choice.id
+            else:
+                return int(choice)
 
         selected_choices = set(force_text(_region_id_from_choice(v)) for v in selected_choices)
         output = []

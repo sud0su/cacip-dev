@@ -74,15 +74,35 @@
                                     <div class="col-lg-12 thesauri_keywords">
                                         {{ tkeywords_form }}
                                     </div>
-                                    <div class="col-lg-6 col-xs-12">
+                                    {% if document_form.event_date_start %}
+                                    <div class="col-xs-12 col-lg-6">
+                                        <div class="input-group date">
+                                            <span><label for="{{ document_form.date_type|id }}">{{ document_form.event_date_start.label }}</label></span>
+                                            <!--<p class="xxs-font-size">(Identification of when a given event occurred)</p>-->
+                                            {{ document_form.event_date_start }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if document_form.event_date_end %}
+                                    <div class="col-xs-12 col-lg-6">
+                                            <div class="input-group date">
+                                            <span><label for="{{ document_form.date|id }}">{{ document_form.event_date_end.label }}</label></span>
+                                            <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
+                                            {{ document_form.event_date_end }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="col-xs-12 col-lg-6">
                                         <span><label for="{{ document_form.date_type|id }}">{{ document_form.date_type.label }}</label></span>
                                         <!--<p class="xxs-font-size">(Identification of when a given event occurred)</p>-->
                                         {{ document_form.date_type }}
                                     </div>
-                                    <div class="col-lg-6 col-xs-12">
-                                        <span><label for="{{ document_form.date|id }}">{{ document_form.date.label }}</label></span>
-                                        <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
-                                        {{ document_form.date }}
+                                    <div class="col-xs-12 col-lg-6">
+                                        <div class="input-group date">
+                                            <span><label for="{{ document_form.date|id }}">{{ document_form.date.label }}</label></span>
+                                            <!--<p class="xxs-font-size">(When a given event occurred on the resource)</p>-->
+                                            {{ document_form.date }}
+                                        </div>
                                     </div>
                                     <div id="basicCategoryInfo" class="col-lg-12">
                                         <span><label for="{{ category_form.category_choice_field|id }}" class="control-label required-field">{% trans "Category" %}</label></span>

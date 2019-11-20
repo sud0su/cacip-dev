@@ -25,7 +25,7 @@ from .api import TagResource, TopicCategoryResource, ProfileResource, \
     GroupResource, RegionResource, OwnersResource, ThesaurusKeywordResource, \
     GroupCategoryResource
 from .resourcebase_api import LayerResource, MapResource, DocumentResource, \
-    ResourceBaseResource, FeaturedResourceBaseResource
+    ResourceBaseResource, FeaturedResourceBaseResource, KHEventsResource, KHDocumentsResource
 
 api = Api(api_name='api')
 
@@ -43,3 +43,7 @@ api.register(OwnersResource())
 api.register(ThesaurusKeywordResource())
 api.register(GroupCategoryResource())
 api.register(StyleResource())
+
+# CACIP
+api.register(KHEventsResource())
+api.register(KHDocumentsResource())

@@ -20,16 +20,43 @@
 
 from autocomplete_light.registry import register
 from autocomplete_light.autocomplete.shortcuts import AutocompleteModelTemplate
-from models import Document
+from models import Document, KHEvent, KHDocument
 
 
 class DocumentAutocomplete(AutocompleteModelTemplate):
     choice_template = 'autocomplete_response.html'
 
+class KHEventAutocomplete(DocumentAutocomplete):
+    choice_template = 'autocomplete_response.html'
+
+class KHDocumentAutocomplete(DocumentAutocomplete):
+    choice_template = 'autocomplete_response.html'
 
 register(
     Document,
     DocumentAutocomplete,
+    search_fields=['title'],
+    order_by=['title'],
+    limit_choices=100,
+    autocomplete_js_attributes={
+        'placeholder': 'Document name..',
+    },
+)
+
+register(
+    KHEvent,
+    KHEventAutocomplete,
+    search_fields=['title'],
+    order_by=['title'],
+    limit_choices=100,
+    autocomplete_js_attributes={
+        'placeholder': 'Event name..',
+    },
+)
+
+register(
+    KHDocument,
+    KHDocumentAutocomplete,
     search_fields=['title'],
     order_by=['title'],
     limit_choices=100,

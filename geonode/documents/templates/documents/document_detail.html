@@ -38,9 +38,9 @@
         </a>
       </div>
       {% elif resource.doc_file %}
-      <p><a href="{% url "document_download" resource.id %}" target="_blank">Download the {{ resource }} document</a></p>
+      <p><a href="{% url "document_download" resource.id %}" target="_blank">Download the {{ resource }} {{ resource.class_label }}</a></p>
       {% elif  resource.doc_url %}
-      <p><a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} document.</a> <small>({% trans 'External Resource' %})</small></p>
+      <p><a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} {{ resource.class_label }}.</a> <small>({% trans 'External Resource' %})</small></p>
       {%  endif %}
     {%  endif %}
 
@@ -92,7 +92,7 @@
   <div class="col-md-4">
 
     <li class="list-group-item">
-        <a href="{% url "document_metadata_detail" resource.id %}">
+        <a href="{% url resource.class_name|lower|add:"_metadata_detail" resource.id %}">
             <button class="btn btn-primary btn-md btn-block">{% trans "Metadata Detail" %}</button>
         </a>
     </li>
@@ -133,15 +133,15 @@
                 <div class="col-sm-3">
                   <i class="fa fa-list-alt fa-3x"></i>
                   <h4>{% trans "Metadata" %}</h4>
-                  <a class="btn btn-default btn-block btn-xs" href="{% url "document_metadata" resource.id %}">{% trans "Wizard" %}</a>
-                  <a class="btn btn-default btn-block btn-xs" href="{% url "document_metadata_advanced" resource.id %}">{% trans "Advanced Edit" %}</a>
+                  <a class="btn btn-default btn-block btn-xs" href="{% url resource.class_name|lower|add:"_metadata" resource.id %}">{% trans "Wizard" %}</a>
+                  <a class="btn btn-default btn-block btn-xs" href="{% url resource.class_name|lower|add:"_metadata_advanced" resource.id %}">{% trans "Advanced Edit" %}</a>
                 </div>
                 {% endif %}
                 {% if "change_resourcebase" in perms_list %}
                 <div class="col-sm-3">
                   <i class="fa fa-photo fa-3x"></i>
                   <h4>{% trans "Thumbnail" %}</h4>
-                  <a class="btn btn-default btn-block btn-xs" href="{% url "document_thumb_upload" resource.id %}" id="set_thumbnail">{% trans "Set" %}</a>
+                  <a class="btn btn-default btn-block btn-xs" href="{% url resource.class_name|lower|add:"_thumb_upload" resource.id %}" id="set_thumbnail">{% trans "Set" %}</a>
                 </div>
                 {% endif %}
                 {% if "change_resourcebase" in perms_list or "delete_resourcebase" in perms_list %}
@@ -149,10 +149,10 @@
                   <i class="fa fa-file-text-o fa-3x"></i>
                   <h4>{% trans "Document" %}</h4>
                   {% if "change_resourcebase" in perms_list %}
-                  <a class="btn btn-default btn-block btn-xs" href="{% url "document_replace" resource.id %}">{% trans "Replace" %}</a>
+                  <a class="btn btn-default btn-block btn-xs" href="{% url resource.class_name|lower|add:"_replace" resource.id %}">{% trans "Replace" %}</a>
                   {% endif %}
                   {% if "delete_resourcebase" in perms_list %}
-                  <a class="btn btn-danger btn-block btn-xs" href="{% url "document_remove" resource.id %}">{% trans "Remove" %}</a>
+                  <a class="btn btn-danger btn-block btn-xs" href="{% url resource.class_name|lower|add:"_remove" resource.id %}">{% trans "Remove" %}</a>
                   {% endif %}
                 </div>
                 {% endif %}

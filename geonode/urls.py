@@ -153,6 +153,10 @@ urlpatterns += [
     url(r'^groups/', include('geonode.groups.urls')),
     url(r'^documents/', include('geonode.documents.urls')),
     url(r'^services/', include('geonode.services.urls')),
+    
+    # CACIP
+    url(r'^knowledgehub/documents/', include('geonode.documents.urls_document')),
+    url(r'^knowledgehub/events/', include('geonode.documents.urls_event')),
 
     # OAuth Provider
     url(r'^o/',

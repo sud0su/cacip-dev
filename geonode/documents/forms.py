@@ -32,6 +32,8 @@ from modeltranslation.forms import TranslationModelForm
 
 from geonode.documents.models import (
     Document,
+    KHEvent,
+    KHDocument,
     DocumentResourceLink,
     get_related_resources,
 )
@@ -40,7 +42,7 @@ from geonode.layers.models import Layer
 
 autodiscover()  # flake8: noqa
 
-from geonode.base.forms import ResourceBaseForm
+from geonode.base.forms import ResourceBaseForm, ResourceBaseDateTimePicker
 
 
 class DocumentFormMixin(object):
@@ -114,9 +116,9 @@ class DocumentForm(ResourceBaseForm, DocumentFormMixin):
             'regions',
             'supplemental_information',
             'category',
-            'doc_type',
         ]
         exclude = ResourceBaseForm.Meta.exclude + (
+            'doc_type',
             'content_type',
             'object_id',
             'doc_file',
@@ -135,6 +137,35 @@ class DocumentForm(ResourceBaseForm, DocumentFormMixin):
             'data_quality_statement',
         )
 
+class KHEventForm(DocumentForm):
+
+    event_date_start = forms.DateTimeField(
+        label=_("Event Date Start"),
+        localize=True,
+        input_formats=['%Y-%m-%d %H:%M %p'],
+        widget=ResourceBaseDateTimePicker(options={"format": "YYYY-MM-DD HH:mm a"})
+    )
+
+    event_date_end = forms.DateTimeField(
+        label=_("Event Date End"),
+        localize=True,
+        input_formats=['%Y-%m-%d %H:%M %p'],
+        widget=ResourceBaseDateTimePicker(options={"format": "YYYY-MM-DD HH:mm a"})
+    )
+
+    class Meta(DocumentForm.Meta):
+        model = KHEvent
+        fields = DocumentForm.Meta.fields + [
+            'event_date_start',
+            'event_date_end',
+        ]
+
+class KHDocumentForm(DocumentForm):
+
+    class Meta(DocumentForm.Meta):
+        model = KHDocument
+        fields = DocumentForm.Meta.fields + [
+        ]
 
 class DocumentDescriptionForm(forms.Form):
     title = forms.CharField(300)

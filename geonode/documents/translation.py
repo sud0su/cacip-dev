@@ -19,7 +19,7 @@
 #########################################################################
 
 from modeltranslation.translator import translator, TranslationOptions
-from geonode.documents.models import Document
+from geonode.documents.models import Document, KHEvent, KHDocument
 
 
 class DocumentTranslationOptions(TranslationOptions):
@@ -32,5 +32,12 @@ class DocumentTranslationOptions(TranslationOptions):
         'data_quality_statement',
     )
 
+class KHEventTranslationOptions(TranslationOptions):
+    fields = ()
+
+class KHDocumentTranslationOptions(TranslationOptions):
+    fields = ()
 
 translator.register(Document, DocumentTranslationOptions)
+translator.register(KHEvent, KHEventTranslationOptions)
+translator.register(KHDocument, KHDocumentTranslationOptions)

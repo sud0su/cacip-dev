@@ -98,4 +98,4 @@ def build_dashboard_meta():
 	return DASHBOARD_META
 
 DASHBOARD_META = build_dashboard_meta()
-print 'DASHBOARD_META', DASHBOARD_META
+# print 'DASHBOARD_META', DASHBOARD_META

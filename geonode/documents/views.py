@@ -69,15 +69,15 @@ _PERMISSION_MSG_VIEW = _("You are not permitted to view this document")
 
 
 def _resolve_document(request, docid, permission='base.change_resourcebase',
-                      msg=_PERMISSION_MSG_GENERIC, **kwargs):
+                      msg=_PERMISSION_MSG_GENERIC, basemodel=Document, **kwargs):
     '''
     Resolve the document by the provided primary key and check the optional permission.
     '''
-    return resolve_object(request, Document, {'pk': docid},
+    return resolve_object(request, basemodel, {'pk': docid},
                           permission=permission, permission_msg=msg, **kwargs)
 
 
-def document_detail(request, docid):
+def document_detail(request, docid, basemodel=Document):
     """
     The view that show details of each document
     """
@@ -87,7 +87,8 @@ def document_detail(request, docid):
             request,
             docid,
             'base.view_resourcebase',
-            _PERMISSION_MSG_VIEW)
+            _PERMISSION_MSG_VIEW,
+            basemodel=basemodel)
 
     except Http404:
         return HttpResponse(
@@ -160,8 +161,8 @@ def document_detail(request, docid):
             context=context_dict)
 
 
-def document_download(request, docid):
-    document = get_object_or_404(Document, pk=docid)
+def document_download(request, docid, basemodel=Document):
+    document = get_object_or_404(basemodel, pk=docid)
 
     if request.user != document.owner and not request.user.is_superuser:
         savematrix(request=request, action='Document Download', resource=document)
@@ -346,7 +347,8 @@ def document_metadata(
         request,
         docid,
         template='documents/document_metadata.html',
-        ajax=True):
+        ajax=True, 
+        basemodel=Document):
 
     document = None
     try:
@@ -354,7 +356,8 @@ def document_metadata(
             request,
             docid,
             'base.change_resourcebase_metadata',
-            _PERMISSION_MSG_METADATA)
+            _PERMISSION_MSG_METADATA,
+            basemodel=basemodel)
 
     except Http404:
         return HttpResponse(
@@ -379,101 +382,120 @@ def document_metadata(
         poc = document.poc
         metadata_author = document.metadata_author
         topic_category = document.category
+        if hasattr(basemodel, 'form_class'):
+            module_path = basemodel.form_class.split('.')
+            import_class = module_path.pop()
+            basemodel_form = getattr(__import__('.'.join(module_path), fromlist=['']), import_class)
+        else:
+            basemodel_form = DocumentForm
 
         if request.method == "POST":
-            document_form = DocumentForm(
+            document_form = basemodel_form(
                 request.POST,
                 instance=document,
                 prefix="resource")
             category_form = CategoryForm(request.POST, prefix="category_choice_field", initial=int(
                 request.POST["category_choice_field"]) if "category_choice_field" in request.POST else None)
         else:
-            document_form = DocumentForm(instance=document, prefix="resource")
+            document_form = basemodel_form(instance=document, prefix="resource")
             category_form = CategoryForm(
                 prefix="category_choice_field",
                 initial=topic_category.id if topic_category else None)
 
-        if request.method == "POST" and document_form.is_valid(
-        ) and category_form.is_valid():
-            new_poc = document_form.cleaned_data['poc']
-            new_author = document_form.cleaned_data['metadata_author']
-            new_keywords = document_form.cleaned_data['keywords']
-            new_regions = document_form.cleaned_data['regions']
-            new_category = TopicCategory.objects.get(
-                id=category_form.cleaned_data['category_choice_field'])
+        if request.method == "POST": 
+            if document_form.is_valid() and category_form.is_valid():
+                new_poc = document_form.cleaned_data['poc']
+                new_author = document_form.cleaned_data['metadata_author']
+                new_keywords = document_form.cleaned_data['keywords']
+                new_regions = document_form.cleaned_data['regions']
+                new_category = TopicCategory.objects.get(
+                    id=category_form.cleaned_data['category_choice_field'])
 
-            if new_poc is None:
-                if poc is None:
-                    poc_form = ProfileForm(
-                        request.POST,
-                        prefix="poc",
-                        instance=poc)
-                else:
-                    poc_form = ProfileForm(request.POST, prefix="poc")
-                if poc_form.is_valid():
-                    if len(poc_form.cleaned_data['profile']) == 0:
-                        # FIXME use form.add_error in django > 1.7
-                        errors = poc_form._errors.setdefault(
-                            'profile', ErrorList())
-                        errors.append(
-                            _('You must set a point of contact for this resource'))
-                        poc = None
-                if poc_form.has_changed and poc_form.is_valid():
-                    new_poc = poc_form.save()
+                if new_poc is None:
+                    if poc is None:
+                        poc_form = ProfileForm(
+                            request.POST,
+                            prefix="poc",
+                            instance=poc)
+                    else:
+                        poc_form = ProfileForm(request.POST, prefix="poc")
+                    if poc_form.is_valid():
+                        if len(poc_form.cleaned_data['profile']) == 0:
+                            # FIXME use form.add_error in django > 1.7
+                            errors = poc_form._errors.setdefault(
+                                'profile', ErrorList())
+                            errors.append(
+                                _('You must set a point of contact for this resource'))
+                            poc = None
+                    if poc_form.has_changed and poc_form.is_valid():
+                        new_poc = poc_form.save()
 
-            if new_author is None:
-                if metadata_author is None:
-                    author_form = ProfileForm(request.POST, prefix="author",
-                                              instance=metadata_author)
-                else:
-                    author_form = ProfileForm(request.POST, prefix="author")
-                if author_form.is_valid():
-                    if len(author_form.cleaned_data['profile']) == 0:
-                        # FIXME use form.add_error in django > 1.7
-                        errors = author_form._errors.setdefault(
-                            'profile', ErrorList())
-                        errors.append(
-                            _('You must set an author for this resource'))
-                        metadata_author = None
-                if author_form.has_changed and author_form.is_valid():
-                    new_author = author_form.save()
+                if new_author is None:
+                    if metadata_author is None:
+                        author_form = ProfileForm(request.POST, prefix="author",
+                                                instance=metadata_author)
+                    else:
+                        author_form = ProfileForm(request.POST, prefix="author")
+                    if author_form.is_valid():
+                        if len(author_form.cleaned_data['profile']) == 0:
+                            # FIXME use form.add_error in django > 1.7
+                            errors = author_form._errors.setdefault(
+                                'profile', ErrorList())
+                            errors.append(
+                                _('You must set an author for this resource'))
+                            metadata_author = None
+                    if author_form.has_changed and author_form.is_valid():
+                        new_author = author_form.save()
 
-            the_document = document_form.instance
-            if new_poc is not None and new_author is not None:
-                the_document.poc = new_poc
-                the_document.metadata_author = new_author
-            if new_keywords:
-                the_document.keywords.clear()
-                the_document.keywords.add(*new_keywords)
-            if new_regions:
-                the_document.regions.clear()
-                the_document.regions.add(*new_regions)
-            the_document.save()
-            document_form.save_many2many()
-            Document.objects.filter(
-                id=the_document.id).update(
-                category=new_category)
+                the_document = document_form.instance
+                if new_poc is not None and new_author is not None:
+                    the_document.poc = new_poc
+                    the_document.metadata_author = new_author
+                if new_keywords:
+                    the_document.keywords.clear()
+                    the_document.keywords.add(*new_keywords)
+                if new_regions:
+                    the_document.regions.clear()
+                    the_document.regions.add(*new_regions)
+                the_document.save()
+                document_form.save_many2many()
+                Document.objects.filter(
+                    id=the_document.id).update(
+                    category=new_category)
 
-            if getattr(settings, 'SLACK_ENABLED', False):
-                try:
-                    from geonode.contrib.slack.utils import build_slack_message_document, send_slack_messages
-                    send_slack_messages(
-                        build_slack_message_document(
-                            "document_edit", the_document))
-                except BaseException:
-                    print "Could not send slack message for modified document."
+                if getattr(settings, 'SLACK_ENABLED', False):
+                    try:
+                        from geonode.contrib.slack.utils import build_slack_message_document, send_slack_messages
+                        send_slack_messages(
+                            build_slack_message_document(
+                                "document_edit", the_document))
+                    except BaseException:
+                        print "Could not send slack message for modified document."
 
-            if not ajax:
-                return HttpResponseRedirect(
-                    reverse(
-                        'document_detail',
-                        args=(
-                            document.id,
-                        )))
+                if not ajax:
+                    return HttpResponseRedirect(
+                        reverse(
+                            document.class_name.lower()+'_detail',
+                            args=(
+                                document.id,
+                            )))
 
-            message = document.id
+                message = document.id
 
-            return HttpResponse(json.dumps({'message': message}))
+                return HttpResponse(json.dumps({'message': message}))
+
+            else:
+                
+                errors = {}
+                errors.update(document_form.errors)
+                errors.update(category_form.errors)
+
+                return HttpResponse(
+                    content = json.dumps({'errors': errors}),
+                    status = 500,
+                    content_type = 'application/json'
+                )
+
 
         # - POST Request Ends here -
 
@@ -532,25 +554,28 @@ def document_metadata(
 
 
 @login_required
-def document_metadata_advanced(request, docid):
+def document_metadata_advanced(request, docid, basemodel=Document):
     return document_metadata(
         request,
         docid,
-        template='documents/document_metadata_advanced.html')
+        template='documents/document_metadata_advanced.html',
+        basemodel=basemodel)
 
 
 @login_required
 def document_thumb_upload(
         request,
         docid,
-        template='documents/document_thumb_upload.html'):
+        template='documents/document_thumb_upload.html', 
+        basemodel=Document):
     document = None
     try:
         document = _resolve_document(
             request,
             docid,
             'base.change_resourcebase',
-            _PERMISSION_MSG_MODIFY)
+            _PERMISSION_MSG_MODIFY,
+            basemodel=basemodel)
 
     except Http404:
         return HttpResponse(
@@ -637,13 +662,14 @@ def document_search_page(request):
 
 
 @login_required
-def document_remove(request, docid, template='documents/document_remove.html'):
+def document_remove(request, docid, template='documents/document_remove.html', basemodel=Document):
     try:
         document = _resolve_document(
             request,
             docid,
             'base.delete_resourcebase',
-            _PERMISSION_MSG_DELETE)
+            _PERMISSION_MSG_DELETE,
+            basemodel=basemodel)
 
         if request.method == 'GET':
             return render(request, template, context={
@@ -686,12 +712,14 @@ def document_remove(request, docid, template='documents/document_remove.html'):
 def document_metadata_detail(
         request,
         docid,
-        template='documents/document_metadata_detail.html'):
+        template='documents/document_metadata_detail.html', 
+        basemodel=Document):
     document = _resolve_document(
         request,
         docid,
         'view_resourcebase',
-        _PERMISSION_MSG_METADATA)
+        _PERMISSION_MSG_METADATA,
+        basemodel=basemodel)
     group = None
     if document.group:
         try:
@@ -707,5 +735,5 @@ def document_metadata_detail(
 
 
 @login_required
-def document_batch_metadata(request, ids):
+def document_batch_metadata(request, ids, basemodel=Document):
     return batch_modify(request, ids, 'Document')

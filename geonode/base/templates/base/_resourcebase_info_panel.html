@@ -30,6 +30,11 @@
     <dd itemprop="description">{{ resource.abstract|escape|urlize|linebreaks|safe|truncatechars:500 }}</dd>
     {% endif %}
 
+    {% if resource.event_date_start and resource.event_date_end %}
+    <dt>{% trans "Event Date" %}</dt>
+    <dd itemprop="dateEvent" datetime="{{ resource.event_date_start|date:"c"}}">{{ resource.event_date_start }} to {{ resource.event_date_end }}</dd>
+    {% endif %}
+
     {% if resource.date %}
     <dt>{% trans resource.date_type|title %} {% trans "Date" %}</dt>
       {% if resource.date_type == 'creation' %}
@@ -93,6 +98,11 @@
     {% if resource.group %}
     <dt>{% trans "Group" %}</dt>
     <dd><a href="/groups/group/{{ resource.group.name }}/activity/">{{ group }}</a> </dd>
+    {% endif %}
+
+    {% if resource.datasource %}
+    <dt>{% trans "Source" %}</dt>
+    <dd>{{ resource.datasource }}</dd>
     {% endif %}
 
   </dl>

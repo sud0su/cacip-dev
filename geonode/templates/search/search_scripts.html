@@ -48,7 +48,12 @@
         {% else %}
                 AUTOCOMPLETE_URL_RESOURCEBASE = '{% url "autocomplete_light_autocomplete" "ResourceBaseAutocomplete" %}';
         {% endif %}
-  AUTOCOMPLETE_URL_REGION = '{% url "autocomplete_light_autocomplete" "RegionAutocomplete" %}';
+        AUTOCOMPLETE_URL_REGION = '{% url "autocomplete_light_autocomplete" "RegionAutocomplete" %}';
+        
+  {% if basemodel %}
+        H_KEYWORDS_ENDPOINT = '{% url basemodel|add:'__h_keywords_api' %}';
+        AUTOCOMPLETE_URL_RESOURCEBASE = '{% url "autocomplete_light_autocomplete" basemodel|add:"Autocomplete" %}';
+  {% endif %}
 
   var module = angular.module('search', ['geonode_main_search', 'cart']);
   module.constant('Configs', {

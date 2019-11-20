@@ -48,7 +48,7 @@ from tastypie.utils.mime import build_content_type
 from geonode import get_version, qgis_server, geoserver
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
-from geonode.documents.models import Document
+from geonode.documents.models import Document, KHEvent, KHDocument
 from geonode.base.models import ResourceBase, Region
 from geonode.base.models import HierarchicalKeyword
 from geonode.people.models import Profile
@@ -1010,7 +1010,19 @@ class DocumentResource(CommonModelApi):
     class Meta(CommonMetaApi):
         paginator_class = CrossSiteXHRPaginator
         filtering = CommonMetaApi.filtering
-        filtering.update({'doc_type': ALL})
+        filtering.update({'doc_type': ALL,'datasource': ALL})
         queryset = Document.objects.distinct().order_by('-date')
         resource_name = 'documents'
         authentication = MultiAuthentication(SessionAuthentication(), GeonodeApiKeyAuthentication())
+
+class KHEventsResource(DocumentResource):
+
+    class Meta(DocumentResource.Meta):
+        queryset = KHEvent.objects.distinct().order_by('-date')
+        resource_name = 'khevent'
+
+class KHDocumentsResource(DocumentResource):
+
+    class Meta(DocumentResource.Meta):
+        queryset = KHDocument.objects.distinct().order_by('-date')
+        resource_name = 'khdocument'

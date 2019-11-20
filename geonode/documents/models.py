@@ -39,10 +39,22 @@ from geonode.maps.signals import map_changed_signal
 from geonode.maps.models import Map
 from geonode.security.utils import remove_object_permissions
 
+# CACIP
+from django.db.models import F
+from django.utils.timezone import now
+from geonode.base.models import TaggedContentItem, _HierarchicalTagManager
+from taggit.managers import TaggableManager, _TaggableManager
+from taggit.models import GenericTaggedItemBase, TagBase
+
 IMGTYPES = ['jpg', 'jpeg', 'tif', 'tiff', 'png', 'gif']
 
 logger = logging.getLogger(__name__)
 
+class AuthorsTag(TagBase):
+    pass
+
+class AuthorsTaggedItem(GenericTaggedItemBase):
+    tag = models.ForeignKey(AuthorsTag)
 
 class Document(ResourceBase):
 
@@ -50,6 +62,7 @@ class Document(ResourceBase):
     A document is any kind of information that can be attached to a map such as pdf, images, videos, xls...
     """
 
+    class_label = 'Document'
     doc_type_help_text = _('Document Type')
 
     doc_file = models.FileField(upload_to='documents',
@@ -65,6 +78,15 @@ class Document(ResourceBase):
     papersize  = models.CharField(max_length=2, blank=True, null=True)
     datasource = models.CharField(max_length=128, blank=True, null=True)
     subtitle = models.CharField(max_length=128, blank=True, null=True)
+
+    # CACIP
+    sourcetext = models.TextField(blank=True, null=True)
+    creators = TaggableManager(
+        _('creators'),
+        through=AuthorsTaggedItem,
+        blank=True,
+        help_text='creators'
+    )
 
     # doc_type = models.CharField(max_length=128, blank=True, null=True)
     doc_type = models.CharField(
@@ -122,6 +144,40 @@ class DocumentResourceLink(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     resource = GenericForeignKey('content_type', 'object_id')
+
+
+class KHEvent(Document):
+
+    class_label = 'Event'
+    form_class = 'geonode.documents.forms.KHEventForm'
+    
+    event_date_start = models.DateTimeField(
+        _('Event date start'),
+        default=now,
+        help_text='Event date start')
+    event_date_end = models.DateTimeField(
+        _('Event date end'),
+        default=now,
+        help_text='Event date end')
+
+    def get_absolute_url(self):
+        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
+
+    @classmethod
+    def h_keywords_api(cls, *args, **kwargs):
+        return cls.objects.annotate(
+            OriginalId=F('id'),
+            text=F('keywords__name'),
+            href=F('keywords__slug'),
+        ).values('text', 'href')
+
+class KHDocument(Document):
+
+    class_label = 'Document'
+    form_class = 'geonode.documents.forms.KHEDocumentForm'
+
+    def get_absolute_url(self):
+        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
 
 def get_related_documents(resource):
@@ -241,4 +297,11 @@ signals.post_save.connect(create_thumbnail, sender=Document)
 signals.post_save.connect(post_save_document, sender=Document)
 signals.post_save.connect(resourcebase_post_save, sender=Document)
 signals.pre_delete.connect(pre_delete_document, sender=Document)
+map_changed_signal.connect(update_documents_extent)
+
+signals.pre_save.connect(pre_save_document, sender=KHEvent)
+signals.post_save.connect(create_thumbnail, sender=KHEvent)
+signals.post_save.connect(post_save_document, sender=KHEvent)
+signals.post_save.connect(resourcebase_post_save, sender=KHEvent)
+signals.pre_delete.connect(pre_delete_document, sender=KHEvent)
 map_changed_signal.connect(update_documents_extent)

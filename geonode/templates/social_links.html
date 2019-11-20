@@ -9,13 +9,13 @@
 	<article class="tab-pane" id="share">
         <!-- TODO: Move this to a reusable template snippet -->
         <header>
-            <h3>{% trans "Share This" %} {% trans resource.class_name %} </h3>
+            <h3>{% trans "Share This" %} {% trans resource.label %} </h3>
         </header>
         <div>
             <ul class="social">
                 {% for social_link in social_links %}
                     {% if social_link.url %}
-                    <li><a href="{{ social_link.url }}" class="{{ social_link.css_class }}">{{ social_link.label }}</a></li>
+                    <li><a href="{{ social_link.url }}" class="{{ social_link.css_class }}">{{ social_link.class_label }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
