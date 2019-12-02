@@ -19,7 +19,7 @@
 #########################################################################
 
 from django.contrib import admin
-from geonode.documents.models import Document, KHEvent
+from geonode.documents.models import Document, KHEvent, KHNews
 from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
 from geonode.base.admin import metadata_batch_edit
 
@@ -37,6 +37,12 @@ class KHEventAdminForm(DocumentAdminForm):
 
     class Meta(DocumentAdminForm.Meta):
         model = KHEvent
+
+
+class KHNewsAdminForm(DocumentAdminForm):
+
+    class Meta(DocumentAdminForm.Meta):
+        model = KHNews
 
 
 class DocumentAdmin(MediaTranslationAdmin):
@@ -61,5 +67,9 @@ class DocumentAdmin(MediaTranslationAdmin):
 class KHEventAdmin(DocumentAdmin):
     form = KHEventAdminForm
 
+class KHNewsAdmin(DocumentAdmin):
+    form = KHNewsAdminForm
+
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(KHEvent, KHEventAdmin)
+admin.site.register(KHNews, KHNewsAdmin)

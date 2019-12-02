@@ -283,6 +283,9 @@ GEONODE_CORE_APPS = (
     'geonode.documents',
     'geonode.security',
     'geonode.catalogue',
+
+    # CACIP
+    'geonode.harvester',
 )
 
 GEONODE_INTERNAL_APPS = (

@@ -20,13 +20,16 @@
 
 from autocomplete_light.registry import register
 from autocomplete_light.autocomplete.shortcuts import AutocompleteModelTemplate
-from models import Document, KHEvent, KHDocument
+from models import Document, KHEvent, KHDocument, KHNews
 
 
 class DocumentAutocomplete(AutocompleteModelTemplate):
     choice_template = 'autocomplete_response.html'
 
 class KHEventAutocomplete(DocumentAutocomplete):
+    choice_template = 'autocomplete_response.html'
+
+class KHNewsAutocomplete(DocumentAutocomplete):
     choice_template = 'autocomplete_response.html'
 
 class KHDocumentAutocomplete(DocumentAutocomplete):
@@ -51,6 +54,17 @@ register(
     limit_choices=100,
     autocomplete_js_attributes={
         'placeholder': 'Event name..',
+    },
+)
+
+register(
+    KHNews,
+    KHNewsAutocomplete,
+    search_fields=['title'],
+    order_by=['title'],
+    limit_choices=100,
+    autocomplete_js_attributes={
+        'placeholder': 'News name..',
     },
 )
 

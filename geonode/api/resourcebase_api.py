@@ -48,7 +48,7 @@ from tastypie.utils.mime import build_content_type
 from geonode import get_version, qgis_server, geoserver
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
-from geonode.documents.models import Document, KHEvent, KHDocument
+from geonode.documents.models import Document, KHEvent, KHDocument, KHNews
 from geonode.base.models import ResourceBase, Region
 from geonode.base.models import HierarchicalKeyword
 from geonode.people.models import Profile
@@ -1020,6 +1020,12 @@ class KHEventsResource(DocumentResource):
     class Meta(DocumentResource.Meta):
         queryset = KHEvent.objects.distinct().order_by('-date')
         resource_name = 'khevent'
+
+class KHNewsResource(DocumentResource):
+
+    class Meta(DocumentResource.Meta):
+        queryset = KHNews.objects.distinct().order_by('-date')
+        resource_name = 'khnews'
 
 class KHDocumentsResource(DocumentResource):
 

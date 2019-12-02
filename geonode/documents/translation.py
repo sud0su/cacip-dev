@@ -19,7 +19,7 @@
 #########################################################################
 
 from modeltranslation.translator import translator, TranslationOptions
-from geonode.documents.models import Document, KHEvent, KHDocument
+from geonode.documents.models import Document, KHEvent, KHNews
 
 
 class DocumentTranslationOptions(TranslationOptions):
@@ -35,9 +35,9 @@ class DocumentTranslationOptions(TranslationOptions):
 class KHEventTranslationOptions(TranslationOptions):
     fields = ()
 
-class KHDocumentTranslationOptions(TranslationOptions):
+class KHNewsTranslationOptions(TranslationOptions):
     fields = ()
 
 translator.register(Document, DocumentTranslationOptions)
 translator.register(KHEvent, KHEventTranslationOptions)
-translator.register(KHDocument, KHDocumentTranslationOptions)
+translator.register(KHNews, KHNewsTranslationOptions)
