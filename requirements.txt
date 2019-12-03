@@ -212,11 +212,10 @@ setuptools==39.0.1
 Twisted
 
 # CACIP
-pychrome
-PyPDF2
-pdfcrowd
 feedparser
-pyoai
-Sickle
 googletrans
-beautifulsoup4
+pdfcrowd
+pychrome
+pyoai
+PyPDF2
+Sickle
