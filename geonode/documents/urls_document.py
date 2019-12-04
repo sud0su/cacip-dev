@@ -24,40 +24,47 @@ from django.views.generic import TemplateView
 
 from .views import DocumentUploadView, DocumentUpdateView
 from . import views
-from .models import KHDocument
+from .models import KnowledgehubDocument
 
 js_info_dict = {
     'packages': ('geonode.documents',),
 }
+basemodel = KnowledgehubDocument
+prefix = basemodel.__name__.lower()
 
 urlpatterns = [  # 'geonode.documents.views',
     url(r'^$',
         TemplateView.as_view(
         template_name='documents/document_list.html'),
-        {'facet_type': 'documents','basemodel': 'KHDocument'},
-        name='khdocument_browse'),
+        {'facet_type': 'documents','basemodel': basemodel},
+        name=prefix+'_browse'),
     url(r'^(?P<docid>\d+)/?$',
-        views.document_detail, name='khdocument_detail', kwargs={'basemodel':KHDocument}),
+        views.document_detail, name=prefix+'_detail', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/download/?$',
-        views.document_download, name='khdocument_download', kwargs={'basemodel':KHDocument}),
+        views.document_download, name=prefix+'_download', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/replace$', login_required(DocumentUpdateView.as_view()),
-        name="khdocument_replace", kwargs={'basemodel':KHDocument}),
+        name=prefix+"_replace", kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/remove$',
-        views.document_remove, name="khdocument_remove", kwargs={'basemodel':KHDocument}),
+        views.document_remove, name=prefix+"_remove", kwargs={'basemodel':basemodel}),
     url(r'^upload/?$', login_required(
-        DocumentUploadView.as_view()), name='khdocument_upload', kwargs={'basemodel':KHDocument}),
+        DocumentUploadView.as_view()), name=prefix+'_upload', kwargs={'basemodel':basemodel}),
     url(r'^search/?$', views.document_search_page,
-        name='khdocument_search_page', kwargs={'basemodel':KHDocument}),
+        name=prefix+'_search_page', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>[^/]*)/metadata_detail$', views.document_metadata_detail,
-        name='khdocument_metadata_detail', kwargs={'basemodel':KHDocument}),
+        name=prefix+'_metadata_detail', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/metadata$',
-        views.document_metadata, name='khdocument_metadata', kwargs={'basemodel':KHDocument}),
+        views.document_metadata, name=prefix+'_metadata', kwargs={'basemodel':basemodel}),
     url(
         r'^metadata/batch/(?P<ids>[^/]*)/$',
         views.document_batch_metadata,
-        name='khdocument_batch_metadata', kwargs={'basemodel':KHDocument}),
+        name=prefix+'_batch_metadata', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/metadata_advanced$', views.document_metadata_advanced,
-        name='khdocument_metadata_advanced', kwargs={'basemodel':KHDocument}),
+        name=prefix+'_metadata_advanced', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>[^/]*)/thumb_upload$',
-        views.document_thumb_upload, name='khdocument_thumb_upload', kwargs={'basemodel':KHDocument}),
+        views.document_thumb_upload, name=prefix+'_thumb_upload', kwargs={'basemodel':basemodel}),
+
+    # h keywords
+    url(r'^h_keywords_api$',
+        basemodel.h_keywords_api,
+        name=prefix+'__h_keywords_api'),
 ]

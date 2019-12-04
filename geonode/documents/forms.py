@@ -32,8 +32,9 @@ from modeltranslation.forms import TranslationModelForm
 
 from geonode.documents.models import (
     Document,
-    KHEvent,
-    KHDocument,
+    Event,
+    News,
+    KnowledgehubDocument,
     DocumentResourceLink,
     get_related_resources,
 )
@@ -137,7 +138,7 @@ class DocumentForm(ResourceBaseForm, DocumentFormMixin):
             'data_quality_statement',
         )
 
-class KHEventForm(DocumentForm):
+class EventForm(DocumentForm):
 
     event_date_start = forms.DateTimeField(
         label=_("Event Date Start"),
@@ -154,16 +155,16 @@ class KHEventForm(DocumentForm):
     )
 
     class Meta(DocumentForm.Meta):
-        model = KHEvent
+        model = Event
         fields = DocumentForm.Meta.fields + [
             'event_date_start',
             'event_date_end',
         ]
 
-class KHDocumentForm(DocumentForm):
+class KnowledgehubDocumentForm(DocumentForm):
 
     class Meta(DocumentForm.Meta):
-        model = KHDocument
+        model = KnowledgehubDocument
         fields = DocumentForm.Meta.fields + [
         ]
 
@@ -212,7 +213,6 @@ class DocumentReplaceForm(forms.ModelForm):
             raise forms.ValidationError(_("This file type is not allowed"))
 
         return doc_file
-
 
 class DocumentCreateForm(TranslationModelForm, DocumentFormMixin):
 

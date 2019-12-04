@@ -15,7 +15,7 @@
 {% block body %}
 
 <div class="col-md-8">
-  <form id="upload_form"  method="post" enctype="multipart/form-data" action="{% url "document_upload" %}">
+  <form basemodel="{{basemodel}}" basemodelname="{{basemodelname}}" form.Meta.model.name="{{form.Meta.model.name}}" id="upload_form" method="post" enctype="multipart/form-data" action="{% url form.Meta.model.name|default:"document"|lower|add:"_upload" %}">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
     {{ form.as_p }}
     <button type="submit" id="upload-button" class="btn btn-danger">{% trans "Upload" %}</button>

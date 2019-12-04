@@ -1,6 +1,7 @@
 {% load i18n avatar_tags %}
 {% load static from staticfiles %}
 {% load account socialaccount %}
+{% load base_tags %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -476,5 +477,6 @@
                 </div>
             </div>
         </div>
+        <script>templatecontext = {% getcontextjson %};</script>
     </body>
 </html>

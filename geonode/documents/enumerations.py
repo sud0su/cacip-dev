@@ -61,6 +61,8 @@ DOCUMENT_TYPE_SUBJECTS = {
     ('DASH','Dashboard'),
     ('MEET','Meetings Minute'),
     ('UPEV','Upcoming Event'),
+    ('Document','Document'),
+    ('Event','Event'),
 }
 
 

@@ -48,7 +48,7 @@ from tastypie.utils.mime import build_content_type
 from geonode import get_version, qgis_server, geoserver
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
-from geonode.documents.models import Document, KHEvent, KHDocument, KHNews
+from geonode.documents.models import Document, Event, KnowledgehubDocument, News
 from geonode.base.models import ResourceBase, Region
 from geonode.base.models import HierarchicalKeyword
 from geonode.people.models import Profile
@@ -1002,7 +1002,7 @@ class DocumentResource(CommonModelApi):
             formatted_obj['store_type'] = 'dataset'
             formatted_obj['online'] = True
 
-            formatted_obj['doc_type_long'] = dict(DOCUMENT_TYPE_SUBJECTS)[obj.doc_type]
+            formatted_obj['doc_type_long'] = dict(DOCUMENT_TYPE_SUBJECTS).get(obj.doc_type, obj.doc_type)
 
             formatted_objects.append(formatted_obj)
         return formatted_objects
@@ -1015,20 +1015,20 @@ class DocumentResource(CommonModelApi):
         resource_name = 'documents'
         authentication = MultiAuthentication(SessionAuthentication(), GeonodeApiKeyAuthentication())
 
-class KHEventsResource(DocumentResource):
+class EventsResource(DocumentResource):
 
     class Meta(DocumentResource.Meta):
-        queryset = KHEvent.objects.distinct().order_by('-date')
-        resource_name = 'khevent'
+        queryset = Event.objects.distinct().order_by('-date')
+        resource_name = 'event'
 
-class KHNewsResource(DocumentResource):
-
-    class Meta(DocumentResource.Meta):
-        queryset = KHNews.objects.distinct().order_by('-date')
-        resource_name = 'khnews'
-
-class KHDocumentsResource(DocumentResource):
+class NewsResource(DocumentResource):
 
     class Meta(DocumentResource.Meta):
-        queryset = KHDocument.objects.distinct().order_by('-date')
-        resource_name = 'khdocument'
+        queryset = News.objects.distinct().order_by('-date')
+        resource_name = 'news'
+
+class KnowledgehubDocumentsResource(DocumentResource):
+
+    class Meta(DocumentResource.Meta):
+        queryset = KnowledgehubDocument.objects.distinct().order_by('-date')
+        resource_name = 'knowledgehubdocument'

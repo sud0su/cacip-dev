@@ -36,6 +36,11 @@ from geonode.groups.models import GroupProfile
 from geonode.base.models import HierarchicalKeyword
 from geonode.security.utils import get_visible_resources
 
+# CACIP
+from geonode.utils import JSONEncoderCustom
+
+import json
+
 register = template.Library()
 
 FACETS = {
@@ -318,3 +323,7 @@ def fullurl(context, url):
         return ''
     r = context['request']
     return r.build_absolute_uri(url)
+
+@register.simple_tag(takes_context=True)
+def getcontextjson(context):
+    return json.dumps([i for i in context], cls = JSONEncoderCustom)

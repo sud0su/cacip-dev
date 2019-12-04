@@ -45,7 +45,7 @@ from geonode.security.views import _perms_info_json
 from geonode.people.forms import ProfileForm
 from geonode.base.forms import CategoryForm
 from geonode.base.models import TopicCategory
-from geonode.documents.models import Document, get_related_resources
+from geonode.documents.models import Document, get_related_resources, Event, News, KnowledgehubDocument
 from geonode.documents.forms import DocumentForm, DocumentCreateForm, DocumentReplaceForm
 from geonode.documents.models import IMGTYPES
 from geonode.documents.renderers import generate_thumbnail_content, MissingPILError
@@ -313,6 +313,26 @@ class DocumentUploadView(CreateView):
                         self.object.id,
                     )))
 
+class EventCreateForm(DocumentCreateForm):
+    class Meta(DocumentCreateForm.Meta):
+        model = Event
+
+class NewsCreateForm(DocumentCreateForm):
+    class Meta(DocumentCreateForm.Meta):
+        model = News
+
+class KnowledgehubDocumentCreateForm(DocumentCreateForm):
+    class Meta(DocumentCreateForm.Meta):
+        model = KnowledgehubDocument
+
+class EventUploadView(DocumentUploadView):
+    form_class = EventCreateForm
+
+class NewsUploadView(DocumentUploadView):
+    form_class = NewsCreateForm
+
+class KnowledgehubDocumentUploadView(DocumentUploadView):
+    form_class = KnowledgehubDocumentCreateForm
 
 class DocumentUpdateView(UpdateView):
     template_name = 'documents/document_replace.html'

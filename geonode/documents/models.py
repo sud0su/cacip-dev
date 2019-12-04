@@ -40,11 +40,15 @@ from geonode.maps.models import Map
 from geonode.security.utils import remove_object_permissions
 
 # CACIP
-from django.db.models import F
+from django.core import serializers
+from django.db.models import F, Count
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.timezone import now
 from geonode.base.models import TaggedContentItem, _HierarchicalTagManager
 from taggit.managers import TaggableManager, _TaggableManager
 from taggit.models import GenericTaggedItemBase, TagBase
+
+import json
 
 IMGTYPES = ['jpg', 'jpeg', 'tif', 'tiff', 'png', 'gif']
 
@@ -80,6 +84,7 @@ class Document(ResourceBase):
     subtitle = models.CharField(max_length=128, blank=True, null=True)
 
     # CACIP
+    source_id = models.CharField(max_length=128, blank=True, null=True)
     sourcetext = models.TextField(blank=True, null=True)
     creators = TaggableManager(
         _('creators'),
@@ -93,7 +98,7 @@ class Document(ResourceBase):
         _('Document Type'),
         max_length=128,
         choices=DOCUMENT_TYPE_SUBJECTS,
-        default='MAPS',
+        default='Document',
         help_text=doc_type_help_text)
 
     doc_url = models.URLField(
@@ -131,6 +136,43 @@ class Document(ResourceBase):
     def class_name(self):
         return self.__class__.__name__
 
+    @classmethod
+    def name(cls, *args, **kwargs):
+        return cls.__name__
+
+    @classmethod
+    def h_keywords_api(cls, *args, **kwargs):
+        
+        # keywords = cls.objects.annotate(
+        #     text=F('keywords__name'),
+        #     href=F('keywords__slug'),
+        # ).values(
+        #     'text', 
+        #     'href'
+        # ).annotate(
+        #     # put in separate annotate after values() to avoid 
+        #     # ValueError: The annotation 'id' conflicts with a field on the model.
+        #     id=F('keywords__id') 
+        # ).order_by(
+        #     'text'
+        # )
+        
+        keywords = cls.objects.values(
+            'keywords__name', 
+            'keywords__slug'
+        ).annotate(
+            count=Count('keywords__name'),
+        ).order_by(
+            'keywords__name'
+        ).exclude(
+            keywords__name__isnull=True
+        )
+        renamed = [{'text':k['keywords__name'], 'href':k['keywords__slug']} for k in keywords]
+        return HttpResponse(
+            content=json.dumps(renamed), 
+            content_type='application/json'
+        )
+
     class Meta(ResourceBase.Meta):
         pass
 
@@ -146,10 +188,10 @@ class DocumentResourceLink(models.Model):
     resource = GenericForeignKey('content_type', 'object_id')
 
 
-class KHEvent(Document):
+class Event(Document):
 
     class_label = 'Event'
-    form_class = 'geonode.documents.forms.KHEventForm'
+    form_class = 'geonode.documents.forms.EventForm'
     
     event_date_start = models.DateTimeField(
         _('Event date start'),
@@ -163,34 +205,18 @@ class KHEvent(Document):
     def get_absolute_url(self):
         return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
-    @classmethod
-    def h_keywords_api(cls, *args, **kwargs):
-        return cls.objects.annotate(
-            OriginalId=F('id'),
-            text=F('keywords__name'),
-            href=F('keywords__slug'),
-        ).values('text', 'href')
-        
-class KHNews(Document):
+class News(Document):
 
     class_label = 'News'
-    form_class = 'geonode.documents.forms.KHNewsForm'
+    form_class = 'geonode.documents.forms.NewsForm'
     
     def get_absolute_url(self):
         return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
-    
-    @classmethod
-    def h_keywords_api(cls, *args, **kwargs):
-        return cls.objects.annotate(
-            OriginalId=F('id'),
-            text=F('keywords__name'),
-            href=F('keywords__slug'),
-        ).values('text', 'href')
 
-class KHDocument(Document):
+class KnowledgehubDocument(Document):
 
     class_label = 'Document'
-    form_class = 'geonode.documents.forms.KHEDocumentForm'
+    form_class = 'geonode.documents.forms.KnowledgehubDocumentForm'
 
     def get_absolute_url(self):
         return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
@@ -230,11 +256,18 @@ def pre_save_document(instance, sender, **kwargs):
             doc_type = 'other'
         else:
             doc_type = doc_type_map.get(instance.extension, 'other')
-        # instance.doc_type = doc_type
+        # is default doc_type
+        if instance.doc_type != type(instance)._meta.get_field('doc_type').get_default():
+            instance.doc_type = doc_type
 
     elif instance.doc_url:
         if '.' in urlparse(instance.doc_url).path:
             instance.extension = urlparse(instance.doc_url).path.rsplit('.')[-1]
+
+    if hasattr(instance, 'class_label'):
+        # is default doc_type
+        if instance.doc_type == type(instance)._meta.get_field('doc_type').get_default():
+            instance.doc_type = instance.class_label
 
     if not instance.uuid:
         instance.uuid = str(uuid.uuid1())
@@ -315,16 +348,23 @@ signals.post_save.connect(resourcebase_post_save, sender=Document)
 signals.pre_delete.connect(pre_delete_document, sender=Document)
 map_changed_signal.connect(update_documents_extent)
 
-signals.pre_save.connect(pre_save_document, sender=KHEvent)
-signals.post_save.connect(create_thumbnail, sender=KHEvent)
-signals.post_save.connect(post_save_document, sender=KHEvent)
-signals.post_save.connect(resourcebase_post_save, sender=KHEvent)
-signals.pre_delete.connect(pre_delete_document, sender=KHEvent)
+signals.pre_save.connect(pre_save_document, sender=Event)
+signals.post_save.connect(create_thumbnail, sender=Event)
+signals.post_save.connect(post_save_document, sender=Event)
+signals.post_save.connect(resourcebase_post_save, sender=Event)
+signals.pre_delete.connect(pre_delete_document, sender=Event)
 map_changed_signal.connect(update_documents_extent)
 
-signals.pre_save.connect(pre_save_document, sender=KHNews)
-signals.post_save.connect(create_thumbnail, sender=KHNews)
-signals.post_save.connect(post_save_document, sender=KHNews)
-signals.post_save.connect(resourcebase_post_save, sender=KHNews)
-signals.pre_delete.connect(pre_delete_document, sender=KHNews)
+signals.pre_save.connect(pre_save_document, sender=News)
+signals.post_save.connect(create_thumbnail, sender=News)
+signals.post_save.connect(post_save_document, sender=News)
+signals.post_save.connect(resourcebase_post_save, sender=News)
+signals.pre_delete.connect(pre_delete_document, sender=News)
+map_changed_signal.connect(update_documents_extent)
+
+signals.pre_save.connect(pre_save_document, sender=KnowledgehubDocument)
+signals.post_save.connect(create_thumbnail, sender=KnowledgehubDocument)
+signals.post_save.connect(post_save_document, sender=KnowledgehubDocument)
+signals.post_save.connect(resourcebase_post_save, sender=KnowledgehubDocument)
+signals.pre_delete.connect(pre_delete_document, sender=KnowledgehubDocument)
 map_changed_signal.connect(update_documents_extent)

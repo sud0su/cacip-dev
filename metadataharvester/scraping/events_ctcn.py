@@ -11,7 +11,7 @@ if __name__ == '__main__':
     import django
     django.setup()
 
-from geonode.documents.models import KHEvent
+from geonode.documents.models import Event
 from sickle import Sickle, oaiexceptions
 from tempfile import NamedTemporaryFile
 from geonode.documents.renderers import generate_thumbnail_content
@@ -90,7 +90,7 @@ def harvest_all(**kwargs):
                             docparams, 
                             specialparams, 
                             insertonly = kwargs.get('insertonly') or kwargs.get('insertnewonly'),
-                            basemodel = KHEvent
+                            basemodel = Event
                         )
 
                         # if insertnewonly and document already exist then return
@@ -127,7 +127,7 @@ def create_thumbnail(doc_url, doc, external_thumbnail_url):
 
     img_response = delayed_requests({'args':[external_thumbnail_url], 'kwargs':{'allow_redirects':True}}, module=sys.modules[__name__])
     if img_response.status_code == 200:
-        doc = doc or KHEvent.objects.get(doc_url=doc_url)
+        doc = doc or Event.objects.get(doc_url=doc_url)
         doc.save_thumbnail(
             filename = thumb_name_tpl.format(doc.uuid),
             image = generate_thumbnail_content(StringIO(img_response.content), size=(600, 450))

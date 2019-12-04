@@ -5,11 +5,13 @@ if __name__ == '__main__':
     import django
     django.setup()
 
+from cStringIO import StringIO
+from geonode.base.models import Region
 from geonode.documents.renderers import generate_thumbnail_content
 from geonode.documents.models import Document
 
 import requests
-from cStringIO import StringIO
+import time
 
 thumb_name_tpl = 'document-{0}-thumb.png'
 
@@ -29,15 +31,15 @@ def create_thumbnail(doc_url, doc, external_thumbnail_url):
     else:
         print 'img_response.status_code:', img_response.status_code
 
-def save_document(docparams, specialparams, insertonly=False):
+def save_document(docparams, specialparams, insertonly=False, basemodel=Document):
     '''
     save or update document
     '''
     try:
-        doc = Document.objects.get(doc_url=docparams['doc_url'])
-    except Document.DoesNotExist:
+        doc = basemodel.objects.get(doc_url=docparams['doc_url'])
+    except basemodel.DoesNotExist:
         print 'insert new Document:', docparams['doc_url']
-        doc = Document(**docparams)
+        doc = basemodel(**docparams)
         mode = 'insert'
     else:
         if not insertonly:
@@ -49,12 +51,23 @@ def save_document(docparams, specialparams, insertonly=False):
     if (insertonly and mode == 'insert') or not insertonly:
         doc.save()
 
+        # create_thumbnail(docparams['doc_url'])
+
         if 'keywords' in specialparams:
             doc.keywords.add(*specialparams['keywords'])
 
         if 'creators' in specialparams:
             doc.creators.add(*specialparams['creators'])
 
+        if 'regions' in specialparams:
+            regions = Region.objects.filter(name__in=specialparams['regions'])
+            doc.regions.add(*regions)
+
+        # valid_keywords = filter(None, row[7].split("-"))
+        # doc.keywords.add(*valid_keywords)
+        # row[16] = doc.id
+        # loc = Region.objects.get(pk=row[4])
+        # doc.regions.add(loc)
     return mode
 
 def delayed_requests(requestsparams, module=sys.modules[__name__]):
@@ -71,7 +84,7 @@ def delayed_requests(requestsparams, module=sys.modules[__name__]):
         response = requests.get(*requestsparams.get('args', []), **requestsparams.get('kwargs', {}))
         if response.status_code == 429:  # rate limited
             module.delay_seconds += 1
-            print '%s.delay_seconds: %s' % (module, module.delay_seconds)
+            print '%s.delay_seconds: %s' % (module.__name__, module.delay_seconds)
         else:
             return response
 

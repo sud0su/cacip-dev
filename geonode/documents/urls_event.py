@@ -22,79 +22,49 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 
-from .views import DocumentUploadView, DocumentUpdateView
+from .views import DocumentUploadView, DocumentUpdateView, EventUploadView
 from . import views
-from .models import KHEvent
+from .models import Event
 
 js_info_dict = {
     'packages': ('geonode.documents',),
 }
-
-# urlpatterns = [  # 'geonode.documents.views',
-#     url(r'^$',
-#         TemplateView.as_view(
-#         template_name='documents/document_list.html'),
-#         {'facet_type': 'documents'},
-#         name='document_browse'),
-#     url(r'^(?P<docid>\d+)/?$',
-#         views.document_detail, name='document_detail'),
-#     url(r'^(?P<docid>\d+)/download/?$',
-#         views.document_download, name='document_download'),
-#     url(r'^(?P<docid>\d+)/replace$', login_required(DocumentUpdateView.as_view()),
-#         name="khevent_replace"),
-#     url(r'^(?P<docid>\d+)/remove$',
-#         views.document_remove, name="khevent_remove"),
-#     url(r'^upload/?$', login_required(
-#         DocumentUploadView.as_view()), name='document_upload'),
-#     url(r'^search/?$', views.document_search_page,
-#         name='document_search_page'),
-#     url(r'^(?P<docid>[^/]*)/metadata_detail$', views.document_metadata_detail,
-#         name='document_metadata_detail'),
-#     url(r'^(?P<docid>\d+)/metadata$',
-#         views.document_metadata, name='document_metadata'),
-#     url(
-#         r'^metadata/batch/(?P<ids>[^/]*)/$',
-#         views.document_batch_metadata,
-#         name='document_batch_metadata'),
-#     url(r'^(?P<docid>\d+)/metadata_advanced$', views.document_metadata_advanced,
-#         name='document_metadata_advanced'),
-#     url(r'^(?P<docid>[^/]*)/thumb_upload$',
-#         views.document_thumb_upload, name='document_thumb_upload'),
-# ]
+basemodel = Event
+prefix = basemodel.__name__.lower()
 
 urlpatterns = [  # 'geonode.documents.views',
     url(r'^$',
         TemplateView.as_view(
         template_name='documents/document_list.html'),
-        {'facet_type': 'documents','basemodel': 'KHEvent'},
-        name='khevent_browse'),
+        {'facet_type': 'documents','basemodel': basemodel},
+        name=prefix+'_browse'),
     url(r'^(?P<docid>\d+)/?$',
-        views.document_detail, name='khevent_detail', kwargs={'basemodel':KHEvent}),
+        views.document_detail, name=prefix+'_detail', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/download/?$',
-        views.document_download, name='khevent_download', kwargs={'basemodel':KHEvent}),
+        views.document_download, name=prefix+'_download', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/replace$', login_required(DocumentUpdateView.as_view()),
-        name="khevent_replace", kwargs={'basemodel':KHEvent}),
+        name=prefix+"_replace", kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/remove$',
-        views.document_remove, name="khevent_remove", kwargs={'basemodel':KHEvent}),
+        views.document_remove, name=prefix+"_remove", kwargs={'basemodel':basemodel}),
     url(r'^upload/?$', login_required(
-        DocumentUploadView.as_view()), name='khevent_upload', kwargs={'basemodel':KHEvent}),
+        EventUploadView.as_view()), name=prefix+'_upload', kwargs={'basemodel':basemodel}),
     url(r'^search/?$', views.document_search_page,
-        name='khevent_search_page', kwargs={'basemodel':KHEvent}),
+        name=prefix+'_search_page', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>[^/]*)/metadata_detail$', views.document_metadata_detail,
-        name='khevent_metadata_detail', kwargs={'basemodel':KHEvent}),
+        name=prefix+'_metadata_detail', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/metadata$',
-        views.document_metadata, name='khevent_metadata', kwargs={'basemodel':KHEvent}),
+        views.document_metadata, name=prefix+'_metadata', kwargs={'basemodel':basemodel}),
     url(
         r'^metadata/batch/(?P<ids>[^/]*)/$',
         views.document_batch_metadata,
-        name='khevent_batch_metadata', kwargs={'basemodel':KHEvent}),
+        name=prefix+'_batch_metadata', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/metadata_advanced$', views.document_metadata_advanced,
-        name='khevent_metadata_advanced', kwargs={'basemodel':KHEvent}),
+        name=prefix+'_metadata_advanced', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>[^/]*)/thumb_upload$',
-        views.document_thumb_upload, name='khevent_thumb_upload', kwargs={'basemodel':KHEvent}),
+        views.document_thumb_upload, name=prefix+'_thumb_upload', kwargs={'basemodel':basemodel}),
 
     # h keywords
     url(r'^h_keywords_api$',
-        KHEvent.h_keywords_api,
-        name='KHEvent__h_keywords_api'),
+        basemodel.h_keywords_api,
+        name=prefix+'__h_keywords_api'),
 ]
