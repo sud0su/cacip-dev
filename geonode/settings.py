@@ -398,19 +398,18 @@ INSTALLED_APPS = (
 
     # Django REST Framework
     'rest_framework',
+    'rest_framework.authtoken',
 
     # GeoNode
     'geonode',
 
-    # EPR-BGD01
+    # CACIP
     'matrix',
     'userstatistics',
     'dashboard',
-    'dashboard.reporthub',
-    'dashboard.baseline',
-    'dashboard.flood',
-    'dashboard.landslide',
-    'dashboard.weather',
+
+    'ckeditor',
+    'rest_auth',
 
 ) + GEONODE_APPS
 
@@ -1036,6 +1035,7 @@ AUTH_EXEMPT_URLS += (
     '^/api/base/$',
     '^/dashboard/print',
     '^/gs/',
+    '^/rest-auth/login/',
 )
 
 # A tuple of hosts the proxy can send requests to.

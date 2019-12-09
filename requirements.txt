@@ -51,7 +51,8 @@ dj-pagination<=2.3.2 # python-dj-pagination (2.3.2 in our ppa)
 django-celery-monitor<=1.1.2
 django-crispy-forms==1.7.2
 django-extensions>=1.2.5,<=2.0.7 # python-django-extensions (2.0.3 in our ppa)
-django-filter==2.0.0 # python-django-filter (1.1.0 in our ppa)
+# django-filter==2.0.0 # python-django-filter (1.1.0 in our ppa)
+django-filter==1.1.0 # python-django-filter (1.1.0 in our ppa), last supports Django 1.8
 django-jsonfield<=1.0.1 # python-django-jsonfield (0.9.15, 1.0.1 in our ppa)
 django-jsonfield-compat<=0.4.4 # python-django-jsonfield-compat (0.4.4 in our ppa)
 django-leaflet<=0.23.0 # python-django-leaflet (0.23.0 in our ppa)
@@ -65,7 +66,8 @@ django-reversion<=2.0.13 # python-django-reversion (2.0.13 in our ppa)
 django-suit<=0.2.26 # python-django-suit (0.2.26 in our ppa)
 django-tastypie<=0.14.0 # python-django-tastypie (0.14.0 in our ppa)
 django-invitations<=1.9.2 # python-django-invitations (1.9.2 in our ppa)
-djangorestframework==3.8.2
+# djangorestframework==3.8.2
+djangorestframework==3.6.4 # last supports Django 1.8
 # djangorestframework-gis<=0.12 # TODO
 # django-rest-swagger==2.1.2 # python-django-rest-swagger (2.1.2 in our ppa)
 # drf-nested-routers==0.90.0 # python-drf-nested-routers (0.90.0 in our ppa)
@@ -219,3 +221,4 @@ pychrome
 pyoai
 PyPDF2
 Sickle
+django-rest-auth==0.9.3

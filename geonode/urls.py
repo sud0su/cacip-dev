@@ -159,6 +159,8 @@ urlpatterns += [
     url(r'^events/', include('geonode.documents.urls_event')),
     url(r'^news/', include('geonode.documents.urls_news')),
 
+    url(r'^rest-auth/', include('rest_auth.urls')),
+
     # OAuth Provider
     url(r'^o/',
         include('oauth2_provider.urls',
