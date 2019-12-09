@@ -67,7 +67,7 @@ django-suit<=0.2.26 # python-django-suit (0.2.26 in our ppa)
 django-tastypie<=0.14.0 # python-django-tastypie (0.14.0 in our ppa)
 django-invitations<=1.9.2 # python-django-invitations (1.9.2 in our ppa)
 # djangorestframework==3.8.2
-djangorestframework==3.6.4 # last supports Django 1.8
+djangorestframework==3.9.1 # last supports Django 1.8
 # djangorestframework-gis<=0.12 # TODO
 # django-rest-swagger==2.1.2 # python-django-rest-swagger (2.1.2 in our ppa)
 # drf-nested-routers==0.90.0 # python-drf-nested-routers (0.90.0 in our ppa)
