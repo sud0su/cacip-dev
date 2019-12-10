@@ -156,6 +156,17 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
     def save_user(self, request, user, form, commit=True):
         user = super(LocalAccountAdapter, self).save_user(
             request, user, form, commit=commit)
+
+        # CACIP
+        data = form.cleaned_data
+        if 'country' in data:
+            user_field(user, 'country', data.get('country'))
+        if 'areaofinterest' in data:
+            user_field(user, 'areaofinterest', data.get('areaofinterest'))
+        if 'role' in data:
+            user_field(user, 'role', data.get('role'))
+        user.save()
+
         if settings.ACCOUNT_APPROVAL_REQUIRED:
             user.is_active = False
             user.save()

@@ -44,6 +44,8 @@ from .signals import (update_user_email_addresses,
 from .languages import LANGUAGES
 from .timezones import TIMEZONES
 
+# CACIP
+from .enumerations import CACIP_USER_ROLE_VALUES, AREA_OF_INTERESTS
 
 class ProfileUserManager(UserManager):
     def get_by_natural_key(self, username):
@@ -122,6 +124,25 @@ class Profile(AbstractUser):
         choices=TIMEZONES,
         blank=True,
     )
+
+    # CACIP
+    areaofinterest = models.CharField(
+        _('Area of Interest'),
+        choices=AREA_OF_INTERESTS,
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text=_('area of interest')
+    )
+    role = models.CharField(
+        _('Role'),
+        choices=CACIP_USER_ROLE_VALUES,
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text=_('role')
+    )
+
 
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)

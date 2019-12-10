@@ -49,3 +49,20 @@ ROLE_VALUES = (
     ('owner', _('party that owns the resource')),
     ('principalInvestigator', _('key party responsible for gathering information and conducting research')),
 )
+
+CACIP_USER_ROLE_VALUES = (
+    ('citizen', _('Citizen')),
+    ('trainer', _('Trainer')),
+    ('researcher', _('Researcher')),
+    ('farmer', _('Farmer')),
+    ('decisionmaker', _('Decision Maker')),
+)
+
+AREA_OF_INTERESTS = (
+    ('watermanagement', _('Water Management')),
+    ('climatechange', _('Climate Change')),
+    ('riskassesment', _('Risk Assesment')),
+    ('foodsecurity', _('Food Security')),
+    ('sustainableagroecosystems', _('Sustainable Agroecosystems')),
+    ('landdegradation', _('Land Degradation')),
+)

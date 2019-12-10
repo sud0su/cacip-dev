@@ -41,6 +41,9 @@ from geonode.utils import check_ogc_backend
 
 from autocomplete_light.registry import autodiscover
 
+# CACIP
+from . import allauth_override
+
 # Setup Django Admin
 autodiscover()
 
@@ -108,6 +111,9 @@ urlpatterns += [
         TemplateView.as_view(
         template_name='search/search.html'),
         name='search'),
+
+    # CACIP override
+    url(r"^account/signup/$", allauth_override.signup, name="cacip_account_signup"),
 
     # Social views
     url(r"^account/", include("allauth.urls")),
