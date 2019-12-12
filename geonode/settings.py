@@ -528,6 +528,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
+
                 'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -542,7 +543,6 @@ TEMPLATES = [
                 'geonode.geoserver.context_processors.geoserver_urls',
                 # 'geonode.themes.context_processors.custom_theme'
                 # cacip context processors
-                'simple_forums.context_processors.installed_apps',
                 # Machina
                 'machina.core.context_processors.metadata',
             ],
