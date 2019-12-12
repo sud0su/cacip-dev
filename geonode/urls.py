@@ -43,6 +43,8 @@ from autocomplete_light.registry import autodiscover
 
 # CACIP
 from . import allauth_override
+from machina.app import board
+
 
 # Setup Django Admin
 autodiscover()
@@ -166,6 +168,10 @@ urlpatterns += [
     url(r'^news/', include('geonode.documents.urls_news')),
 
     url(r'^rest-auth/', include('rest_auth.urls')),
+    # url(r'^forums/', include('simple_forums.urls', namespace='simple-forums')),
+    url(r'^forum/', include(board.urls)),
+
+
 
     # OAuth Provider
     url(r'^o/',

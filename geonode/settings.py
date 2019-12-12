@@ -36,6 +36,9 @@ from django.conf.global_settings import DATETIME_INPUT_FORMATS
 from geonode import get_version
 from kombu import Queue, Exchange
 
+# forum
+from machina import get_apps as get_machina_apps
+from machina import MACHINA_MAIN_STATIC_DIR, MACHINA_MAIN_TEMPLATE_DIR
 
 # GeoNode Version
 VERSION = get_version()
@@ -252,6 +255,7 @@ STATIC_URL = os.getenv('STATIC_URL', "/static/")
 # Additional directories which hold static files
 _DEFAULT_STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "static"),
+    MACHINA_MAIN_STATIC_DIR
 ]
 
 STATICFILES_DIRS = os.getenv('STATICFILES_DIRS', _DEFAULT_STATICFILES_DIRS)
@@ -404,6 +408,16 @@ INSTALLED_APPS = (
     'geonode',
 
     # CACIP
+    # # default django apps
+    # 'adminsortable',
+    # 'simple_forums',
+
+    # # If you want email notification functionality, add the following:
+    # 'simple_forums.notifications',
+
+    # django_forum_app
+
+    # EPR-BGD01
     'matrix',
     'userstatistics',
     'dashboard',
@@ -411,7 +425,12 @@ INSTALLED_APPS = (
     'ckeditor',
     'rest_auth',
 
-) + GEONODE_APPS
+    # Machina related apps:
+    # 'mptt',
+    'haystack',
+    'widget_tweaks',
+) + GEONODE_APPS + tuple(get_machina_apps())
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -499,8 +518,9 @@ TEMPLATES = [
     {
         'NAME': 'GeoNode Project Templates',
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(PROJECT_ROOT, "templates")],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(PROJECT_ROOT, "templates"), os.path.join(PROJECT_ROOT, "templates/cacipforum")],
+        # 'DIRS': [os.path.join(PROJECT_ROOT, "templates"), MACHINA_MAIN_TEMPLATE_DIR],
+        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -521,6 +541,14 @@ TEMPLATES = [
                 'geonode.context_processors.resource_urls',
                 'geonode.geoserver.context_processors.geoserver_urls',
                 # 'geonode.themes.context_processors.custom_theme'
+                # cacip context processors
+                'simple_forums.context_processors.installed_apps',
+                # Machina
+                'machina.core.context_processors.metadata',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
             ],
             # Either remove APP_DIRS or remove the 'loaders' option.
             # 'loaders': [
@@ -561,6 +589,9 @@ MIDDLEWARE_CLASSES = (
     # django-oauth-toolkit.
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'oauth2_provider.middleware.OAuth2TokenMiddleware',
+    
+    # Machina
+    'machina.apps.forum_permission.middleware.ForumPermissionMiddleware',
 )
 
 # Security stuff
@@ -1713,3 +1744,29 @@ if USE_WORLDMAP:
 
 # added by Dodi
 UPDATE_RESOURCE_LINKS_AT_MIGRATE = False
+
+# added by razinal
+SIMPLE_FORUMS = {
+    'markup_renderer': 'simple_forums.backends.renderers.MarkdownRenderer',
+    'search_backend': {
+        'search_class': 'simple_forums.backends.search.SimpleSearch',
+        # 'host': 'localhost',
+        # 'port': 9200,
+    }
+}
+
+CACHES = {
+  'default': {
+    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+  },
+  'machina_attachments': {
+    'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+    'LOCATION': '/tmp',
+  }
+}
+
+HAYSTACK_CONNECTIONS = {
+  'default': {
+    'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+  },
+}

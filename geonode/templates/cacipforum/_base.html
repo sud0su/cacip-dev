@@ -1,0 +1,18 @@
+{% extends "geonode_base.html" %}
+{% load i18n %}
+
+{% block title %} {{ block.super }} {% endblock %}
+
+{% block body_class %}Forum{% endblock %}
+
+{% block extra_head %}
+    {% block css %}{% endblock css %}
+{% endblock %}
+
+{% block body_outer %}
+  {% block body %}{% endblock body %}
+{% endblock body_outer %}
+
+{% block extra_script %}
+    {% block js %}{% endblock js %}
+{% endblock extra_script %}
