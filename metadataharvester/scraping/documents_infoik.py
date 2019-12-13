@@ -2,7 +2,7 @@
 for first run call:
     harvest_all()
 to update:
-    update_latest()
+    harvest_latest()
 '''
 
 import os
@@ -119,7 +119,7 @@ def create_thumbnail(doc_url, doc, external_thumbnail_url):
     else:
         print 'img_response.status_code:', img_response.status_code
 
-def update_latest():
+def harvest_latest():
     harvest_all(insertnewonly=True)
 
 def pychrome_get(url):
@@ -193,5 +193,5 @@ def parse_date(datestr):
 
 if __name__ == "__main__":
     # harvest_all()
-    # update_latest()
+    # harvest_latest()
     pass

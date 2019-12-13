@@ -3,7 +3,7 @@ for first run call:
     harvest_all()
     create_all_thumbnail()
 to update:
-    update_latest()
+    harvest_latest()
     create_all_thumbnail()
 api: oai-pmh
 api doc: http://www.openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 from cStringIO import StringIO
 from django.core.files.storage import default_storage as storage
 from geonode.base.models import Region
-from geonode.documents.models import Document, KnowledgehubDocument
+from geonode.documents.models import KnowledgehubDocument
 from geonode.documents.renderers import generate_thumbnail_content
 from metadataharvester.utils import save_document, delayed_requests
 from PIL import Image
@@ -92,16 +92,17 @@ def harvest_from_date(datefrom, dateuntil=datetime.datetime.utcnow().strftime(da
     '''
     harvest_all({'from':datefrom, 'until':dateuntil})
 
-def update_latest():
+def harvest_latest():
     '''
     update document newer than latest existing document
     '''
     try:
-        latest = Document.objects.filter(datasource=datasource).latest('date')
-    except Document.DoesNotExist as identifier:
+        latest = KnowledgehubDocument.objects.filter(datasource=datasource).latest('date')
+    except KnowledgehubDocument.DoesNotExist as identifier:
         print 'No latest document found, presumed empty. Switch to harvest_all().'
         harvest_all()
     else:
+        print 'latest document is:', latest.doc_url
         print 'latest document date is:', latest.date.strftime(datezformat)
         harvest_from_date(latest.date.strftime(datezformat))
 
@@ -202,6 +203,7 @@ def create_thumbnail(doc_url, doc):
 if __name__ == "__main__":
     if sys.argv[1] == "harvest_all":
         harvest_all()
-    elif sys.argv[1] == "update_latest":
-        update_latest()
-    pass
+    elif sys.argv[1] == "harvest_latest":
+        harvest_latest()
+    else:
+        print 'options are: harvest_all, harvest_latest'

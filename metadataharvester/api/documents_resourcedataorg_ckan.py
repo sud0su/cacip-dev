@@ -2,7 +2,7 @@
 for first run call:
     harvest_all()
 to update:
-    update_latest()
+    harvest_latest()
 api: ckan
 doc: https://docs.ckan.org/en/2.8/api/
 '''
@@ -93,7 +93,7 @@ def harvest_all(**kwargs):
                     specialparams['tags'] = [i['display_name'] for i in detail['tags'] if i.get('display_name')]
                 if detail.get('author'):
                     specialparams['author'] = [detail['author']]
-                save_mode = save_document(
+                doc = save_document(
                     docparams, 
                     specialparams, 
                     insertonly=kwargs.get('insertonly') or kwargs.get('insertnewonly'),
@@ -101,7 +101,8 @@ def harvest_all(**kwargs):
                 )
 
                 # if insertnewonly and document already exist then return
-                if kwargs.get('insertnewonly') and save_mode == 'update':
+                if kwargs.get('insertnewonly') and doc.save_mode == 'update':
+                    print 'previous latest document: %s' % doc.doc_url
                     print 'new documents added:', item_num
                     return
 
@@ -135,7 +136,7 @@ def create_thumbnail(doc_url, doc, external_thumbnail_url):
     else:
         print 'img_response.status_code:', img_response.status_code
 
-def update_latest():
+def harvest_latest():
     harvest_all(insertnewonly=True)
 
 def pychrome_get(url):
@@ -210,6 +211,7 @@ def parse_date(datestr):
 if __name__ == "__main__":
     if sys.argv[1] == "harvest_all":
         harvest_all()
-    elif sys.argv[1] == "update_latest":
-        update_latest()
-    pass
+    elif sys.argv[1] == "harvest_latest":
+        harvest_latest()
+    else:
+        print 'options are: harvest_all, harvest_latest'
