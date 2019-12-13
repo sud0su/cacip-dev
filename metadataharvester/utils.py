@@ -40,15 +40,15 @@ def save_document(docparams, specialparams, insertonly=False, basemodel=Document
     except basemodel.DoesNotExist:
         print 'insert new Document:', docparams['doc_url']
         doc = basemodel(**docparams)
-        mode = 'insert'
+        setattr(doc, 'save_mode', 'insert')
     else:
         if not insertonly:
             print 'update existing Document:', docparams['doc_url']
             for (key, value) in docparams.items():
                 setattr(doc, key, value)
-        mode = 'update'
+        setattr(doc, 'save_mode', 'update')
 
-    if (insertonly and mode == 'insert') or not insertonly:
+    if (insertonly and doc.save_mode == 'insert') or not insertonly:
         doc.save()
 
         # create_thumbnail(docparams['doc_url'])
@@ -68,7 +68,7 @@ def save_document(docparams, specialparams, insertonly=False, basemodel=Document
         # row[16] = doc.id
         # loc = Region.objects.get(pk=row[4])
         # doc.regions.add(loc)
-    return mode
+    return doc
 
 def delayed_requests(requestsparams, module=sys.modules[__name__]):
     '''
