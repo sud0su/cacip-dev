@@ -49,7 +49,7 @@
     </div>
     <div class="col-md-9">
         <div class="row">
-            <div class="col-md-10"><span style="font-size: 34px;" ng-bind="total_counts + ' {{ basemodel.class_label | default:facet_type | title }} found'"></span></div>
+            <div class="col-md-10"><span style="font-size: 34px;" ng-bind="total_counts + ' {% if basemodel.class_label %}{{ basemodel.class_label | title }}{% else %}{{ facet_type | title }}{% endif %} found'"></span></div>
             <div class="col-md-2">{% include "search/_sort_filters.html" %}</div>
         </div>
         <div class="row">
