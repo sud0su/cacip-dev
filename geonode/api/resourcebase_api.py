@@ -48,7 +48,7 @@ from tastypie.utils.mime import build_content_type
 from geonode import get_version, qgis_server, geoserver
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
-from geonode.documents.models import Document, Event, KnowledgehubDocument, News
+from geonode.documents.models import Document, Event, KnowledgehubDocument, News, Blog
 from geonode.base.models import ResourceBase, Region
 from geonode.base.models import HierarchicalKeyword
 from geonode.people.models import Profile
@@ -1019,16 +1019,22 @@ class EventsResource(DocumentResource):
 
     class Meta(DocumentResource.Meta):
         queryset = Event.objects.distinct().order_by('-date')
-        resource_name = 'event'
+        resource_name = Event.namelc()
 
 class NewsResource(DocumentResource):
 
     class Meta(DocumentResource.Meta):
         queryset = News.objects.distinct().order_by('-date')
-        resource_name = 'news'
+        resource_name = News.namelc()
 
 class KnowledgehubDocumentsResource(DocumentResource):
 
     class Meta(DocumentResource.Meta):
         queryset = KnowledgehubDocument.objects.distinct().order_by('-date')
-        resource_name = 'knowledgehubdocument'
+        resource_name = KnowledgehubDocument.namelc()
+
+class BlogResource(DocumentResource):
+
+    class Meta(DocumentResource.Meta):
+        queryset = Blog.objects.distinct().order_by('-date')
+        resource_name = Blog.namelc()

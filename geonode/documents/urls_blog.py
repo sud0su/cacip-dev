@@ -22,15 +22,15 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 
-from .views import DocumentUploadView, DocumentUpdateView, EventUploadView, EventUpdateView
+from .views import DocumentUploadView, DocumentUpdateView, BlogUploadView, BlogUpdateView
 from . import views
-from .models import Event
+from .models import Blog
 
 js_info_dict = {
     'packages': ('geonode.documents',),
 }
-basemodel = Event
-prefix = basemodel.namelc()
+basemodel = Blog
+prefix = basemodel.__name__.lower()
 
 urlpatterns = [  # 'geonode.documents.views',
     url(r'^$',
@@ -42,12 +42,12 @@ urlpatterns = [  # 'geonode.documents.views',
         views.document_detail, name=prefix+'_detail', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/download/?$',
         views.document_download, name=prefix+'_download', kwargs={'basemodel':basemodel}),
-    url(r'^(?P<docid>\d+)/replace$', login_required(EventUpdateView.as_view(context={'basemodel':basemodel})),
+    url(r'^(?P<docid>\d+)/replace$', login_required(BlogUpdateView.as_view(context={'basemodel':basemodel})),
         name=prefix+"_replace", kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/remove$',
         views.document_remove, name=prefix+"_remove", kwargs={'basemodel':basemodel}),
     url(r'^upload/?$', login_required(
-        EventUploadView.as_view(context={'basemodel':basemodel})), name=prefix+'_upload', kwargs={'basemodel':basemodel}),
+        BlogUploadView.as_view(context={'basemodel':basemodel})), name=prefix+'_upload', kwargs={'basemodel':basemodel}),
     url(r'^search/?$', views.document_search_page,
         name=prefix+'_search_page', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>[^/]*)/metadata_detail$', views.document_metadata_detail,

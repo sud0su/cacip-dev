@@ -55,7 +55,7 @@
     <dt>{% trans "Keywords" %}</dt>
     <dd itemprop="keywords">
       {% for keyword in resource.keywords.all %}
-  <a itemscope itemtype="http://schema.org/Text" href="{% if basemodelname %}{% url basemodelname|add:'_browse' %}{% else %}{% url "search" %}{% endif %}?keywords__slug__in={{ keyword.slug }}" >
+  <a itemscope itemtype="http://schema.org/Text" href="{% if basemodel %}{% url basemodel.namelc|add:'_browse' %}{% else %}{% url "search" %}{% endif %}?keywords__slug__in={{ keyword.slug }}" >
           {{ keyword.name }}
         </a>
         {% if not forloop.last %},{% endif %}

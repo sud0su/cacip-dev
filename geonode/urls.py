@@ -166,6 +166,7 @@ urlpatterns += [
     url(r'^knowledgehub/documents/', include('geonode.documents.urls_document')),
     url(r'^events/', include('geonode.documents.urls_event')),
     url(r'^news/', include('geonode.documents.urls_news')),
+    url(r'^blog/', include('geonode.documents.urls_blog')),
 
     url(r'^rest-auth/', include('rest_auth.urls')),
     # url(r'^forums/', include('simple_forums.urls', namespace='simple-forums')),

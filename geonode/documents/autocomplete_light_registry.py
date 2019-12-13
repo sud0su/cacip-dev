@@ -20,7 +20,7 @@
 
 from autocomplete_light.registry import register
 from autocomplete_light.autocomplete.shortcuts import AutocompleteModelTemplate
-from models import Document, Event, KnowledgehubDocument, News
+from .models import Document, Event, KnowledgehubDocument, News, Blog
 
 
 class DocumentAutocomplete(AutocompleteModelTemplate):
@@ -30,6 +30,9 @@ class EventAutocomplete(DocumentAutocomplete):
     choice_template = 'autocomplete_response.html'
 
 class NewsAutocomplete(DocumentAutocomplete):
+    choice_template = 'autocomplete_response.html'
+
+class BlogAutocomplete(DocumentAutocomplete):
     choice_template = 'autocomplete_response.html'
 
 class KnowledgehubDocumentAutocomplete(DocumentAutocomplete):
@@ -53,7 +56,7 @@ register(
     order_by=['title'],
     limit_choices=100,
     autocomplete_js_attributes={
-        'placeholder': 'Event name..',
+        'placeholder': 'Event name...',
     },
 )
 
@@ -64,7 +67,18 @@ register(
     order_by=['title'],
     limit_choices=100,
     autocomplete_js_attributes={
-        'placeholder': 'News name..',
+        'placeholder': 'News name...',
+    },
+)
+
+register(
+    Blog,
+    BlogAutocomplete,
+    search_fields=['title'],
+    order_by=['title'],
+    limit_choices=100,
+    autocomplete_js_attributes={
+        'placeholder': 'Blog name...',
     },
 )
 
@@ -75,6 +89,6 @@ register(
     order_by=['title'],
     limit_choices=100,
     autocomplete_js_attributes={
-        'placeholder': 'Document name..',
+        'placeholder': 'Document name...',
     },
 )

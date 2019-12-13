@@ -19,7 +19,7 @@
 #########################################################################
 
 from modeltranslation.translator import translator, TranslationOptions
-from geonode.documents.models import Document, Event, News, KnowledgehubDocument
+from geonode.documents.models import Document, Event, News, Blog, KnowledgehubDocument
 
 
 class DocumentTranslationOptions(TranslationOptions):
@@ -38,10 +38,14 @@ class EventTranslationOptions(TranslationOptions):
 class NewsTranslationOptions(TranslationOptions):
     fields = ()
 
+class BlogTranslationOptions(TranslationOptions):
+    fields = ()
+
 class KnowledgehubDocumentTranslationOptions(TranslationOptions):
     fields = ()
 
 translator.register(Document, DocumentTranslationOptions)
 translator.register(Event, EventTranslationOptions)
 translator.register(News, NewsTranslationOptions)
+translator.register(Blog, BlogTranslationOptions)
 translator.register(KnowledgehubDocument, NewsTranslationOptions)

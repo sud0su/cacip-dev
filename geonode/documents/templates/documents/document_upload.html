@@ -2,7 +2,7 @@
 {% load bootstrap_tags %}
 {% load i18n %}
 
-{% block title %} {% trans "Upload Document" %} - {{ block.super }} {% endblock %}
+{% block title %} {% trans "Upload "|add:basemodel.class_label %} - {{ block.super }} {% endblock %}
 
 {% block body_class %}documents upload{% endblock body_class %}
 
@@ -15,7 +15,7 @@
 {% block body %}
 
 <div class="col-md-8">
-  <form basemodel="{{basemodel}}" basemodelname="{{basemodelname}}" form.Meta.model.name="{{form.Meta.model.name}}" id="upload_form" method="post" enctype="multipart/form-data" action="{% url form.Meta.model.name|default:"document"|lower|add:"_upload" %}">
+  <form id="upload_form" method="post" enctype="multipart/form-data" action="{% url basemodel.namelc|add:"_upload" %}">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
     {{ form.as_p }}
     <button type="submit" id="upload-button" class="btn btn-danger">{% trans "Upload" %}</button>

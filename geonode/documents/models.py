@@ -137,8 +137,12 @@ class Document(ResourceBase):
         return self.__class__.__name__
 
     @classmethod
-    def name(cls, *args, **kwargs):
-        return cls.__name__
+    def cm_class_name(cls, *args, **kwargs):
+        return getattr(cls, '__name__', 'Document')
+
+    @classmethod
+    def namelc(cls, *args, **kwargs):
+        return cls.cm_class_name().lower()
 
     @classmethod
     def h_keywords_api(cls, *args, **kwargs):
@@ -209,6 +213,14 @@ class News(Document):
 
     class_label = 'News'
     form_class = 'geonode.documents.forms.NewsForm'
+    
+    def get_absolute_url(self):
+        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
+
+class Blog(Document):
+
+    class_label = 'Blog'
+    form_class = 'geonode.documents.forms.BlogForm'
     
     def get_absolute_url(self):
         return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
@@ -360,6 +372,13 @@ signals.post_save.connect(create_thumbnail, sender=News)
 signals.post_save.connect(post_save_document, sender=News)
 signals.post_save.connect(resourcebase_post_save, sender=News)
 signals.pre_delete.connect(pre_delete_document, sender=News)
+map_changed_signal.connect(update_documents_extent)
+
+signals.pre_save.connect(pre_save_document, sender=Blog)
+signals.post_save.connect(create_thumbnail, sender=Blog)
+signals.post_save.connect(post_save_document, sender=Blog)
+signals.post_save.connect(resourcebase_post_save, sender=Blog)
+signals.pre_delete.connect(pre_delete_document, sender=Blog)
 map_changed_signal.connect(update_documents_extent)
 
 signals.pre_save.connect(pre_save_document, sender=KnowledgehubDocument)

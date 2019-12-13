@@ -19,10 +19,12 @@
 #########################################################################
 
 from django.contrib import admin
-from geonode.documents.models import Document, Event, News, KnowledgehubDocument
+from geonode.documents.models import Document, Event, News, Blog, KnowledgehubDocument
 from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
 from geonode.base.admin import metadata_batch_edit
 
+from django import forms
+from ckeditor.widgets import CKEditorWidget
 
 class DocumentAdminForm(ResourceBaseAdminForm):
 
@@ -43,11 +45,20 @@ class KnowledgehubDocumentAdminForm(DocumentAdminForm):
     class Meta(DocumentAdminForm.Meta):
         model = KnowledgehubDocument
 
-
 class NewsAdminForm(DocumentAdminForm):
 
     class Meta(DocumentAdminForm.Meta):
         model = News
+
+class BlogAdminForm(DocumentAdminForm):
+
+    class Meta(DocumentAdminForm.Meta):
+        model = Blog
+        widgets = {
+            'abstract_en': CKEditorWidget(),
+            # 'abstract_en': TinyMCE(attrs={'cols': 100, 'rows': 10}),
+            # 'abstract_en': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
+        }
 
 
 class DocumentAdmin(MediaTranslationAdmin):
@@ -75,10 +86,14 @@ class EventAdmin(DocumentAdmin):
 class NewsAdmin(DocumentAdmin):
     form = NewsAdminForm
 
+class BlogAdmin(DocumentAdmin):
+    form = BlogAdminForm
+
 class KnowledgehubDocumentAdmin(DocumentAdmin):
     form = KnowledgehubDocumentAdminForm
 
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(News, NewsAdmin)
+admin.site.register(Blog, BlogAdmin)
 admin.site.register(KnowledgehubDocument, KnowledgehubDocumentAdmin)

@@ -79,7 +79,7 @@ def facets(context):
 
     if facet_type == 'documents':
 
-        documents = Document.objects.filter(title__icontains=title_filter)
+        documents = context.get('basemodel', Document).objects.filter(title__icontains=title_filter)
 
         if category_filter:
             documents = documents.filter(category__identifier__in=category_filter)
@@ -327,3 +327,23 @@ def fullurl(context, url):
 @register.simple_tag(takes_context=True)
 def getcontextjson(context):
     return json.dumps([i for i in context], cls = JSONEncoderCustom)
+
+@register.filter(is_safe=False)
+def custom_pluralize(value, arg='s'):
+    plural_form = singular_form = value
+    if not str(value).endswith('s'):
+        plural_form = plural_form + 's'
+
+    # adapted from django.template.defaultfilters pluralize()
+    try:
+        if float(arg) != 1:
+            return plural_form
+    except ValueError:  # Invalid string that's not a number.
+        pass
+    except TypeError:  # Value isn't a string or a number; maybe it's a list?
+        try:
+            if len(arg) != 1:
+                return plural_form
+        except TypeError:  # len() of unsized object.
+            pass
+    return singular_form

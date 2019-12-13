@@ -8,8 +8,8 @@
 
 {% block body %}
 <div class="page-header">
-  <a href="{% url basemodel.name|default:"document"|lower|add:"_upload" %}" class="btn btn-primary pull-right">{% trans "Upload Documents" %}</a>
-  <h2>{% trans "Explore Documents" %}</h2>
+  <a href="{% url basemodel.namelc|add:"_upload" %}" class="btn btn-primary pull-right">{% trans "Upload "|add:basemodel.class_label %}</a>
+  <h2>{% trans "Explore "|add:basemodel.class_label %}</h2>
 </div>
   {% with include_type_filter='true' %}
   {% with header='Document Type' %}
@@ -30,7 +30,7 @@
       {% if HAYSTACK_SEARCH %}
           SEARCH_URL = '{% url 'api_get_search' api_name='api' resource_name='documents'%}'
       {% elif basemodel %}
-          SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name=basemodel.name|lower %}';
+          SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name=basemodel.namelc %}';
       {% else %}
           SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents'%}'
       {% endif %}

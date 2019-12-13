@@ -45,7 +45,7 @@ from geonode.security.views import _perms_info_json
 from geonode.people.forms import ProfileForm
 from geonode.base.forms import CategoryForm
 from geonode.base.models import TopicCategory
-from geonode.documents.models import Document, get_related_resources, Event, News, KnowledgehubDocument
+from geonode.documents.models import Document, get_related_resources, Event, News, Blog, KnowledgehubDocument
 from geonode.documents.forms import DocumentForm, DocumentCreateForm, DocumentReplaceForm
 from geonode.documents.models import IMGTYPES
 from geonode.documents.renderers import generate_thumbnail_content, MissingPILError
@@ -184,10 +184,12 @@ def document_download(request, docid, basemodel=Document):
 class DocumentUploadView(CreateView):
     template_name = 'documents/document_upload.html'
     form_class = DocumentCreateForm
+    context = {}
 
     def get_context_data(self, **kwargs):
         context = super(DocumentUploadView, self).get_context_data(**kwargs)
         context['ALLOWED_DOC_TYPES'] = ALLOWED_DOC_TYPES
+        context.update(getattr(self, 'context', {}))
         return context
 
     def form_invalid(self, form):
@@ -308,7 +310,7 @@ class DocumentUploadView(CreateView):
         else:
             return HttpResponseRedirect(
                 reverse(
-                    'document_metadata',
+                    self.object.class_name.lower()+'_metadata',
                     args=(
                         self.object.id,
                     )))
@@ -321,9 +323,14 @@ class NewsCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):
         model = News
 
+class BlogCreateForm(DocumentCreateForm):
+    class Meta(DocumentCreateForm.Meta):
+        model = Blog
+
 class KnowledgehubDocumentCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):
         model = KnowledgehubDocument
+
 
 class EventUploadView(DocumentUploadView):
     form_class = EventCreateForm
@@ -331,8 +338,12 @@ class EventUploadView(DocumentUploadView):
 class NewsUploadView(DocumentUploadView):
     form_class = NewsCreateForm
 
+class BlogUploadView(DocumentUploadView):
+    form_class = BlogCreateForm
+
 class KnowledgehubDocumentUploadView(DocumentUploadView):
     form_class = KnowledgehubDocumentCreateForm
+
 
 class DocumentUpdateView(UpdateView):
     template_name = 'documents/document_replace.html'
@@ -340,6 +351,7 @@ class DocumentUpdateView(UpdateView):
     form_class = DocumentReplaceForm
     queryset = Document.objects.all()
     context_object_name = 'document'
+    context = {}
 
     def get_context_data(self, **kwargs):
         context = super(DocumentUpdateView, self).get_context_data(**kwargs)
@@ -360,6 +372,39 @@ class DocumentUpdateView(UpdateView):
                 args=(
                     self.object.id,
                 )))
+
+class EventReplaceForm(DocumentReplaceForm):
+    class Meta(DocumentReplaceForm.Meta):
+        model = Event
+
+class NewsReplaceForm(DocumentReplaceForm):
+    class Meta(DocumentReplaceForm.Meta):
+        model = News
+
+class BlogReplaceForm(DocumentReplaceForm):
+    class Meta(DocumentReplaceForm.Meta):
+        model = Blog
+
+class KnowledgehubDocumentReplaceForm(DocumentReplaceForm):
+    class Meta(DocumentReplaceForm.Meta):
+        model = KnowledgehubDocument
+
+
+class EventUpdateView(DocumentUpdateView):
+    form_class = EventReplaceForm
+    queryset = Event.objects.all()
+
+class NewsUpdateView(DocumentUpdateView):
+    form_class = NewsReplaceForm
+    queryset = News.objects.all()
+
+class BlogUpdateView(DocumentUpdateView):
+    form_class = BlogReplaceForm
+    queryset = Blog.objects.all()
+
+class KnowledgehubDocumentUpdateView(DocumentUpdateView):
+    form_class = KnowledgehubDocumentReplaceForm
+    queryset = KnowledgehubDocument.objects.all()
 
 
 @login_required
@@ -717,7 +762,7 @@ def document_remove(request, docid, template='documents/document_remove.html', b
             else:
                 document.delete()
 
-            return HttpResponseRedirect(reverse("document_browse"))
+            return HttpResponseRedirect(reverse(basemodel.namelc()+"_browse"))
         else:
             return HttpResponse("Not allowed", status=403)
 

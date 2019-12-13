@@ -22,7 +22,7 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 
-from .views import DocumentUploadView, DocumentUpdateView
+from .views import DocumentUploadView, DocumentUpdateView, NewsUploadView, NewsUpdateView
 from . import views
 from .models import News
 
@@ -30,24 +30,24 @@ js_info_dict = {
     'packages': ('geonode.documents',),
 }
 basemodel = News
-prefix = basemodel.__name__.lower()
+prefix = basemodel.namelc()
 
 urlpatterns = [  # 'geonode.documents.views',
     url(r'^$',
         TemplateView.as_view(
         template_name='documents/document_list.html'),
-        {'facet_type': 'documents','basemodel': basemodel},
+        kwargs={'facet_type': 'documents','basemodel': basemodel},
         name=prefix+'_browse'),
     url(r'^(?P<docid>\d+)/?$',
         views.document_detail, name=prefix+'_detail', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/download/?$',
         views.document_download, name=prefix+'_download', kwargs={'basemodel':basemodel}),
-    url(r'^(?P<docid>\d+)/replace$', login_required(DocumentUpdateView.as_view()),
+    url(r'^(?P<docid>\d+)/replace$', login_required(NewsUpdateView.as_view(context={'basemodel':basemodel})),
         name=prefix+"_replace", kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>\d+)/remove$',
         views.document_remove, name=prefix+"_remove", kwargs={'basemodel':basemodel}),
     url(r'^upload/?$', login_required(
-        DocumentUploadView.as_view()), name=prefix+'_upload', kwargs={'basemodel':basemodel}),
+        NewsUploadView.as_view(context={'basemodel':basemodel})), name=prefix+'_upload', kwargs={'basemodel':basemodel}),
     url(r'^search/?$', views.document_search_page,
         name=prefix+'_search_page', kwargs={'basemodel':basemodel}),
     url(r'^(?P<docid>[^/]*)/metadata_detail$', views.document_metadata_detail,

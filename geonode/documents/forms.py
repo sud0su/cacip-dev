@@ -34,6 +34,7 @@ from geonode.documents.models import (
     Document,
     Event,
     News,
+    Blog,
     KnowledgehubDocument,
     DocumentResourceLink,
     get_related_resources,
@@ -44,7 +45,7 @@ from geonode.layers.models import Layer
 autodiscover()  # flake8: noqa
 
 from geonode.base.forms import ResourceBaseForm, ResourceBaseDateTimePicker
-
+from ckeditor.widgets import CKEditorWidget
 
 class DocumentFormMixin(object):
 
@@ -160,6 +161,23 @@ class EventForm(DocumentForm):
             'event_date_start',
             'event_date_end',
         ]
+
+class NewsForm(DocumentForm):
+
+    class Meta(DocumentForm.Meta):
+        model = News
+        fields = DocumentForm.Meta.fields + [
+        ]
+
+class BlogForm(DocumentForm):
+
+    class Meta(DocumentForm.Meta):
+        model = Blog
+        fields = DocumentForm.Meta.fields + [
+        ]
+        widgets = {
+            'abstract': CKEditorWidget(),
+        }
 
 class KnowledgehubDocumentForm(DocumentForm):
 

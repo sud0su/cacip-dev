@@ -6,6 +6,11 @@
 
 {% block title %}{{ document.alternate }} — {{ block.super }}{% endblock %}
 
+{% block head %}
+{{ block.super }}
+{{ document_form.media }}
+{% endblock %}
+
 {% block body_class %}data{% endblock %}
 
 {% block body_outer %}
@@ -13,7 +18,7 @@
 {{ block.super }}
 
 <div class="page-header">
-  <a href="{% url "document_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Documents" %}</a>
+  <a href="{% url resource.class_name|lower|add:"_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore "|add:resource.class_name %}</a>
   <h2 class="page-title">{% trans "Edit Metadata" %}</h2>
 </div>
 <div class="row">
@@ -21,7 +26,7 @@
     <p class="lead">
         {% trans "Editing details for" %} {{ document.title }}
     </p>
-    <form id="metadata_update" class="form-horizontal" action="{% url "document_metadata" document.id %}" method="POST">
+    <form id="metadata_update" class="form-horizontal" action="{% url document.class_name.lower|add:"_metadata" document.id %}" method="POST">
       {% if document_form.errors or category_form.errors or author_form.errors or poc.errors %}
         <p class="bg-danger">{% blocktrans %}Error updating metadata.  Please check the following fields: {% endblocktrans %}</p>
         <ul class="bg-danger">
