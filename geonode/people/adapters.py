@@ -43,6 +43,11 @@ from django.utils.module_loading import import_string
 # from django.contrib.auth.models import Group
 from geonode.groups.models import GroupProfile
 
+# CACIP
+from django import forms
+from geonode.people.enumerations import AREA_OF_INTERESTS, CACIP_USER_ROLE_VALUES
+from geonode.base.enumerations import COUNTRIES
+
 logger = logging.getLogger(__name__)
 
 
@@ -174,6 +179,21 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
 
     def respond_user_inactive(self, request, user):
         return _respond_inactive_user(user)
+
+    def clean_country(self, country):
+        if country not in (i[0] for i in COUNTRIES):
+            raise forms.ValidationError(_("country not valid"))
+        return country
+
+    def clean_areaofinterest(self, areaofinterest):
+        if areaofinterest not in (i[0] for i in AREA_OF_INTERESTS):
+            raise forms.ValidationError(_("area of interest not valid"))
+        return areaofinterest
+
+    def clean_role(self, role):
+        if role not in (i[0] for i in CACIP_USER_ROLE_VALUES):
+            raise forms.ValidationError(_("role not valid"))
+        return role
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):

@@ -169,6 +169,7 @@ urlpatterns += [
     url(r'^blog/', include('geonode.documents.urls_blog')),
 
     url(r'^rest-auth/', include('rest_auth.urls')),
+    url(r'^rest-auth/registration/', include('geonode.rest_auth_urls')),
     # url(r'^forums/', include('simple_forums.urls', namespace='simple-forums')),
     url(r'^forum/', include(board.urls)),
 

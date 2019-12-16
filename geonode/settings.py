@@ -417,13 +417,14 @@ INSTALLED_APPS = (
 
     # django_forum_app
 
-    # EPR-BGD01
+    # CACIP
     'matrix',
     'userstatistics',
     'dashboard',
 
     'ckeditor',
     'rest_auth',
+    'rest_auth.registration',
 
     # Machina related apps:
     # 'mptt',
@@ -1058,6 +1059,7 @@ LOCKDOWN_GEONODE = True
 AUTH_EXEMPT_URLS += (
     '^/$',
     '/account/signup/',
+    '^/account/confirm-email/',
     '^/autocomplete/ResourceBaseAutocomplete',
     '^/autocomplete/CampBaseAutocomplete',
     '^/autocomplete/CampUnionBaseAutocomplete',
@@ -1067,6 +1069,9 @@ AUTH_EXEMPT_URLS += (
     '^/dashboard/print',
     '^/gs/',
     '^/rest-auth/login/',
+    '^/rest-auth/password/reset/',
+    '^/rest-auth/password/reset/confirm/',
+    '^/rest-auth/registration/',
 )
 
 # A tuple of hosts the proxy can send requests to.
@@ -1744,6 +1749,10 @@ if USE_WORLDMAP:
 
 # added by Dodi
 UPDATE_RESOURCE_LINKS_AT_MIGRATE = False
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'geonode.rest_auth_serializers.CustomRegisterSerializer',
+}
 
 # added by razinal
 SIMPLE_FORUMS = {
