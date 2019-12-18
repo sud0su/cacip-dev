@@ -77,7 +77,7 @@
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse navbar-ex1-collapse">
                         <ul class="nav navbar-nav">
-                            <li class="active"><a href="{% url "event_browse" %}">Calendar</a></li>
+                            <li class="{% if "event" in request.path %} active {% endif %}"><a href="{% url "event_browse" %}">Calendar</a></li>
                             <li><a href="#">About</a></li>
                             <li><a href="#">Contacts</a></li>
                         </ul>
@@ -167,11 +167,11 @@
                   <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav toolbar">
                             {% block tabs %}
-                                <li><a href="{% url "home" %}">My Home Page</a></li>   
-                                <li><a href="{% url "news_browse" %}">News</a></li>
-                                <li><a href="{% url "blog_browse" %}">Blog</a></li>
-                                <li><a href="{% url "forum:index" %}">Forum</a></li>
-                                <li><a href="{% url "knowledgehubdocument_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Knowledge Hub" %}</a></li>
+                                <li class="{% if request.path == "/" %} active {% endif %}"><a href="{% url "home" %}">My Home Page</a></li>   
+                                <li class="{% if "news" in request.path %} active {% endif %}"><a href="{% url "news_browse" %}">News</a></li>
+                                <li class="{% if "blog" in request.path %} active {% endif %}"><a href="{% url "blog_browse" %}">Blog</a></li>
+                                <li class="{% if "forum" in request.path %} active {% endif %}"><a href="{% url "forum:index" %}">Forum</a></li>
+                                <li class="{% if "knowledgehub/documents" in request.path %} active {% endif %}"><a href="{% url "knowledgehubdocument_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}">{% trans "Knowledge Hub" %}</a></li>
                                 <li id="geo_portal">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Geo portal" %}<i class="fa fa-angle-down fa-lg"></i></a>
                                     <ul class="dropdown-menu">
