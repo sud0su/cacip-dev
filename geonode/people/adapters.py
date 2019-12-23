@@ -47,6 +47,7 @@ from geonode.groups.models import GroupProfile
 from django import forms
 from geonode.people.enumerations import AREA_OF_INTERESTS, CACIP_USER_ROLE_VALUES
 from geonode.base.enumerations import COUNTRIES
+from geonode.base.models import TopicCategory
 
 logger = logging.getLogger(__name__)
 
@@ -166,10 +167,10 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
         data = form.cleaned_data
         if 'country' in data:
             user_field(user, 'country', data.get('country'))
-        if 'areaofinterest' in data:
-            user_field(user, 'areaofinterest', data.get('areaofinterest'))
         if 'role' in data:
             user_field(user, 'role', data.get('role'))
+        if 'areaofinterest' in data:
+            setattr(user, 'areaofinterest', TopicCategory.objects.get(pk=data.get('areaofinterest')))
         user.save()
 
         if settings.ACCOUNT_APPROVAL_REQUIRED:
@@ -186,7 +187,9 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
         return country
 
     def clean_areaofinterest(self, areaofinterest):
-        if areaofinterest not in (i[0] for i in AREA_OF_INTERESTS):
+        try:
+            TopicCategory.objects.get(pk=areaofinterest)
+        except TopicCategory.DoesNotExist as identifier:
             raise forms.ValidationError(_("area of interest not valid"))
         return areaofinterest
 

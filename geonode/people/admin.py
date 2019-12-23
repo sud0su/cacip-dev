@@ -60,7 +60,7 @@ class ProfileAdmin(admin.ModelAdmin):
                                             'position', 'voice', 'fax',
                                             'delivery', 'city', 'area',
                                             'zipcode', 'country',
-                                            'areaofinterest', 'role',
+                                            'areaofinterest', 'role', 
                                             'keywords')}),
     )
     add_fieldsets = (

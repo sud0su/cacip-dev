@@ -3,14 +3,16 @@ from rest_auth.registration.serializers import RegisterSerializer
 from geonode.people.enumerations import AREA_OF_INTERESTS, CACIP_USER_ROLE_VALUES
 from geonode.base.enumerations import COUNTRIES
 from allauth.account.adapter import get_adapter
+from geonode.base.models import TopicCategory
+from django.utils.translation import ugettext_lazy as _
 
 class CustomRegisterSerializer(RegisterSerializer):
     country = serializers.ChoiceField(
         choices=COUNTRIES
     )
     areaofinterest = serializers.ChoiceField(
-        # label=_('Area of Interest'),
-        choices=AREA_OF_INTERESTS
+        label=_('Area of Interest'),
+        choices=TopicCategory.objects.values_list('id','gn_description')
     )
     role = serializers.ChoiceField(
         choices=CACIP_USER_ROLE_VALUES
@@ -33,6 +35,6 @@ class CustomRegisterSerializer(RegisterSerializer):
         result.update({
             'country': self.validated_data.get('country', ''),
             'areaofinterest': self.validated_data.get('areaofinterest', ''),
-            'role': self.validated_data.get('role', '')
+            'role': self.validated_data.get('role', ''),
         })
         return result

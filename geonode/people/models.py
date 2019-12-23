@@ -46,6 +46,8 @@ from .timezones import TIMEZONES
 
 # CACIP
 from .enumerations import CACIP_USER_ROLE_VALUES, AREA_OF_INTERESTS
+from geonode.base.models import TopicCategory, ResourceBase
+from django.db.models import Q
 
 class ProfileUserManager(UserManager):
     def get_by_natural_key(self, username):
@@ -126,14 +128,6 @@ class Profile(AbstractUser):
     )
 
     # CACIP
-    areaofinterest = models.CharField(
-        _('Area of Interest'),
-        choices=AREA_OF_INTERESTS,
-        max_length=100,
-        blank=True,
-        null=True,
-        help_text=_('area of interest')
-    )
     role = models.CharField(
         _('Role'),
         choices=CACIP_USER_ROLE_VALUES,
@@ -142,6 +136,14 @@ class Profile(AbstractUser):
         null=True,
         help_text=_('role')
     )
+    areaofinterest = models.ForeignKey(
+        TopicCategory,
+        verbose_name=_('Area of Interest'),
+        null=True,
+        blank=True,
+        limit_choices_to=Q(
+            is_choice=True),
+        help_text=ResourceBase.category_help_text)
 
 
     def __init__(self, *args, **kwargs):

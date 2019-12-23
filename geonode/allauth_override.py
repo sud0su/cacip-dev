@@ -5,6 +5,7 @@ from allauth.utils import set_form_field_order
 from geonode.people.enumerations import AREA_OF_INTERESTS, CACIP_USER_ROLE_VALUES
 from geonode.base.enumerations import COUNTRIES
 from django.utils.translation import ugettext_lazy as _
+from geonode.base.models import TopicCategory
 
 class CustomSignupForm(SignupForm):
     country = forms.ChoiceField(
@@ -12,7 +13,7 @@ class CustomSignupForm(SignupForm):
     )
     areaofinterest = forms.ChoiceField(
         label=_('Area of Interest'),
-        choices=AREA_OF_INTERESTS
+        choices=TopicCategory.objects.values_list('id','gn_description')
     )
     role = forms.ChoiceField(
         choices=CACIP_USER_ROLE_VALUES
