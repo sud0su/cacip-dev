@@ -19,6 +19,8 @@ from django.contrib.auth.decorators import user_passes_test
 # from django.middleware.gzip import GZipMiddleware
 from django.views.decorators.gzip import gzip_page
 
+user_exclude = ['admin']
+
 @user_passes_test(lambda u: u.is_staff, login_url='/')
 @gzip_page
 def userstatistics(request):
@@ -32,7 +34,6 @@ def userstatistics(request):
     data['jsondata'] = {}
     data['jsondata']['useractivities'] = {}
     data['jsondata']['user'] = {}
-    user_exclude = ['admin', 'dodiws', 'dodiwsreg', 'rafinkanisa', 'boedy1996', 'razinal']
     start = time.time()
     # print 'query start', start
     # extra(select={'certificate_percentage': 'SELECT percentage FROM matrix_certificate WHERE lower(matrix_certificate.email) = lower(people_profile.email)',

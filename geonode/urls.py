@@ -44,7 +44,7 @@ from autocomplete_light.registry import autodiscover
 # CACIP
 from . import allauth_override
 from machina.app import board
-
+from geonode.api.urls import api_public
 
 # Setup Django Admin
 autodiscover()
@@ -172,6 +172,7 @@ urlpatterns += [
     url(r'^rest-auth/registration/', include('geonode.rest_auth_urls')),
     # url(r'^forums/', include('simple_forums.urls', namespace='simple-forums')),
     url(r'^forum/', include(board.urls)),
+    url(r'^api/public/', include(api_public, namespace='api_public')),
 
 
 

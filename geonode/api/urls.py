@@ -28,6 +28,10 @@ from .resourcebase_api import LayerResource, MapResource, DocumentResource, \
     ResourceBaseResource, FeaturedResourceBaseResource, \
     EventsResource, KnowledgehubDocumentsResource, NewsResource, BlogResource
 
+# CACIP
+from django.conf.urls import include, url
+import apipublicview
+
 api = Api(api_name='api')
 
 api.register(LayerResource())
@@ -50,3 +54,7 @@ api.register(EventsResource())
 api.register(NewsResource())
 api.register(BlogResource())
 api.register(KnowledgehubDocumentsResource())
+
+api_public = [
+    url(r'^usercount/', apipublicview.usercount, name='usercount')
+]

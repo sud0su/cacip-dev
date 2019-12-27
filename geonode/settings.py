@@ -154,35 +154,35 @@ LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
 _DEFAULT_LANGUAGES = (
     ('en', 'English'),
-    ('es', 'Español'),
-    ('it', 'Italiano'),
-    ('fr', 'Français'),
-    ('de', 'Deutsch'),
-    ('el', 'Ελληνικά'),
-    ('id', 'Bahasa Indonesia'),
-    ('zh-cn', '中文'),
-    ('ja', '日本語'),
-    ('fa', 'Persian'),
-    ('ar', 'Arabic'),
-    ('bn', 'Bengali'),
-    ('ne', 'Nepali'),
-    ('sq', 'Albanian'),
-    ('af', 'Afrikaans'),
-    ('sw', 'Swahili'),
-    ('pt', 'Portuguese'),
-    ('pt-br', 'Portuguese (Brazil)'),
+    # ('es', 'Español'),
+    # ('it', 'Italiano'),
+    # ('fr', 'Français'),
+    # ('de', 'Deutsch'),
+    # ('el', 'Ελληνικά'),
+    # ('id', 'Bahasa Indonesia'),
+    # ('zh-cn', '中文'),
+    # ('ja', '日本語'),
+    # ('fa', 'Persian'),
+    # ('ar', 'Arabic'),
+    # ('bn', 'Bengali'),
+    # ('ne', 'Nepali'),
+    # ('sq', 'Albanian'),
+    # ('af', 'Afrikaans'),
+    # ('sw', 'Swahili'),
+    # ('pt', 'Portuguese'),
+    # ('pt-br', 'Portuguese (Brazil)'),
     ('ru', 'Russian'),
-    ('vi', 'Vietnamese'),
-    ('ko', '한국어'),
-    ('am', 'Amharic'),
-    ('km', 'Khmer'),
-    ('pl', 'Polish'),
-    ('sv', 'Swedish'),
-    ('th', 'ไทย'),
-    ('uk', 'Ukranian'),
-    ('si', 'Sinhala'),
-    ('ta', 'Tamil'),
-    ('tl', 'Tagalog'),
+    # ('vi', 'Vietnamese'),
+    # ('ko', '한국어'),
+    # ('am', 'Amharic'),
+    # ('km', 'Khmer'),
+    # ('pl', 'Polish'),
+    # ('sv', 'Swedish'),
+    # ('th', 'ไทย'),
+    # ('uk', 'Ukranian'),
+    # ('si', 'Sinhala'),
+    # ('ta', 'Tamil'),
+    # ('tl', 'Tagalog'),
 )
 
 LANGUAGES = os.getenv('LANGUAGES', _DEFAULT_LANGUAGES)
@@ -437,8 +437,11 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    )
 }
 
 # Documents application
@@ -535,7 +538,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.contrib.auth.context_processors.auth',
                 # 'django.core.context_processors.debug',
-                # 'django.core.context_processors.i18n',
+                'django.core.context_processors.i18n',
                 # 'django.core.context_processors.tz',
                 # 'django.core.context_processors.media',
                 # 'django.core.context_processors.static',
@@ -1081,6 +1084,9 @@ AUTH_EXEMPT_URLS += (
     '^/rest-auth/password/reset/',
     '^/rest-auth/password/reset/confirm/',
     '^/rest-auth/registration/',
+    '^/rest-auth/user/',
+    '^/o/',
+    '^/api/public/',
 )
 
 # A tuple of hosts the proxy can send requests to.
@@ -1762,6 +1768,8 @@ UPDATE_RESOURCE_LINKS_AT_MIGRATE = False
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'geonode.rest_auth_serializers.CustomRegisterSerializer',
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # added by razinal
 SIMPLE_FORUMS = {
