@@ -223,3 +223,4 @@ PyPDF2
 Sickle
 django-ckeditor==5.8.0
 django-rest-auth==0.9.3
+django-machina==0.5.6
