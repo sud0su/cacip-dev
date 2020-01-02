@@ -1073,7 +1073,7 @@ AUTH_EXEMPT_URLS += (
     '^/api/news/$',
     '^/api/blog/$',
     '^/api/knowledgehubdocument/$',
-    '^/forum/$',
+    '^/forums/$',
     '^/events/$',
     '^/news/$',
     '^/blog/$',
