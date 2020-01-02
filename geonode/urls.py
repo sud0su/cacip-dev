@@ -63,12 +63,12 @@ sitemaps = {
 }
 
 urlpatterns = [
-                url(r'^$',
-                    permission_denied,
-                    name='home'),
                 # url(r'^$',
-                #     TemplateView.as_view(template_name='index.html'),
+                #     permission_denied,
                 #     name='home'),
+                url(r'^$',
+                    TemplateView.as_view(template_name='index.html'),
+                    name='home'),
                 url(r'^help/$',
                     TemplateView.as_view(template_name='help.html'),
                     name='help'),

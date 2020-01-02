@@ -8046,3 +8046,6 @@ form-inline {
 #wrap, #wrap>.container {
   min-height: 100vh;
 }
+body.home #wrap, body.home #wrap>.container {
+  min-height: initial;
+}
