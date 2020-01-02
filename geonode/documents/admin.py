@@ -93,7 +93,7 @@ class KnowledgehubDocumentAdmin(DocumentAdmin):
     form = KnowledgehubDocumentAdminForm
 
 admin.site.register(Document, DocumentAdmin)
-admin.site.register(Event, EventAdmin)
-admin.site.register(News, NewsAdmin)
-admin.site.register(Blog, BlogAdmin)
-admin.site.register(KnowledgehubDocument, KnowledgehubDocumentAdmin)
+# admin.site.register(Event, EventAdmin)
+# admin.site.register(News, NewsAdmin)
+# admin.site.register(Blog, BlogAdmin)
+# admin.site.register(KnowledgehubDocument, KnowledgehubDocumentAdmin)
