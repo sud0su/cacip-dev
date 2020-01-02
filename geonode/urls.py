@@ -175,7 +175,7 @@ urlpatterns += [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('geonode.rest_auth_urls')),
     # url(r'^forums/', include('simple_forums.urls', namespace='simple-forums')),
-    url(r'^forum/', include(board.urls)),
+    url(r'^forums/', include(board.urls)),
     url(r'^api/public/', include(api_public, namespace='api_public')),
 
 
