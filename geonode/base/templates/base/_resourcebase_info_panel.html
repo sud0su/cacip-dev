@@ -26,8 +26,13 @@
     </dd>
 
     {% if resource.abstract %}
+    {% if resource.namelc == 'blog' %}
+    <dt>{% trans "Content" %}</dt>
+    <dd itemprop="description">{{ resource.abstract|safe }}</dd>
+    {% else %}
     <dt>{% trans "Abstract" %}</dt>
     <dd itemprop="description">{{ resource.abstract|escape|urlize|linebreaks|safe|truncatechars:500 }}</dd>
+    {% endif %}
     {% endif %}
 
     {% if resource.event_date_start and resource.event_date_end %}

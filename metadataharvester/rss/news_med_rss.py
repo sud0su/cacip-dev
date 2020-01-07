@@ -29,7 +29,7 @@ def harvest_all(**kwargs):
         NewsFeed = feedparser.parse(feed.format(limit, offset))
         if NewsFeed.entries:
             for entry in NewsFeed.entries:
-                soup_summary = BeautifulSoup(entry.summary, 'html.parser')
+                soup_summary = BeautifulSoup(getattr(entry, 'summary', ''), 'html.parser')
                 docparams = {
                     'title': entry.title,
                     'owner_id': admin_id,
@@ -39,6 +39,9 @@ def harvest_all(**kwargs):
                     # 'abstract': soup_summary.text,
                     'sourcetext': str(entry),
                 }
+                summary = soup_summary.text.strip()
+                if summary:
+                    docparams['abstract'] = summary
                 specialparams = {
                     # 'external_thumbnail_url': file,
                 }
