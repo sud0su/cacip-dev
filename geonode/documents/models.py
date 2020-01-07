@@ -66,7 +66,7 @@ class Document(ResourceBase):
     A document is any kind of information that can be attached to a map such as pdf, images, videos, xls...
     """
 
-    class_label = 'Document'
+    _class_label = _('Document')
     doc_type_help_text = _('Document Type')
 
     doc_file = models.FileField(upload_to='documents',
@@ -120,6 +120,10 @@ class Document(ResourceBase):
             return str(self.id)
         else:
             return '%s (%s)' % (self.title, self.id)
+
+    @property
+    def class_label(self):
+        return _(getattr(self, '_class_label', self.__class__.__name__))
 
     def find_placeholder(self):
         placeholder = 'documents/{0}-placeholder.png'
@@ -194,7 +198,7 @@ class DocumentResourceLink(models.Model):
 
 class Event(Document):
 
-    class_label = 'Event'
+    _class_label = _('Event')
     form_class = 'geonode.documents.forms.EventForm'
     
     event_date_start = models.DateTimeField(
@@ -211,7 +215,7 @@ class Event(Document):
 
 class News(Document):
 
-    class_label = 'News'
+    _class_label = _('News')
     form_class = 'geonode.documents.forms.NewsForm'
     
     def get_absolute_url(self):
@@ -219,7 +223,7 @@ class News(Document):
 
 class Blog(Document):
 
-    class_label = 'Blog'
+    _class_label = _('Blog')
     form_class = 'geonode.documents.forms.BlogForm'
     
     def get_absolute_url(self):
@@ -227,7 +231,7 @@ class Blog(Document):
 
 class KnowledgehubDocument(Document):
 
-    class_label = 'Document'
+    _class_label = _('Document')
     form_class = 'geonode.documents.forms.KnowledgehubDocumentForm'
 
     def get_absolute_url(self):

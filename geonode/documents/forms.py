@@ -253,11 +253,13 @@ class DocumentCreateForm(TranslationModelForm, DocumentFormMixin):
         fields = ['title', 'doc_file', 'doc_url']
         widgets = {
             'name': HiddenInput(attrs={'cols': 80, 'rows': 20}),
+            'title': forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super(DocumentCreateForm, self).__init__(*args, **kwargs)
         self.fields['links'].choices = self.generate_link_choices()
+        self.fields['links'].label = _("Link to")
 
     def clean_permissions(self):
         """

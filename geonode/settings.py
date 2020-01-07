@@ -226,7 +226,7 @@ PASSWORD_HASHERS = [
     # 'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
 
-MODELTRANSLATION_LANGUAGES = ['en', ]
+MODELTRANSLATION_LANGUAGES = ['en', 'ru',]
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
 
@@ -1087,6 +1087,7 @@ AUTH_EXEMPT_URLS += (
     '^/rest-auth/user/',
     '^/o/',
     '^/api/public/',
+    '^/i18n/',
 )
 
 # A tuple of hosts the proxy can send requests to.
@@ -1770,6 +1771,7 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+ACCOUNT_LOGOUT_REDIRECT_URL = '/forums/'
 
 # added by razinal
 SIMPLE_FORUMS = {
