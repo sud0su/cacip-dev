@@ -5879,25 +5879,23 @@ msgstr ""
 
 #: people/enumerations.py:54
 msgid "Citizen"
-msgstr ""
+msgstr "Гражданин"
 
 #: people/enumerations.py:55
 msgid "Trainer"
-msgstr ""
+msgstr "Инструктор"
 
 #: people/enumerations.py:56
-#, fuzzy
-#| msgid "Search"
 msgid "Researcher"
-msgstr "Поиск"
+msgstr "Исследователь"
 
 #: people/enumerations.py:57
 msgid "Farmer"
-msgstr ""
+msgstr "Фермер"
 
 #: people/enumerations.py:58
 msgid "Decision Maker"
-msgstr ""
+msgstr "Лицо, принимающее решения"
 
 #: people/enumerations.py:62
 msgid "Water Management"
