@@ -21,6 +21,8 @@
 # DOCUMENT_TYPE_MAP and DOCUMENT_MIMETYPE_MAP
 # match values in settings.ALLOWED_DOCUMENT_TYPES
 
+from django.utils.translation import ugettext_lazy as _
+
 DOCUMENT_TYPE_MAP = {
     'txt': 'text',
     'log': 'text',
@@ -52,19 +54,11 @@ DOCUMENT_TYPE_MAP = {
 }
 
 DOCUMENT_TYPE_SUBJECTS = {
-    ('MAPS','Map'),
-    ('RESP','Response Plan'),
-    ('FOCP','Focal Point List'),
-    ('PRES','Presentation'),
-    ('ASSR','Assessment Report'),
-    ('SREP','Situation Report (SitRep)'),
-    ('DASH','Dashboard'),
-    ('MEET','Meetings Minute'),
-    ('UPEV','Upcoming Event'),
-    ('Document','Document'),
-    ('Event','Event'),
+    ('datasets', _('Datasets')),
+    ('publications', _('Publications')),
+    ('vizualization', _('Vizualization')),
+    ('organisation', _('Organisation')),
 }
-
 
 DOCUMENT_MIMETYPE_MAP = {
     'txt': 'text/plain',

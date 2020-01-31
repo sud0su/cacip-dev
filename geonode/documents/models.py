@@ -98,7 +98,7 @@ class Document(ResourceBase):
         _('Document Type'),
         max_length=128,
         choices=DOCUMENT_TYPE_SUBJECTS,
-        default='Document',
+        default='publications',
         help_text=doc_type_help_text)
 
     doc_url = models.URLField(

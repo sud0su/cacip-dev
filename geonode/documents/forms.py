@@ -184,7 +184,9 @@ class KnowledgehubDocumentForm(DocumentForm):
     class Meta(DocumentForm.Meta):
         model = KnowledgehubDocument
         fields = DocumentForm.Meta.fields + [
+            'doc_type',
         ]
+        DocumentForm.Meta.exclude = filter(lambda i: i not in ('doc_type',), DocumentForm.Meta.exclude)
 
 class DocumentDescriptionForm(forms.Form):
     title = forms.CharField(300)
