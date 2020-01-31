@@ -318,14 +318,17 @@ class DocumentUploadView(CreateView):
 class EventCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):
         model = Event
+        allow_no_doc = True
 
 class NewsCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):
         model = News
+        allow_no_doc = True
 
 class BlogCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):
         model = Blog
+        allow_no_doc = True
 
 class KnowledgehubDocumentCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):

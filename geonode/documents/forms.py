@@ -280,8 +280,9 @@ class DocumentCreateForm(TranslationModelForm, DocumentFormMixin):
         doc_file = self.cleaned_data.get('doc_file')
         doc_url = self.cleaned_data.get('doc_url')
 
-        if not doc_file and not doc_url:
-            raise forms.ValidationError(_("Document must be a file or url."))
+        if not getattr(self.Meta, 'allow_no_doc', False):
+            if not doc_file and not doc_url:
+                raise forms.ValidationError(_("Document must be a file or url."))
 
         if doc_file and doc_url:
             raise forms.ValidationError(
