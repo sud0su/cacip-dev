@@ -8,8 +8,8 @@
 
 {% block body %}
 <div class="page-header">
-  <a href="{% url basemodel.namelc|add:"_upload" %}" class="btn btn-primary pull-right">{% trans "Upload "|add:basemodel.class_label %}</a>
-  <h2>{% trans "Explore "|add:basemodel.class_label %}</h2>
+  <a href="{% url basemodel.namelc|add:"_upload" %}" class="btn btn-primary pull-right">{% blocktrans with basemodel.class_label as class_label %}Upload {{class_label}}{% endblocktrans %}</a>
+  <h2>{% blocktrans with basemodel.class_label as class_label %}Explore {{class_label}}{% endblocktrans %}</h2>
 </div>
   {% with include_type_filter='true' %}
   {% with header='Document Type' %}
@@ -27,14 +27,15 @@
     {% include "_permissions_form_js.html" %}
   {% endif %}
   <script type="text/javascript">
+      FILTER_TYPE = 'document';
       {% if HAYSTACK_SEARCH %}
           SEARCH_URL = '{% url 'api_get_search' api_name='api' resource_name='documents'%}'
-      {% elif basemodel %}
+      {% elif basemodel and basemodel.namelc != 'document' %}
           SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name=basemodel.namelc %}';
+          FILTER_TYPE = '{{basemodel.namelc}}';
       {% else %}
           SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='documents'%}'
       {% endif %}
-    FILTER_TYPE = 'document';
   </script>
   {% with include_spatial='true' %}
   {% include 'search/search_scripts.html' %}

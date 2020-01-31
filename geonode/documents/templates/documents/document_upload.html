@@ -2,7 +2,7 @@
 {% load bootstrap_tags %}
 {% load i18n %}
 
-{% block title %} {% trans "Upload "|add:basemodel.class_label %} - {{ block.super }} {% endblock %}
+{% block title %} {% blocktrans with basemodel.class_label as class_label %}Upload {{class_label}}{% endblocktrans %} - {{ block.super }} {% endblock %}
 
 {% block body_class %}documents upload{% endblock body_class %}
 
