@@ -422,7 +422,9 @@ INSTALLED_APPS = (
     'userstatistics',
     'dashboard',
 
+    # CACIP 3rd party
     'ckeditor',
+    'ckeditor_uploader',
     'rest_auth',
     'rest_auth.registration',
 
@@ -1772,6 +1774,8 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 ACCOUNT_LOGOUT_REDIRECT_URL = '/forums/'
+
+CKEDITOR_UPLOAD_PATH = "blogs/"
 
 # added by razinal
 SIMPLE_FORUMS = {

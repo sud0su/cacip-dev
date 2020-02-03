@@ -46,6 +46,7 @@ autodiscover()  # flake8: noqa
 
 from geonode.base.forms import ResourceBaseForm, ResourceBaseDateTimePicker
 from ckeditor.widgets import CKEditorWidget
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 class DocumentFormMixin(object):
 
@@ -176,7 +177,7 @@ class BlogForm(DocumentForm):
         fields = DocumentForm.Meta.fields + [
         ]
         widgets = {
-            'abstract': CKEditorWidget(),
+            'abstract': CKEditorUploadingWidget(),
         }
 
 class KnowledgehubDocumentForm(DocumentForm):

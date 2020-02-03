@@ -25,6 +25,7 @@ from geonode.base.admin import metadata_batch_edit
 
 from django import forms
 from ckeditor.widgets import CKEditorWidget
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 class DocumentAdminForm(ResourceBaseAdminForm):
 
@@ -52,10 +53,19 @@ class NewsAdminForm(DocumentAdminForm):
 
 class BlogAdminForm(DocumentAdminForm):
 
+    def __init__(self, *args, **kwargs):
+        super(BlogAdminForm, self).__init__(*args, **kwargs)
+
+        # self.fields['title'].widget = admin.widgets.AdminTextInputWidget
+        self.fields['title_en'].widget = admin.widgets.AdminTextInputWidget()
+        self.fields['abstract_en'].widget = CKEditorUploadingWidget()
+
     class Meta(DocumentAdminForm.Meta):
         model = Blog
         widgets = {
-            'abstract_en': CKEditorWidget(),
+            # 'title_en': admin.widgets.AdminTextInputWidget,
+            # 'abstract_en': CKEditorUploadingWidget(),
+            # 'abstract_ru': CKEditorUploadingWidget(),
             # 'abstract_en': TinyMCE(attrs={'cols': 100, 'rows': 10}),
             # 'abstract_en': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
         }

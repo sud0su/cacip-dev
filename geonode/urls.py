@@ -178,7 +178,7 @@ urlpatterns += [
     url(r'^forums/', include(board.urls)),
     url(r'^api/public/', include(api_public, namespace='api_public')),
 
-
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
 
     # OAuth Provider
     url(r'^o/',
@@ -195,8 +195,8 @@ urlpatterns += [
     url(r'^api/users', users, name='users'),
     url(r'', include(api.urls)),
 
-    # [EPR-BGD01] 
-    url(r'', include('dashboard.urls')),
+    # [CACIP] 
+    # url(r'', include('dashboard.urls')),
     url(r'^userstatistics/$', 'userstatistics.views.userstatistics', name='userstatistics'),
 ]
 
