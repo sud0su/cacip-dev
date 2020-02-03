@@ -69,6 +69,9 @@ from .paginator import CrossSiteXHRPaginator
 
 from geonode.documents.enumerations import DOCUMENT_TYPE_SUBJECTS
 
+# CACIP
+from bs4 import BeautifulSoup
+
 if settings.HAYSTACK_SEARCH:
     from haystack.query import SearchQuerySet  # noqa
 
@@ -1034,6 +1037,15 @@ class KnowledgehubDocumentsResource(DocumentResource):
         resource_name = KnowledgehubDocument.namelc()
 
 class BlogResource(DocumentResource):
+
+    def format_objects(self, objects):
+
+        objects_json = super(BlogResource, self).format_objects(objects)
+        for obj in objects_json:
+            obj['abstract_original'] = obj['abstract']
+            obj['abstract'] = BeautifulSoup(obj['abstract']).get_text()
+
+        return objects_json
 
     class Meta(DocumentResource.Meta):
         queryset = Blog.objects.distinct().order_by('-date')
