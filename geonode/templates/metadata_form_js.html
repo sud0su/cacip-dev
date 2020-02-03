@@ -513,6 +513,13 @@
         });
 
         $('#metadata_update').submit(function(e) {
+
+            // fix 'abstract' field edit not saved
+            // copy CKEDITOR widget value to input field for submission
+            for (var instance in CKEDITOR.instances){
+                CKEDITOR.instances[instance].updateElement();
+            }
+
             if((!is_advanced && $('#category_form').hasClass("input-empty")) ||
                 (is_advanced && !$('#category_form input:checked').val())) {
                 $('#category_mandatoryDialog').modal();
