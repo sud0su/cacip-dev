@@ -612,11 +612,14 @@ class CommonModelApi(ModelResource):
 
         # If an user does not have at least view permissions, he won't be able
         # to see the resource at all.
-        filtered_objects_ids = None
-        if response_objects:
-            filtered_objects_ids = [
-                item.id for item in response_objects if request.user.has_perm(
-                    'view_resourcebase', item.get_self_resource())]
+        # filtered_objects_ids = None
+        filtered_objects_ids = get_objects_for_user(request.user, 'base.view_resourcebase').values_list('id', flat=True)
+        # if response_objects:
+        #     allowed_object_ids = get_objects_for_user(request.user, 'base.view_resourcebase').values_list('id', flat=True)
+        #     filtered_objects_ids = [
+        #         # item.id for item in response_objects if request.user.has_perm(
+        #             # 'view_resourcebase', item.get_self_resource())]
+        #         item.id for item in response_objects if item.id in allowed_object_ids]
 
         if isinstance(
                 data,
