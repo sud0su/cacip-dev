@@ -21,8 +21,10 @@ from PIL import Image
 from cStringIO import StringIO
 from bs4 import BeautifulSoup
 from django.core.files.storage import default_storage as storage
-from metadataharvester.utils import save_document, delayed_requests
+from metadataharvester.utils import save_document, delayed_requests, BaseHarvester
 from googletrans import Translator
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 import datetime
 import json
@@ -36,7 +38,7 @@ import time
 import urlparse
 
 datezformat = '%Y-%m-%dT%H:%M:%SZ' # date format in UTC Z notation, Z=Zulu means UTC+0
-admin_id = 1000 # admin user id
+harvester_id = 1000 # admin user id
 datasource = 'resourcedata.org'
 delay_seconds = 0
 thumb_name_tpl = 'document-{0}-thumb.png'
@@ -44,12 +46,14 @@ thumb_name_tpl = 'document-{0}-thumb.png'
 index_url_tpl = 'https://www.resourcedata.org/api/3/action/package_search?q=type:{2}&start={0}&rows={1}&sort=metadata_created%20desc'
 detail_url_tpl = 'https://www.resourcedata.org/api/3/action/package_show?id={0}'
 doc_url_tpl = 'https://www.resourcedata.org/{0}/{1}'
+timeout = 20 # seconds
 
 def harvest_all(**kwargs):
     offset = 0
     item_num = 0
     item_per_page = 10
     resource_type = 'document'
+    doc_type = 'publications'
     # translator = Translator()
 
     source_ids = []
@@ -57,7 +61,14 @@ def harvest_all(**kwargs):
         source_ids = [i['source_id'] for i in KnowledgehubDocument.objects.filter(datasource=datasource).values('source_id')]
 
     while True:
-        index_page_response = requests.get(index_url_tpl.format(offset, item_per_page, resource_type))
+        try:
+            print 'index url: %s' % (index_url_tpl.format(offset, item_per_page, resource_type))
+            index_page_response = requests.get(index_url_tpl.format(offset, item_per_page, resource_type), timeout=timeout)
+        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as identifier:
+            print identifier
+            offset += item_per_page
+            continue
+
         result = json.loads(index_page_response.content)['result']
 
         if index_page_response.status_code == 200 and result['results']:
@@ -71,9 +82,10 @@ def harvest_all(**kwargs):
                 docparams = {
                     'doc_url': doc_url_tpl.format(detail['type'], detail['id']),
                     'title': detail['title'],
-                    'owner_id': admin_id,
+                    'owner_id': harvester_id,
                     # 'papersize':row[8],
                     'datasource': datasource,
+                    'doc_type': self.doc_type,
                     # 'subtitle':row[12],
                     # 'category_id':row[5],
                     'date': detail['metadata_created'],
@@ -138,6 +150,9 @@ def create_thumbnail(doc_url, doc, external_thumbnail_url):
 
 def harvest_latest():
     harvest_all(insertnewonly=True)
+
+def harvest_new():
+    harvest_all(insertonly=True)
 
 def pychrome_get(url):
     browser = pychrome.Browser()
@@ -208,10 +223,107 @@ def parse_date(datestr):
         else:
             return date
 
+class Harvester(BaseHarvester):
+
+    datezformat = '%Y-%m-%dT%H:%M:%SZ' # date format in UTC Z notation, Z=Zulu means UTC+0
+    datasource = 'resourcedata.org'
+    delay_seconds = 0
+    thumb_name_tpl = 'document-{0}-thumb.png'
+    # index_url_tpl = 'https://www.resourcedata.org/api/3/action/package_search?facet.field=[%22document_type%22]&start=10000&rows=1&sort=metadata_created%20asc' # group by document_type
+    index_url_tpl = 'https://www.resourcedata.org/api/3/action/package_search?q=type:{2}&start={0}&rows={1}&sort=metadata_created%20desc'
+    detail_url_tpl = 'https://www.resourcedata.org/api/3/action/package_show?id={0}'
+    doc_url_tpl = 'https://www.resourcedata.org/{0}/{1}'
+    timeout = 10 # seconds
+    harvest_choices_keys = ['harvest_all','harvest_latest']
+
+    item_per_page = 1000
+    resource_type = 'document'
+    # translator = Translator()
+
+    def harvest_all(self, **kwargs):
+
+        item_num = 0
+        offset = 0
+        source_ids = []
+
+        if kwargs.get('insertonly') or kwargs.get('insertnewonly'):
+            source_ids = [i['source_id'] for i in KnowledgehubDocument.objects.filter(datasource=datasource).values('source_id')]
+
+        session = self.get_session()
+        while True:
+            try:
+                print 'index url: %s' % (index_url_tpl.format(offset, self.item_per_page, self.resource_type))
+                index_page_response = session.get(index_url_tpl.format(offset, self.item_per_page, self.resource_type), timeout=self.timeout)
+            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as identifier:
+                print identifier
+                offset += self.item_per_page
+                continue
+
+            result = json.loads(index_page_response.content)['result']
+
+            if index_page_response.status_code == 200 and result['results']:
+                # soup = BeautifulSoup(index_page_response.content, 'html.parser')
+                for detail in result['results']:
+
+                    # if kwargs.get('insertonly') or kwargs.get('insertnewonly'):
+                    #     if detail['id'] in source_ids:
+                    #         continue
+
+                    docparams = {
+                        'doc_url': doc_url_tpl.format(detail['type'], detail['id']),
+                        'title': detail['title'],
+                        'owner_id': self.harvester_id,
+                        # 'papersize':row[8],
+                        'datasource': self.datasource,
+                        'doc_type': self.doc_type,
+                        'input_method': self.input_method,
+                        # 'subtitle':row[12],
+                        # 'category_id':row[5],
+                        'date': detail['metadata_created'],
+                        'abstract': detail['notes'],
+                        'source_id': detail['id'],
+                        'sourcetext': json.dumps(detail),
+                    }
+                    specialparams = {
+                        'regions': detail['country'],
+                        # 'keywords': record.metadata.get('subject', []),
+                        # 'creators': [detail['author']],
+                        # 'external_thumbnail_url': urlparse.urljoin(docparams['doc_url'], external_thumbnail_url),
+                    }
+                    # if detail.get('document_type'):
+                    #     docparams['doc_type'] = detail['document_type']
+                    if detail.get('tags'):
+                        specialparams['tags'] = [i['display_name'] for i in detail['tags'] if i.get('display_name')]
+                    if detail.get('author'):
+                        specialparams['author'] = [detail['author']]
+                    doc = self.save_document(
+                        docparams, 
+                        specialparams, 
+                        insertonly=kwargs.get('insertonly') or kwargs.get('insertnewonly'),
+                        basemodel=KnowledgehubDocument
+                    )
+
+                    # if insertnewonly and document already exist then return
+                    if kwargs.get('insertnewonly') and doc.save_mode == 'update':
+                        print 'previous latest document: %s' % doc.doc_url
+                        print 'new documents added:', item_num
+                        return
+
+                    # self.create_thumbnail(
+                    #     doc_url = docparams['doc_url'], 
+                    #     doc = None, 
+                    #     external_thumbnail_url = specialparams['external_thumbnail_url']
+                    # )
+
+                    item_num += 1
+                    if kwargs.get('limit') and item_num >= kwargs.get('limit'):
+                        return
+                        
+                offset += self.item_per_page
+
+            else:
+                break
+
 if __name__ == "__main__":
-    if sys.argv[1] == "harvest_all":
-        harvest_all()
-    elif sys.argv[1] == "harvest_latest":
-        harvest_latest()
-    else:
-        print 'options are: harvest_all, harvest_latest'
+    harvester = Harvester()
+    harvester.dispatch_args()

@@ -15,7 +15,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 url = 'https://www.ctc-n.org/type-resource/document'
 total_added = 0
-admin_id = 1000  # admin user id
+harvester_id = 1000  # admin user id
 datasource = 'ctc-n.org/type-resource/document'
 
 def get_records(url):
@@ -80,7 +80,7 @@ def harvest_all(url, file, db=None, **kwargs):
         
         docparams = {
             'title': title,
-            'owner_id': admin_id,
+            'owner_id': harvester_id,
             'doc_url': url,
             'datasource': datasource,
             'date': getpostdate,

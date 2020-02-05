@@ -11,83 +11,91 @@ import requests
 import datetime
 import time
 
-from metadataharvester.utils import create_thumbnail, save_document
+from metadataharvester.utils import create_thumbnail, save_document, BaseHarvester
 from geonode.documents.models import News
 
-admin_id = 1000 
-feed = 'https://infoclimate.org/category/news/feed/?paged={0}'
-datasource = 'infoclimate.org'
+class Harvester(BaseHarvester):
 
-def harvest_all(**kwargs):
-    page = 1
-    item_num = 0
+    feed = 'https://infoclimate.org/category/news/feed/?paged={0}'
+    datasource = 'infoclimate.org'
+    harvest_choices_keys = ['harvest_all','harvest_latest']
 
-    while True:
-        response = requests.get(feed.format(page))
-        if response.status_code == 200:
-            NewsFeed = feedparser.parse(feed.format(page))
-            for entry in NewsFeed.entries:
-                docparams = {
-                    'title': entry.title,
-                    'owner_id': admin_id,
-                    'doc_url': entry.links[0].href,
-                    'datasource': datasource,
-                    'date': datetime.datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S +0000').isoformat(),
-                    'abstract': entry.summary,
-                    'sourcetext': str(entry),
-                }
-                # print(docparams)
-                specialparams = {
-                    # 'external_thumbnail_url': file,
-                }
+    def harvest_all(self, **kwargs):
+        page = 1
+        item_num = 0
 
-                doc = save_document(
-                    docparams, 
-                    specialparams, 
-                    insertonly=kwargs.get('insertonly') or kwargs.get('insertnewonly'), 
-                    basemodel=News
-                )
+        while True:
+            response = requests.get(self.feed.format(page))
+            if response.status_code == 200:
+                NewsFeed = feedparser.parse(self.feed.format(page))
+                for entry in NewsFeed.entries:
+                    docparams = {
+                        'title': entry.title,
+                        'owner_id': self.harvester_id,
+                        'doc_url': entry.links[0].href,
+                        'datasource': self.datasource,
+                        'doc_type': self.doc_type,
+                        'input_method': self.input_method,
+                        'date': datetime.datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S +0000').isoformat(),
+                        'abstract': entry.summary,
+                        'sourcetext': str(entry),
+                    }
+                    # print(docparams)
+                    specialparams = {
+                        # 'external_thumbnail_url': file,
+                    }
 
-                # if insertnewonly and document already exist then return
-                if kwargs.get('insertnewonly') and doc.save_mode == 'update':
-                    print 'previous latest document: %s' % doc.doc_url
-                    print 'new documents added:', item_num
-                    return
+                    doc = self.save_document(
+                        docparams, 
+                        specialparams, 
+                        insertonly=kwargs.get('insertonly') or kwargs.get('insertnewonly'), 
+                        basemodel=News
+                    )
 
-                # create_thumbnail(
-                #     doc_url=docparams['doc_url'],
-                #     doc=None,
-                #     external_thumbnail_url=specialparams['external_thumbnail_url']
-                # )
+                    # if insertnewonly and document already exist then return
+                    if kwargs.get('insertnewonly') and doc.save_mode == 'update':
+                        print 'previous latest document: %s' % doc.doc_url
+                        print 'new documents added:', item_num
+                        return
 
-                item_num += 1
-                if kwargs.get('limit') and item_num >= kwargs.get('limit'):
-                    return
+                    # create_thumbnail(
+                    #     doc_url=docparams['doc_url'],
+                    #     doc=None,
+                    #     external_thumbnail_url=specialparams['external_thumbnail_url']
+                    # )
 
-                # create_thumbnail(
-                #     doc_url=docparams['doc_url'],
-                #     doc=None,
-                #     external_thumbnail_url=specialparams['external_thumbnail_url']
-                # )
-                # print entry.keys()
-                # print(entry.published)
-                # print(entry.title)
-                # # print(entry.authors)
-                # # print(entry.summary)
-                # print("====================")
-            page = page + 1
-        else:
-            break
+                    item_num += 1
+                    if kwargs.get('limit') and item_num >= kwargs.get('limit'):
+                        return
 
-    print("Added ", item_num)
+                    # create_thumbnail(
+                    #     doc_url=docparams['doc_url'],
+                    #     doc=None,
+                    #     external_thumbnail_url=specialparams['external_thumbnail_url']
+                    # )
+                    # print entry.keys()
+                    # print(entry.published)
+                    # print(entry.title)
+                    # # print(entry.authors)
+                    # # print(entry.summary)
+                    # print("====================")
+                page = page + 1
+            else:
+                break
 
-def harvest_latest():
-    harvest_all(insertnewonly=True)
+        print("Added ", item_num)
+
+# def harvest_latest():
+#     harvest_all(insertnewonly=True)
+
+# if __name__ == "__main__":
+#     if sys.argv[1] == "harvest_all":
+#         harvest_all()
+#     elif sys.argv[1] == "harvest_latest":
+#         harvest_latest()
+#     else:
+#         print 'options are: harvest_all, harvest_latest'
 
 if __name__ == "__main__":
-    if sys.argv[1] == "harvest_all":
-        harvest_all()
-    elif sys.argv[1] == "harvest_latest":
-        harvest_latest()
-    else:
-        print 'options are: harvest_all, harvest_latest'
+    harvester = Harvester()
+    harvester.dispatch_args()

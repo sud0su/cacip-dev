@@ -15,7 +15,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 url = 'https://cgspace.cgiar.org/discover'
 total_added = 0
-admin_id = 1000  # admin user id
+harvester_id = 1000  # admin user id
 datasource = 'cgspace.cgiar.org/discover'
 
 def get_records(url):
@@ -69,7 +69,7 @@ def harvest_all(url, db=None, **kwargs):
             
         docparams = {
             'title': title,
-            'owner_id': admin_id,
+            'owner_id': harvester_id,
             'doc_url': url,
             'datasource': datasource,
             # 'date': postdate,

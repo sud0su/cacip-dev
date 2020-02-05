@@ -33,7 +33,7 @@ import pychrome
 import pytz
 
 datezformat = '%Y-%m-%dT%H:%M:%SZ' # date format in UTC Z notation, Z=Zulu means UTC+0
-admin_id = 1000 # admin user id
+harvester_id = 1000 # admin user id
 datasource = 'infoik.net.kg'
 delay_seconds = 0
 thumb_name_tpl = 'document-{0}-thumb.png'
@@ -69,7 +69,7 @@ def harvest_all(**kwargs):
                     docparams = {
                         'doc_url': urlparse.urljoin(index_page_response.url, el_h3_title.attrs['href']),
                         'title': el_h3_title.text,
-                        'owner_id': admin_id,
+                        'owner_id': harvester_id,
                         # 'papersize':row[8],
                         'datasource': datasource,
                         # 'subtitle':row[12],
