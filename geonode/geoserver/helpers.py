@@ -1915,13 +1915,21 @@ def _render_thumbnail(req_body, width=240, height=180):
         data = data.encode('ASCII', 'ignore')
     data = unicode(data, errors='ignore').encode('UTF-8')
     try:
-        resp, content = http_client.request(url, "POST", data, {
-            'Content-type': 'text/html'
-        })
+        resp, content = http_client.request(url, "POST", data, 
+            headers={
+                'Content-type': 'text/html',
+                'HTTP_AUTHORIZATION': 'basic ' + base64.b64encode('%s:%s'%(_user, _password)),
+            }
+        )
     except BaseException as e:
         logging.warning('Error generating thumbnail')
         logging.warning(e)
         return
+
+    if resp.status_code != 200:
+        logging.warning('Error generating thumbnail')
+        return
+
     return content
 
 

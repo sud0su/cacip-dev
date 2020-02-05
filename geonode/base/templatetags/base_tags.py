@@ -38,6 +38,7 @@ from geonode.security.utils import get_visible_resources
 
 # CACIP
 from geonode.utils import JSONEncoderCustom
+from requests.models import PreparedRequest
 
 import json
 
@@ -347,3 +348,11 @@ def custom_pluralize(value, arg='s'):
         except TypeError:  # len() of unsized object.
             pass
     return singular_form
+
+@register.simple_tag()
+def url_add_param(url, **kwargs):
+    req = PreparedRequest()
+    req.prepare_url(url, kwargs)
+    return req.url
+
+    

@@ -8049,3 +8049,6 @@ form-inline {
 body.home #wrap, body.home #wrap>.container {
   min-height: initial;
 }
+body.layers img#legend_icon {
+  max-width: 100%;
+}

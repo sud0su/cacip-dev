@@ -119,7 +119,7 @@ def get_esri_extent(esriobj):
 
 def decimal_encode(bbox):
     _bbox = []
-    for o in [float(coord) for coord in bbox]:
+    for o in [float(coord) for coord in bbox[:4]]:
         if isinstance(o, Decimal):
             o = (str(o) for o in [o])
         _bbox.append("{0:.15f}".format(round(o, 2)))

@@ -281,8 +281,11 @@ class WmsServiceHandler(base.ServiceHandlerBase,
                 "fontAntiAliasing:true;fontSize:12;forceLabels:on")
         }
         kvp = "&".join("{}={}".format(*item) for item in params.items())
-        legend_url = "{}?{}".format(
-            geonode_layer.remote_service.service_url, kvp)
+        try:
+            legend_url = self.parsed_service[geonode_layer.name].styles['default']['legend']
+        except Exception as identifier:
+            legend_url = "{}?{}".format(
+                geonode_layer.remote_service.service_url, kvp)
         logger.debug("legend_url: {}".format(legend_url))
         Link.objects.get_or_create(
             resource=geonode_layer.resourcebase_ptr,
