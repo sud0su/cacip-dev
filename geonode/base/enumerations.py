@@ -469,3 +469,8 @@ CHARSETS = (('', 'None/Unknown'),
             ('windows-1256', 'Windows CP1256'),
             ('windows-1257', 'Windows CP1257'),
             ('windows-1258', 'Windows CP1258'))
+
+INPUT_METHOD_CHOICES = (
+    ('harvested', _('Harvested')),
+    ('uploaded', _('Uploaded'))
+)

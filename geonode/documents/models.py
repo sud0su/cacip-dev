@@ -112,7 +112,8 @@ class Document(ResourceBase):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('document_detail', args=(self.id,))
+        # return reverse('document_detail', args=(self.id,))
+        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
     @property
     def name_long(self):
@@ -210,32 +211,32 @@ class Event(Document):
         default=now,
         help_text='Event date end')
 
-    def get_absolute_url(self):
-        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
+    # def get_absolute_url(self):
+    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
 class News(Document):
 
     _class_label = _('News')
     form_class = 'geonode.documents.forms.NewsForm'
     
-    def get_absolute_url(self):
-        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
+    # def get_absolute_url(self):
+    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
 class Blog(Document):
 
     _class_label = _('Blog')
     form_class = 'geonode.documents.forms.BlogForm'
     
-    def get_absolute_url(self):
-        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
+    # def get_absolute_url(self):
+    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
 class KnowledgehubDocument(Document):
 
     _class_label = _('Document')
     form_class = 'geonode.documents.forms.KnowledgehubDocumentForm'
 
-    def get_absolute_url(self):
-        return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
+    # def get_absolute_url(self):
+    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
 
 
 def get_related_documents(resource):

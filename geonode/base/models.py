@@ -59,7 +59,8 @@ from agon_ratings.models import OverallRating
 from geonode import geoserver
 from geonode.base.enumerations import ALL_LANGUAGES, \
     HIERARCHY_LEVELS, UPDATE_FREQUENCIES, \
-    DEFAULT_SUPPLEMENTAL_INFORMATION, LINK_TYPES
+    DEFAULT_SUPPLEMENTAL_INFORMATION, LINK_TYPES, \
+    INPUT_METHOD_CHOICES
 from geonode.utils import bbox_to_wkt
 from geonode.utils import forward_mercator
 from geonode.security.models import PermissionLevelMixin
@@ -553,6 +554,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     date = models.DateTimeField(
         _('date'),
         default=now,
+        db_index=True,
         help_text=date_help_text)
     date_type = models.CharField(
         _('date type'),
@@ -761,6 +763,14 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     thumbnail_url = models.TextField(_("Thumbnail url"), null=True, blank=True)
     detail_url = models.CharField(max_length=255, null=True, blank=True)
     rating = models.IntegerField(default=0, null=True, blank=True)
+
+    # CACIP
+    input_method = models.CharField(
+        _('Data input method'),
+        max_length=32,
+        default='uploaded',
+        # null=False,
+        choices=INPUT_METHOD_CHOICES)
 
     def __unicode__(self):
         return u"{0}".format(self.title)
