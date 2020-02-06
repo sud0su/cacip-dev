@@ -75,7 +75,7 @@ class Document(ResourceBase):
                                 max_length=255,
                                 verbose_name=_('File'))
 
-    extension = models.CharField(max_length=128, blank=True, null=True)
+    extension = models.CharField(max_length=255, blank=True, null=True)
 
     # add custom field
     version    = models.CharField(max_length=50, blank=True, null=True)
