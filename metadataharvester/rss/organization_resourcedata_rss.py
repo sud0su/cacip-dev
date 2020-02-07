@@ -9,9 +9,11 @@ if __name__ == '__main__':
 import feedparser
 import requests
 import datetime
+import json
 
 from metadataharvester.utils import create_thumbnail, save_document, BaseHarvester
 from geonode.documents.models import KnowledgehubDocument
+from geonode.utils import JSONEncoderCustom
 
 class Harvester(BaseHarvester):
 
@@ -37,8 +39,13 @@ class Harvester(BaseHarvester):
                         'input_method': self.input_method,
                         'date': datetime.datetime(*entry.published_parsed[:6]).isoformat(),
                         # 'abstract': entry.summary,
-                        'sourcetext': str(entry),
+                        'sourcetext': json.dumps(entry, cls=JSONEncoderCustom),
                     }
+                    
+                    # clean up '\x00' char
+                    for i in docparams:
+                        if type(docparams[i]) in (str, unicode):
+                            docparams[i] = docparams[i].replace('\x00', '')
 
                     specialparams = {
                         # 'external_thumbnail_url': file,

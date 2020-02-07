@@ -1768,10 +1768,11 @@ class JSONEncoderCustom(json.JSONEncoder):
         elif obj.__class__.__name__ == "Decimal":
             return float(obj)
         else:
-            msg = 'not converted to json: %s' % (obj.__class__.__name__)
-            print msg
-            # return {} # convert un-json-able object to empty object
-            return msg # substitute object with msg
+            return str(obj)
+            # msg = 'not converted to json: %s' % (obj.__class__.__name__)
+            # print msg
+            # # return {} # convert un-json-able object to empty object
+            # return msg # substitute object with msg
 
 class linenum():
     import os, sys

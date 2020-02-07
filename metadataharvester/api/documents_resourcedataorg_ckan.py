@@ -284,6 +284,12 @@ class Harvester(BaseHarvester):
                         'source_id': detail['id'],
                         'sourcetext': json.dumps(detail),
                     }
+ 
+                    # clean up '\x00' char
+                    for i in docparams:
+                        if type(docparams[i]) in (str, unicode):
+                            docparams[i] = docparams[i].replace('\x00', '')
+
                     specialparams = {
                         'regions': detail['country'],
                         # 'keywords': record.metadata.get('subject', []),
