@@ -64,7 +64,8 @@ class Harvester(BaseHarvester):
 					'datasource': self.datasource,
 					'doc_type': self.doc_type,
 					'input_method': self.input_method,
-					'date': datetime.datetime.utcnow().isoformat(),
+					'date': None,
+					# 'date': datetime.datetime.utcnow().isoformat(),
 					# 'abstract': body,
 				}
 				specialparams = {
@@ -108,5 +109,5 @@ class Harvester(BaseHarvester):
 # 		print 'options are: harvest_all, harvest_latest'
 
 if __name__ == "__main__":
-    harvester = Harvester()
-    harvester.dispatch_args()
+	harvester = Harvester()
+	harvester.dispatch_args()

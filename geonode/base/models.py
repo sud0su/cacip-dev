@@ -555,6 +555,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         _('date'),
         default=now,
         db_index=True,
+        null=True,
         help_text=date_help_text)
     date_type = models.CharField(
         _('date type'),
@@ -769,9 +770,16 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         _('Data input method'),
         max_length=32,
         default='uploaded',
-        # null=False,
+        blank=True,
+        null=True,
         choices=INPUT_METHOD_CHOICES)
 
+    date_entry = models.DateTimeField(
+        _('entry date'),
+        default=now,
+        db_index=True,
+        help_text=_('data entry date'))
+      
     def __unicode__(self):
         return u"{0}".format(self.title)
 

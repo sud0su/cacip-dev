@@ -204,11 +204,15 @@ class Event(Document):
     
     event_date_start = models.DateTimeField(
         _('Event date start'),
-        default=now,
+        # default=now,
+        blank=True,
+        null=True,
         help_text='Event date start')
     event_date_end = models.DateTimeField(
         _('Event date end'),
-        default=now,
+        # default=now,
+        blank=True,
+        null=True,
         help_text='Event date end')
 
     # def get_absolute_url(self):

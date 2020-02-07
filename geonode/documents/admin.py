@@ -33,6 +33,7 @@ class DocumentAdminForm(ResourceBaseAdminForm):
         model = Document
         fields = '__all__'
         exclude = (
+            'uuid',
             'resource',
         )
 
@@ -82,8 +83,8 @@ class DocumentAdmin(MediaTranslationAdmin):
                     'metadata_completeness')
     list_display_links = ('id',)
     list_editable = ('title', 'category', 'group', 'is_approved', 'is_published')
-    list_filter = ('date', 'date_type', 'restriction_code_type', 'category',
-                   'group', 'is_approved', 'is_published',)
+    list_filter = ('date', 'date_type', 'category', 'group', 'is_approved', 'is_published', 
+        'datasource', 'input_method', 'restriction_code_type')
     search_fields = ('title', 'abstract', 'purpose',
                      'is_approved', 'is_published',)
     date_hierarchy = 'date'
@@ -103,7 +104,7 @@ class KnowledgehubDocumentAdmin(DocumentAdmin):
     form = KnowledgehubDocumentAdminForm
 
 admin.site.register(Document, DocumentAdmin)
-# admin.site.register(Event, EventAdmin)
-# admin.site.register(News, NewsAdmin)
-# admin.site.register(Blog, BlogAdmin)
-# admin.site.register(KnowledgehubDocument, KnowledgehubDocumentAdmin)
+admin.site.register(Event, EventAdmin)
+admin.site.register(News, NewsAdmin)
+admin.site.register(Blog, BlogAdmin)
+admin.site.register(KnowledgehubDocument, KnowledgehubDocumentAdmin)
