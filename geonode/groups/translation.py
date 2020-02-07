@@ -24,11 +24,13 @@ from geonode.groups.models import GroupCategory, GroupProfile
 
 
 class GroupCategoryTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    # fields = ('name',)
+    fields = ()
 
 
 class GroupProfileTranslationOptions(TranslationOptions):
-    fields = ('title', 'description',)
+    # fields = ('title', 'description',)
+    fields = ()
 
 
 translator.register(GroupCategory, GroupCategoryTranslationOptions)

@@ -25,26 +25,32 @@ from geonode.base.models import (TopicCategory, SpatialRepresentationType, Regio
 
 class TopicCategoryTranslationOptions(TranslationOptions):
     fields = ('description', 'gn_description',)
+    # fields = ()
 
 
 class SpatialRepresentationTypeTranslationOptions(TranslationOptions):
-    fields = ('description', 'gn_description',)
+    # fields = ('description', 'gn_description',)
+    fields = ()
 
 
 class RegionTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    # fields = ('name',)
+    fields = ()
 
 
 class RestrictionCodeTypeTranslationOptions(TranslationOptions):
-    fields = ('description', 'gn_description',)
+    # fields = ('description', 'gn_description',)
+    fields = ()
 
 
 class BackupTranslationOptions(TranslationOptions):
-    fields = ('name', 'description',)
+    # fields = ('name', 'description',)
+    fields = ()
 
 
 class LicenseTranslationOptions(TranslationOptions):
-    fields = ('name', 'description', 'license_text',)
+    # fields = ('name', 'description', 'license_text',)
+    fields = ()
 
 
 translator.register(TopicCategory, TopicCategoryTranslationOptions)

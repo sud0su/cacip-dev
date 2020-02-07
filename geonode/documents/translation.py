@@ -23,14 +23,15 @@ from geonode.documents.models import Document, Event, News, Blog, KnowledgehubDo
 
 
 class DocumentTranslationOptions(TranslationOptions):
-    fields = (
-        'title',
-        'abstract',
-        'purpose',
-        'constraints_other',
-        'supplemental_information',
-        'data_quality_statement',
-    )
+    # fields = (
+    #     'title',
+    #     'abstract',
+    #     'purpose',
+    #     'constraints_other',
+    #     'supplemental_information',
+    #     'data_quality_statement',
+    # )
+    fields = ()
 
 class EventTranslationOptions(TranslationOptions):
     fields = ()

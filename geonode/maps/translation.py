@@ -23,14 +23,15 @@ from geonode.maps.models import Map
 
 
 class MapTranslationOptions(TranslationOptions):
-    fields = (
-        'title',
-        'abstract',
-        'purpose',
-        'constraints_other',
-        'supplemental_information',
-        'data_quality_statement',
-    )
+    # fields = (
+    #     'title',
+    #     'abstract',
+    #     'purpose',
+    #     'constraints_other',
+    #     'supplemental_information',
+    #     'data_quality_statement',
+    # )
+    fields = ()
 
 
 translator.register(Map, MapTranslationOptions)
