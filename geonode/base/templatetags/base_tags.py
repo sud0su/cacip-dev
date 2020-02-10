@@ -39,6 +39,8 @@ from geonode.security.utils import get_visible_resources
 # CACIP
 from geonode.utils import JSONEncoderCustom
 from requests.models import PreparedRequest
+from urlparse import urlparse, urlunparse
+from django.http import QueryDict
 
 import json
 
@@ -351,8 +353,15 @@ def custom_pluralize(value, arg='s'):
 
 @register.simple_tag()
 def url_add_param(url, **kwargs):
-    req = PreparedRequest()
-    req.prepare_url(url, kwargs)
-    return req.url
+    # req = PreparedRequest()
+    # req.prepare_url(url, kwargs)
+    # return req.url
+
+    (scheme, netloc, path, params, query, fragment) = urlparse(url)
+    query_dict = QueryDict(query).copy()
+    for attr, val in kwargs.items():
+        query_dict[attr] = val
+    query = query_dict.urlencode()
+    return urlunparse((scheme, netloc, path, params, query, fragment))
 
     

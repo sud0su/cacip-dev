@@ -144,6 +144,12 @@ def harvest_resources(request, service_id):
         if available_resources:
             not_yet_harvested = [
                 r for r in available_resources if str(r.id) not in already_harvested]
+
+            # filtering
+            if 'name__contains' in request.GET:
+                not_yet_harvested = [
+                    r for r in not_yet_harvested if request.GET['name__contains'] in r.title]
+
             not_yet_harvested.sort(key=lambda resource: resource.id)
         else:
             not_yet_harvested = ['Cannot parse any resource at this time!']
