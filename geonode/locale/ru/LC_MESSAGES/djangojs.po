@@ -27,7 +27,7 @@ msgstr ""
 "Project-Id-Version: GeoNode\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-25 02:28-0500\n"
-"PO-Revision-Date: 2016-08-23 11:58+0000\n"
+"PO-Revision-Date: 2020-02-10 14:49+0700\n"
 "Last-Translator: Julien Collaer <julien.collaer@opengeode.be>\n"
 "Language-Team: Russian (http://www.transifex.com/geonode/geonode/language/"
 "ru/)\n"
@@ -38,6 +38,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Poedit 2.2.4\n"
 
 #: geonode/static/geonode/js/search/search.js:373
 msgid "Enter your text here ..."
@@ -59,7 +60,7 @@ msgstr "ESRI шейп"
 #: geonode/static/geonode/js/upload/FileTypes.js:13
 #: geonode/static/geonode/js/upload/FileTypes.js:18
 msgid "GeoTIFF"
-msgstr ""
+msgstr "GeoTIFF"
 
 #: geonode/static/geonode/js/upload/FileTypes.js:24
 msgid "Comma Separated Value"
@@ -211,15 +212,15 @@ msgstr ""
 
 #: geonode/static/lib/js/assets.min.js:2
 msgid "<iframe frameborder='0' width='0' height='0'/>"
-msgstr ""
+msgstr "<iframe frameborder='0' width='0' height='0'/>"
 
 #: geonode/static/lib/js/assets.min.js:4
 msgid "<script>"
-msgstr ""
+msgstr "<script>"
 
 #: geonode/static/lib/js/assets.min.js:4
 msgid "<div>"
-msgstr ""
+msgstr "<div>"
 
 #: geonode/templates/lang.js:9 geonode/templates/lang.js:236
 msgid "Cancel"
@@ -438,8 +439,8 @@ msgid ""
 "The map that you are trying to load does not exist.  Creating a new map "
 "instead."
 msgstr ""
-"Карта, которую Вы пытаетесь загрузить не существует. Создайте вместо неё "
-"новую карту."
+"Карта, которую Вы пытаетесь загрузить не существует. Создайте вместо неё новую "
+"карту."
 
 #: geonode/templates/lang.js:75
 msgid "Unknown Map"
@@ -511,11 +512,11 @@ msgstr "Нет фона"
 
 #: geonode/templates/lang.js:127
 msgid ""
-"Your map is ready to be published to the web!  Simply copy the following "
-"HTML to embed the map in your website:"
+"Your map is ready to be published to the web!  Simply copy the following HTML "
+"to embed the map in your website:"
 msgstr ""
-"Ваша карта готова для публикации в сети! Просто скопируйте следующий HTML-"
-"код для того, чтобы встроить карту в страницу Вашего веб-сайта:"
+"Ваша карта готова для публикации в сети! Просто скопируйте следующий HTML-код "
+"для того, чтобы встроить карту в страницу Вашего веб-сайта:"
 
 #: geonode/templates/lang.js:136 geonode/templates/lang.js:202
 msgid "Abstract:"
@@ -689,13 +690,11 @@ msgstr "Пожалуйста, подождите"
 #~ msgstr "Available %s"
 
 #~ msgid ""
-#~ "This is the list of available %s. You may choose some by selecting them "
-#~ "in the box below and then clicking the \"Choose\" arrow between the two "
-#~ "boxes."
+#~ "This is the list of available %s. You may choose some by selecting them in "
+#~ "the box below and then clicking the \"Choose\" arrow between the two boxes."
 #~ msgstr ""
-#~ "This is the list of available %s. You may choose some by selecting them "
-#~ "in the box below and then clicking the \"Choose\" arrow between the two "
-#~ "boxes."
+#~ "This is the list of available %s. You may choose some by selecting them in "
+#~ "the box below and then clicking the \"Choose\" arrow between the two boxes."
 
 #~ msgid "Type into this box to filter down the list of available %s."
 #~ msgstr "Type into this box to filter down the list of available %s."
@@ -716,13 +715,11 @@ msgstr "Пожалуйста, подождите"
 #~ msgstr "Chosen %s"
 
 #~ msgid ""
-#~ "This is the list of chosen %s. You may remove some by selecting them in "
-#~ "the box below and then clicking the \"Remove\" arrow between the two "
-#~ "boxes."
+#~ "This is the list of chosen %s. You may remove some by selecting them in the "
+#~ "box below and then clicking the \"Remove\" arrow between the two boxes."
 #~ msgstr ""
-#~ "This is the list of chosen %s. You may remove some by selecting them in "
-#~ "the box below and then clicking the \"Remove\" arrow between the two "
-#~ "boxes."
+#~ "This is the list of chosen %s. You may remove some by selecting them in the "
+#~ "box below and then clicking the \"Remove\" arrow between the two boxes."
 
 #~ msgid "Remove all"
 #~ msgstr "Remove all"
@@ -754,13 +751,13 @@ msgstr "Пожалуйста, подождите"
 #~ "action."
 
 #~ msgid ""
-#~ "You have selected an action, and you haven't made any changes on "
-#~ "individual fields. You're probably looking for the Go button rather than "
-#~ "the Save button."
+#~ "You have selected an action, and you haven't made any changes on individual "
+#~ "fields. You're probably looking for the Go button rather than the Save "
+#~ "button."
 #~ msgstr ""
-#~ "You have selected an action, and you haven't made any changes on "
-#~ "individual fields. You're probably looking for the Go button rather than "
-#~ "the Save button."
+#~ "You have selected an action, and you haven't made any changes on individual "
+#~ "fields. You're probably looking for the Go button rather than the Save "
+#~ "button."
 
 #~ msgid ""
 #~ "January February March April May June July August September October "
