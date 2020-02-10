@@ -226,7 +226,7 @@ def parse_date(datestr):
 class Harvester(BaseHarvester):
 
     datezformat = '%Y-%m-%dT%H:%M:%SZ' # date format in UTC Z notation, Z=Zulu means UTC+0
-    datasource = 'resourcedata.org'
+    datasource = 'resourcedata.org/document'
     delay_seconds = 0
     thumb_name_tpl = 'document-{0}-thumb.png'
     # index_url_tpl = 'https://www.resourcedata.org/api/3/action/package_search?facet.field=[%22document_type%22]&start=10000&rows=1&sort=metadata_created%20asc' # group by document_type

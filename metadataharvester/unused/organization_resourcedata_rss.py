@@ -1,3 +1,7 @@
+'''
+duplicate result with metadataharvester/api/documents_resourcedataorg_ckan.py
+'''
+
 import sys
 import os
 
@@ -18,7 +22,7 @@ from geonode.utils import JSONEncoderCustom
 class Harvester(BaseHarvester):
 
     feed = 'https://www.resourcedata.org/feeds/organization/rgi.atom?page={0}'
-    datasource = 'resourcedata.org'
+    datasource = 'resourcedata.org/organization'
     doc_type = 'organisation'
     harvest_choices_keys = ['harvest_all','harvest_latest']
 
