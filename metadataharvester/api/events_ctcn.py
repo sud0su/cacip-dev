@@ -36,7 +36,7 @@ import pytz
 class Harvester(BaseHarvester):
 
     datezformat = '%Y-%m-%dT%H:%M:%SZ' # date format in UTC Z notation, Z=Zulu means UTC+0
-    datasource = 'ctc-n.org/calendar'
+    datasource = 'ctc-n.org/calendar/events'
     delay_seconds = 0
     delay_loop_seconds = 0
     thumb_name_tpl = 'document-{0}-thumb.png'

@@ -58,6 +58,8 @@ DOCUMENT_TYPE_SUBJECTS = {
     ('publications', _('Publications')),
     ('vizualization', _('Vizualization')),
     ('organisation', _('Organisation')),
+    ('projects', _('Projects')),
+    ('webinars', _('Webinars')),
 }
 
 DOCUMENT_MIMETYPE_MAP = {
