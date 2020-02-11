@@ -334,7 +334,7 @@ def getcontextjson(context):
 @register.filter(is_safe=False)
 def custom_pluralize(value, arg='s'):
     plural_form = singular_form = value
-    if not str(value).endswith('s'):
+    if not unicode(value).endswith('s'):
         plural_form = plural_form + 's'
 
     # adapted from django.template.defaultfilters pluralize()
