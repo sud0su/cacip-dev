@@ -41,6 +41,7 @@ from geonode.utils import JSONEncoderCustom
 from requests.models import PreparedRequest
 from urlparse import urlparse, urlunparse
 from django.http import QueryDict
+from django.utils.translation import ugettext as _, get_language
 
 import json
 
@@ -298,6 +299,8 @@ def tag_get_facet_title(context, value):
         subjects = dict(DOCUMENT_TYPE_SUBJECTS)
         if value in subjects.keys():
             return subjects[value]
+        else:
+            return _(value)
     elif value in FACETS.keys():
         return FACETS[value]
     return value
@@ -333,6 +336,11 @@ def getcontextjson(context):
 
 @register.filter(is_safe=False)
 def custom_pluralize(value, arg='s'):
+
+    # pluralisation only apply to English
+    if get_language() != 'en':
+        return value
+
     plural_form = singular_form = value
     if not unicode(value).endswith('s'):
         plural_form = plural_form + 's'

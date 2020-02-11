@@ -201,6 +201,7 @@ class Event(Document):
 
     _class_label = _('Event')
     form_class = 'geonode.documents.forms.EventForm'
+    fixed_doc_type_value = 'Event'
     
     event_date_start = models.DateTimeField(
         _('Event date start'),
@@ -215,33 +216,22 @@ class Event(Document):
         null=True,
         help_text='Event date end')
 
-    # def get_absolute_url(self):
-    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
-
 class News(Document):
 
     _class_label = _('News')
     form_class = 'geonode.documents.forms.NewsForm'
+    fixed_doc_type_value = 'News'
     
-    # def get_absolute_url(self):
-    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
-
 class Blog(Document):
 
     _class_label = _('Blog')
     form_class = 'geonode.documents.forms.BlogForm'
+    fixed_doc_type_value = 'Blog'
     
-    # def get_absolute_url(self):
-    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
-
 class KnowledgehubDocument(Document):
 
     _class_label = _('Document')
     form_class = 'geonode.documents.forms.KnowledgehubDocumentForm'
-
-    # def get_absolute_url(self):
-    #     return reverse(self.__class__.__name__.lower()+'_detail', args=(self.id,))
-
 
 def get_related_documents(resource):
     if isinstance(resource, Layer) or isinstance(resource, Map):
@@ -277,18 +267,14 @@ def pre_save_document(instance, sender, **kwargs):
             doc_type = 'other'
         else:
             doc_type = doc_type_map.get(instance.extension, 'other')
-        # is default doc_type
-        if instance.doc_type != type(instance)._meta.get_field('doc_type').get_default():
-            instance.doc_type = doc_type
+        # instance.doc_type = doc_type
 
     elif instance.doc_url:
         if '.' in urlparse(instance.doc_url).path:
             instance.extension = urlparse(instance.doc_url).path.rsplit('.')[-1]
 
-    if hasattr(instance, 'class_label'):
-        # is default doc_type
-        if instance.doc_type == type(instance)._meta.get_field('doc_type').get_default():
-            instance.doc_type = instance.class_label
+    if hasattr(instance, 'fixed_doc_type_value'):
+        instance.doc_type = instance.fixed_doc_type_value
 
     if not instance.uuid:
         instance.uuid = str(uuid.uuid1())
