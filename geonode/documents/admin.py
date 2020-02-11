@@ -57,9 +57,9 @@ class BlogAdminForm(DocumentAdminForm):
     def __init__(self, *args, **kwargs):
         super(BlogAdminForm, self).__init__(*args, **kwargs)
 
-        # self.fields['title'].widget = admin.widgets.AdminTextInputWidget
-        self.fields['title_en'].widget = admin.widgets.AdminTextInputWidget()
-        self.fields['abstract_en'].widget = CKEditorUploadingWidget()
+        self.fields['title'].widget = admin.widgets.AdminTextInputWidget()
+        # self.fields['title_en'].widget = admin.widgets.AdminTextInputWidget()
+        self.fields['abstract'].widget = CKEditorUploadingWidget()
 
     class Meta(DocumentAdminForm.Meta):
         model = Blog

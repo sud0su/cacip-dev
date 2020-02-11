@@ -516,8 +516,10 @@
 
             // fix 'abstract' field edit not saved
             // copy CKEDITOR widget value to input field for submission
-            for (var instance in CKEDITOR.instances){
-                CKEDITOR.instances[instance].updateElement();
+            if (typeof CKEDITOR != "undefined") {
+                for (var instance in CKEDITOR.instances){
+                    CKEDITOR.instances[instance].updateElement();
+                }
             }
 
             if((!is_advanced && $('#category_form').hasClass("input-empty")) ||
