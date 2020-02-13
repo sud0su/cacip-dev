@@ -184,7 +184,7 @@ class WmsServiceHandler(base.ServiceHandlerBase,
 
         """
         layer_meta = self.get_resource(resource_id)
-        logger.debug("layer_meta: {}".format(layer_meta))
+        logger.debug("layer_meta: " + unicode(layer_meta))
         if self.indexing_method == CASCADED:
             logger.debug("About to import cascaded layer...")
             geoserver_resource = self._import_cascaded_resource(layer_meta)
