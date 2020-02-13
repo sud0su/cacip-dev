@@ -72,9 +72,9 @@ def listaddchild(object, listname):
 	object[listname] = []
 	return object[listname]
 
-@register.simple_tag(takes_context=True)
-def url_set_param(context, **kwargs):
-    dict_ = context['request'].GET.copy()
-    for field, value in kwargs.items():
-		dict_[field] = value
-    return dict_.urlencode()
+# @register.simple_tag(takes_context=True)
+# def url_set_params(context, **kwargs):
+#     dict_ = context['request'].GET.copy()
+#     for field, value in kwargs.items():
+# 		dict_[field] = value
+#     return dict_.urlencode()

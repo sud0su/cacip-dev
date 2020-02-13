@@ -66,6 +66,8 @@ from geonode.security.utils import set_geowebcache_invalidate_cache
 import xml.etree.ElementTree as ET
 from django.utils.module_loading import import_string
 
+# CACIP
+from geonode.base.templatetags.base_tags import url_set_params
 
 logger = logging.getLogger(__name__)
 
@@ -1895,7 +1897,7 @@ _esri_types = {
     "esriFieldTypeXML": "xsd:anyType"}
 
 
-def _render_thumbnail(req_body, width=240, height=180):
+def _render_thumbnail(req_body, width=240, height=180, tn_urls=[]):
     spec = _fixup_ows_url(req_body)
     url = "%srest/printng/render.png" % ogc_server_settings.LOCATION
     hostname = urlparse(settings.SITEURL).hostname
@@ -1921,14 +1923,21 @@ def _render_thumbnail(req_body, width=240, height=180):
                 'HTTP_AUTHORIZATION': 'basic ' + base64.b64encode('%s:%s'%(_user, _password)),
             }
         )
+        if 'image/png' not in resp.headers['Content-Type']:
+            raise Exception('GetMap response is not image/png')
     except BaseException as e:
-        logging.warning('Error generating thumbnail')
-        logging.warning(e)
-        return
+        # backup procedure
+        for tn_url in tn_urls:
+            try:
+                resp, content = http_client.request(tn_url)
+                if 'image/png' not in resp.headers['Content-Type']:
+                    raise Exception('GetMap response is not image/png')
+            except BaseException as e:
+                logging.warning('Error generating thumbnail')
+                logging.warning(e)
 
-    if resp.status_code != 200:
-        logging.warning('Error generating thumbnail')
-        return
+        if 'image/png' not in resp.headers['Content-Type']:
+            return
 
     return content
 
@@ -2102,7 +2111,10 @@ def _prepare_thumbnail_body_from_opts(request_body, request=None):
                                              height=256, width=256,
                                              left=box[0], top=box[1])
         _img_request_template += "</div></div>"
-        image = _render_thumbnail(_img_request_template, width=width, height=height)
+        tn_urls = [url_set_params(thumbnail_create_url, **params)]
+        if 'thumbnail_create_url' in request_body:
+            tn_urls += [request_body['thumbnail_create_url']]
+        image = _render_thumbnail(_img_request_template, width=width, height=height, tn_urls=tn_urls)
     except BaseException as e:
         logger.warning('Error generating thumbnail')
         logger.exception(e)

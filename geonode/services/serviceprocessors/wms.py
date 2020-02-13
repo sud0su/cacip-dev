@@ -282,7 +282,11 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         }
         kvp = "&".join("{}={}".format(*item) for item in params.items())
         try:
-            legend_url = self.parsed_service[geonode_layer.name].styles['default']['legend']
+            if 'default' in self.parsed_service[geonode_layer.name].styles:
+                legend_url = self.parsed_service[geonode_layer.name].styles['default']['legend']
+            else:
+                legend_urls = [v['legend'] for k,v in self.parsed_service[geonode_layer.name].styles.items()]
+                legend_url = legend_urls[0] if legend_urls else ''
         except Exception as identifier:
             legend_url = "{}?{}".format(
                 geonode_layer.remote_service.service_url, kvp)
@@ -410,7 +414,8 @@ class WmsServiceHandler(base.ServiceHandlerBase,
     def _offers_geonode_projection(self):
         geonode_projection = getattr(settings, "DEFAULT_MAP_CRS", "EPSG:3857")
         first_layer = list(self.get_resources())[0]
-        return geonode_projection in first_layer.crsOptions
+        crsOptions_lower = [i.lower() for i in first_layer.crsOptions]
+        return geonode_projection.lower() in crsOptions_lower
 
 
 class GeoNodeServiceHandler(WmsServiceHandler):

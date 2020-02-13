@@ -463,7 +463,7 @@ def document_metadata(
                 instance=document,
                 prefix="resource")
             category_form = CategoryForm(request.POST, prefix="category_choice_field", initial=int(
-                request.POST["category_choice_field"]) if "category_choice_field" in request.POST else None)
+                request.POST["category_choice_field"]) if request.POST.get("category_choice_field") else None)
         else:
             document_form = basemodel_form(instance=document, prefix="resource")
             category_form = CategoryForm(
@@ -556,7 +556,7 @@ def document_metadata(
                 
                 errors = {}
                 errors.update(document_form.errors)
-                errors.update(category_form.errors)
+                errors.update({'category': category_form.errors})
 
                 return HttpResponse(
                     content = json.dumps({'errors': errors}),

@@ -46,6 +46,9 @@ from .models import HarvestJob
 from .models import Service
 from . import tasks
 
+# CACIP
+from geonode.base.templatetags.base_tags import url_set_params
+
 logger = logging.getLogger("geonode.core.layers.views")
 
 
@@ -201,7 +204,10 @@ def harvest_resources(request, service_id):
             "harvest_resources" if handler.has_unharvested_resources(
                 service) else "service_detail"
         )
-        result = redirect(reverse(go_to, kwargs={"service_id": service.id}))
+        redirect_url = reverse(go_to, kwargs={"service_id": service.id})
+        if 'name__contains' in request.GET:
+            redirect_url = url_set_params(redirect_url, **{'name__contains': request.GET.get('name__contains')})
+        result = redirect(redirect_url)
     else:
         result = None
     return result

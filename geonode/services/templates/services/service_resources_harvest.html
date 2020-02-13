@@ -55,14 +55,14 @@
                             <ul class="pagination hidden-xs pull-right">
                                 {% if resources.has_previous %}
                                     <!-- <li><a id="previous" aria-label="Previous" href="?page={{ resources.previous_page_number }}">previous</a></li> -->
-                                    <li><a id="previous" aria-label="Previous" href="{% url_add_param request.get_full_path page=resources.previous_page_number %}">previous</a></li>
+                                    <li><a id="previous" aria-label="Previous" href="{% url_set_param request.get_full_path page=resources.previous_page_number %}">previous</a></li>
                                 {% else %}
                                     <li class="disabled"><a aria-label="Previous" href="#">previous</a></li>
                                 {% endif %}
                                 <li class="active"><a href="#">{{ resources.number }}/{{ resources.paginator.num_pages }}</a></li>
                                 {% if resources.has_next %}
                                     <!-- <li><a aria-label="Next" href="?page={{ resources.next_page_number }}">next</a></li> -->
-                                    <li><a aria-label="Next" href="{% url_add_param request.get_full_path page=resources.next_page_number %}">next</a></li>
+                                    <li><a aria-label="Next" href="{% url_set_param request.get_full_path page=resources.next_page_number %}">next</a></li>
                                 {% else %}
                                     <li class="disabled"><a aria-label="Next" href="#">next</a></li>
                                 {% endif %}

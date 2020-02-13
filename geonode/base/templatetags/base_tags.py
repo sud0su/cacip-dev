@@ -360,7 +360,7 @@ def custom_pluralize(value, arg='s'):
     return singular_form
 
 @register.simple_tag()
-def url_add_param(url, **kwargs):
+def url_set_params(url, **kwargs):
     # req = PreparedRequest()
     # req.prepare_url(url, kwargs)
     # return req.url
