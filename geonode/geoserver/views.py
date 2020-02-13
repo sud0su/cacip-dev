@@ -778,7 +778,7 @@ def format_online_resource(workspace, layer, element, namespaces):
     Replace workspace/layer-specific OnlineResource links with the more
     generic links returned by a site-wide GetCapabilities document
     """
-    layerName = element.find('.//wms:Capability/wms:Layer/wms:Layer/wms:Name',
+    layerName = element.find(".//wms:Capability/wms:Layer/wms:Layer/[wms:Name='%s']" % layer,
                              namespaces)
     if layerName is None:
         return
@@ -851,7 +851,7 @@ def get_capabilities(request, layerid=None, user=None,
                         service_name = rootdoc.find('.//wms:Service/wms:Name', namespaces)
                         if service_name:
                             service_name.text = cap_name
-                        rootdoc = rootdoc.find('.//wms:Capability/wms:Layer/wms:Layer', namespaces)
+                        rootdoc = rootdoc.find(".//wms:Capability/wms:Layer/wms:Layer/[wms:Name='%s']" % layername, namespaces)
                     except Exception as e:
                         import traceback
                         traceback.print_exc()
