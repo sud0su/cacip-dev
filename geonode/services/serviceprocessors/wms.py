@@ -48,6 +48,10 @@ from .. import models
 from .. import utils
 from . import base
 
+# CACIP
+from urlparse import urlparse, parse_qs
+from geonode.services.models import Service
+
 logger = logging.getLogger(__name__)
 
 
@@ -112,8 +116,14 @@ class WmsServiceHandler(base.ServiceHandlerBase,
             settings.SITEURL, reverse('proxy'))
         # (self.url, self.parsed_service) = WebMapService(
         #     url, proxy_base=self.proxy_base)
+        version_params = parse_qs(urlparse(url).query).get('version')
+        if (type(version_params) == list) and len(version_params):
+            version = version_params[0] 
+        else:
+            version = getattr(Service.objects.filter(base_url=url).first(), 'version', None)
+        kwargs = {'version':version} if version else {}
         (self.url, self.parsed_service) = WebMapService(
-            url, proxy_base=None)
+            url, proxy_base=None, **kwargs)
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)
         # self.url = self.parsed_service.url
