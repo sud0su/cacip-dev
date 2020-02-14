@@ -258,6 +258,8 @@ class WmsServiceHandler(base.ServiceHandlerBase,
             "height": "150",
             "format": "image/png",
         }
+        if params['layers'].startswith(geonode_layer.workspace+':'): # remove local workspace name from remote layer name
+            params['layers'] = params['layers'].replace(geonode_layer.workspace+':', '', 1)
         kvp = "&".join("{}={}".format(*item) for item in params.items())
         thumbnail_remote_url = "{}?{}".format(
             geonode_layer.remote_service.service_url, kvp)
