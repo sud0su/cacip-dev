@@ -34,6 +34,33 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(bind=True)
+# def harvest_resource(self, harvest_job_id):
+#     harvest_job = models.HarvestJob.objects.get(pk=harvest_job_id)
+#     harvest_job.update_status(
+#         status=enumerations.IN_PROCESS, details="Harvesting resource...")
+#     result = False
+#     details = ""
+#     try:
+#         handler = get_service_handler(
+#             base_url=harvest_job.service.base_url,
+#             proxy_base=harvest_job.service.proxy_base,
+#             service_type=harvest_job.service.type
+#         )
+#         with transaction.atomic():
+#             logger.debug("harvesting resource...")
+#             handler.harvest_resource(
+#                 harvest_job.resource_id, harvest_job.service)
+#             result = True
+#         logger.debug("Resource harvested successfully")
+#     except Exception as err:
+#         logger.exception(msg="An error has occurred while harvesting "
+#                              "resource {!r}".format(harvest_job.resource_id))
+#         details = str(err)  # TODO: pass more context about the error
+#     finally:
+#         harvest_job.update_status(
+#             status=enumerations.PROCESSED if result else enumerations.FAILED,
+#             details=details
+#         )
 def harvest_resource(self, harvest_job_id):
     harvest_job = models.HarvestJob.objects.get(pk=harvest_job_id)
     harvest_job.update_status(
@@ -52,6 +79,13 @@ def harvest_resource(self, harvest_job_id):
                 harvest_job.resource_id, harvest_job.service)
             result = True
         logger.debug("Resource harvested successfully")
+
+        logger.debug("Updating Layer Metadata ...")
+        try:
+            layer = Layer.objects.get(alternate=harvest_job.resource_id)
+            catalogue_post_save(instance=layer, sender=layer.__class__)
+        except BaseException:
+            logger.error("Remote Layer [%s] couldn't be updated" % (harvest_job.resource_id))
     except Exception as err:
         logger.exception(msg="An error has occurred while harvesting "
                              "resource {!r}".format(harvest_job.resource_id))
