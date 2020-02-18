@@ -1083,7 +1083,7 @@ AUTH_EXEMPT_URLS += (
     '^/blog/$',
     '^/blog/\d+$',
     '^/layers/$',
-    '^/layers/[a-zA-Z0-9:]+$',
+    '^/layers/[a-zA-Z0-9:-]+$',
     '^/maps/$',
     '^/maps/\d+$',
     '^/knowledgehub/documents/$',
