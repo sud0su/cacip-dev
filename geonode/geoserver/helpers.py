@@ -1935,6 +1935,8 @@ def _render_thumbnail(req_body, width=240, height=180, tn_urls=[]):
             except BaseException as e:
                 logging.warning('Error generating thumbnail')
                 logging.warning(e)
+            else:
+                break
 
         if 'image/png' not in resp.headers['Content-Type']:
             return
