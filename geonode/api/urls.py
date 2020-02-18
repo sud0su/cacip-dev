@@ -56,5 +56,6 @@ api.register(BlogResource())
 api.register(KnowledgehubDocumentsResource())
 
 api_public = [
-    url(r'^usercount/', apipublicview.usercount, name='usercount')
+    url(r'^usercount/', apipublicview.usercount, name='usercount'),
+    url(r'^count/', apipublicview.countdata, name='countdata')
 ]

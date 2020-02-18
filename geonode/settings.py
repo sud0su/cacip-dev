@@ -1779,14 +1779,14 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 CKEDITOR_UPLOAD_PATH = "blogs/"
 
 # added by razinal
-SIMPLE_FORUMS = {
-    'markup_renderer': 'simple_forums.backends.renderers.MarkdownRenderer',
-    'search_backend': {
-        'search_class': 'simple_forums.backends.search.SimpleSearch',
-        # 'host': 'localhost',
-        # 'port': 9200,
-    }
-}
+# SIMPLE_FORUMS = {
+#     'markup_renderer': 'simple_forums.backends.renderers.MarkdownRenderer',
+#     'search_backend': {
+#         'search_class': 'simple_forums.backends.search.SimpleSearch',
+#         # 'host': 'localhost',
+#         # 'port': 9200,
+#     }
+# }
 
 CACHES = {
   'default': {
