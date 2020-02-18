@@ -744,7 +744,7 @@ def get_layer_capabilities(layer, version='1.3.0', access_token=None, tolerant=F
     """
     Retrieve a layer-specific GetCapabilities document
     """
-    workspace, layername = layer.alternate.split(":", 1) if ":" in layer.alternate else (None, layer.alternate)
+    workspace, layername = layer.alternate.split(":") if ":" in layer.alternate else (None, layer.alternate)
     if not layer.remote_service:
         wms_url = '%s%s/%s/wms?service=wms&version=%s&request=GetCapabilities'\
             % (ogc_server_settings.LOCATION, workspace, layername, version)
@@ -836,7 +836,7 @@ def get_capabilities(request, layerid=None, user=None,
             else:
                 access_token = None
             try:
-                workspace, layername = layer.alternate.split(":", 1) if ":" in layer.alternate else (None, layer.alternate)
+                workspace, layername = layer.alternate.split(":") if ":" in layer.alternate else (None, layer.alternate)
                 layercap = get_layer_capabilities(layer,
                                                   access_token=access_token,
                                                   tolerant=tolerant)
