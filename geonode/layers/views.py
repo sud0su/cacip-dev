@@ -427,8 +427,11 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     all_times = None
     if check_ogc_backend(geoserver.BACKEND_PACKAGE):
         from geonode.geoserver.views import get_capabilities
-        workspace, layername = layer.alternate.split(
-            ":", 1) if ":" in layer.alternate else (None, layer.alternate)
+        if layer.alternate.count(':') > 1:
+            workspace, layername = layer.alternate.split(":", 1) 
+        else:
+            workspace, layername = layer.alternate.split(
+                ":") if ":" in layer.alternate else (None, layer.alternate)
         # WARNING Please make sure to have enabled DJANGO CACHE as per
         # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
         wms_capabilities_resp = get_capabilities(
@@ -540,8 +543,11 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     if check_ogc_backend(geoserver.BACKEND_PACKAGE):
         from geonode.geoserver.views import get_capabilities
-        workspace, layername = layer.alternate.split(
-            ":",1) if ":" in layer.alternate else (None, layer.alternate)
+        if layer.alternate.count(':') > 1:
+            workspace, layername = layer.alternate.split(":", 1) 
+        else:
+            workspace, layername = layer.alternate.split(
+                ":") if ":" in layer.alternate else (None, layer.alternate)
         # WARNING Please make sure to have enabled DJANGO CACHE as per
         # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
         wms_capabilities_resp = get_capabilities(
