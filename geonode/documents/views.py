@@ -53,8 +53,12 @@ from geonode.utils import build_social_links
 from geonode.groups.models import GroupProfile
 from geonode.base.views import batch_modify
 
-# [EPR-BGD01]
+# CACIP
 from matrix.views import savematrix
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+from django import forms
+from django.forms import HiddenInput, TextInput
+from geonode.base.forms import ResourceBaseForm, ResourceBaseDateTimePicker
 
 logger = logging.getLogger("geonode.documents.views")
 
@@ -316,19 +320,60 @@ class DocumentUploadView(CreateView):
                     )))
 
 class EventCreateForm(DocumentCreateForm):
+
+    event_date_start = forms.DateTimeField(
+        label=_("Event Date Start"),
+        localize=True,
+        input_formats=['%Y-%m-%d %H:%M %p'],
+        widget=ResourceBaseDateTimePicker(options={"format": "YYYY-MM-DD HH:mm a"})
+    )
+
+    event_date_end = forms.DateTimeField(
+        label=_("Event Date End"),
+        localize=True,
+        input_formats=['%Y-%m-%d %H:%M %p'],
+        widget=ResourceBaseDateTimePicker(options={"format": "YYYY-MM-DD HH:mm a"})
+    )
+
     class Meta(DocumentCreateForm.Meta):
         model = Event
         allow_no_doc = True
+        fields = ['title', 'doc_url', 'abstract', 'event_date_start', 'event_date_end']
+        widgets = dict(DocumentCreateForm.Meta.widgets.items() + {
+            'abstract': CKEditorUploadingWidget(),
+        }.items())
 
 class NewsCreateForm(DocumentCreateForm):
+
+    def __init__(self, *args, **kwargs):
+        super(DocumentCreateForm, self).__init__(*args, **kwargs)
+        # self.fields['links'].widget = HiddenInput()
+        # self.fields.pop('links', None)
+
     class Meta(DocumentCreateForm.Meta):
         model = News
         allow_no_doc = True
+        fields = ['title', 'abstract']
+        widgets = dict(DocumentCreateForm.Meta.widgets.items() + {
+            'abstract': CKEditorUploadingWidget(),
+            'links': HiddenInput(),
+        }.items())
 
 class BlogCreateForm(DocumentCreateForm):
+
+    def __init__(self, *args, **kwargs):
+        super(DocumentCreateForm, self).__init__(*args, **kwargs)
+        # self.fields['links'].widget = HiddenInput(attrs={'cols': 80, 'rows': 20})
+        # self.fields['links'].required = False
+
     class Meta(DocumentCreateForm.Meta):
         model = Blog
         allow_no_doc = True
+        fields = ['title', 'abstract']
+        widgets = dict(DocumentCreateForm.Meta.widgets.items() + {
+            'abstract': CKEditorUploadingWidget(),
+            'links': HiddenInput(),
+        }.items())
 
 class KnowledgehubDocumentCreateForm(DocumentCreateForm):
     class Meta(DocumentCreateForm.Meta):

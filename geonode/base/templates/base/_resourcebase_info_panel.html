@@ -26,9 +26,9 @@
     </dd>
 
     {% if resource.abstract %}
-    {% if resource.namelc == 'blog' %}
+    {% if resource.namelc == 'blog' or resource.namelc == 'news' %}
     <dt>{% trans "Content" %}</dt>
-    <dd itemprop="description">{{ resource.abstract|safe }}</dd>
+    <dd itemprop="description">{% comment %}{{ resource.abstract|safe }}{% endcomment %}</dd>
     {% else %}
     <dt>{% trans "Abstract" %}</dt>
     <dd itemprop="description">{{ resource.abstract|escape|urlize|linebreaks|safe|truncatechars:500 }}</dd>

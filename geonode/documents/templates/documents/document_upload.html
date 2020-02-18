@@ -1,14 +1,17 @@
 {% extends "documents/document_upload_base.html" %}
 {% load bootstrap_tags %}
 {% load i18n %}
+{% load static from staticfiles %}
 
 {% block title %} {% blocktrans with basemodel.class_label as class_label %}Upload {{class_label}}{% endblocktrans %} - {{ block.super }} {% endblock %}
 
-{% block body_class %}documents upload{% endblock body_class %}
+{% block body_class %}documents upload {{ basemodel.namelc }}{% endblock body_class %}
 
 {% block head %}
+    <script src="{% static "lib/js/jquery.js" %}?v={{ VERSION }}"></script>
     {% include "geoext/ext_header.html" %}
     {% include "geoext/app_header.html" %}
+    {{ form.media }}
     {{ block.super }}
 {% endblock %}
 

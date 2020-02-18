@@ -42,6 +42,9 @@
       {% elif  resource.doc_url %}
       <p><a href="{{ resource.doc_url }}" target="_blank">Download the {{ resource }} {{ resource.class_label }}.</a> <small>({% trans 'External Resource' %})</small></p>
       {%  endif %}
+      {% if resource.namelc == 'blog' or resource.namelc == 'news' %}
+      <p>{{ resource.abstract|safe }}</p>
+      {%  endif %}
     {%  endif %}
 
     <div class="documents-actions">

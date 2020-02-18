@@ -169,6 +169,9 @@ class NewsForm(DocumentForm):
         model = News
         fields = DocumentForm.Meta.fields + [
         ]
+        widgets = {
+            'abstract': CKEditorUploadingWidget(),
+        }
 
 class BlogForm(DocumentForm):
 
