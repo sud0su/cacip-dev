@@ -78,7 +78,7 @@
                     <div class="collapse navbar-collapse navbar-ex1-collapse">
                         <ul class="nav navbar-nav">
                             <li class="{% if "forum" in request.path %} active {% endif %}"><a href="{% url "forum:index" %}">{% trans "Forum" %}</a></li>
-                            <li class=""><a href="{% url "knowledgehubdocument_upload" %}">{% trans "Upload Document" %}</a></li>
+                            <!-- <li class=""><a href="{% url "knowledgehubdocument_upload" %}">{% trans "Upload Document" %}</a></li> -->
                         <!-- <li class="{% if "event" in request.path %} active {% endif %}"><a href="{% url "event_browse" %}">Calendar</a></li>
                             <li><a href="#">About</a></li>
                             <li><a href="#">Contacts</a></li> -->
@@ -145,10 +145,12 @@
                                             {% endif %}
                                         {% endif %}
                                         <li role="separator" class="divider"></li>
+                                        <li class=""><a href="{% url "knowledgehubdocument_upload" %}">{% trans "Upload Document" %}</a></li>
                                         <li><a href="{% url "news_upload" %}">{% trans "Upload News" %}</a></li>
                                         <li><a href="{% url "event_upload" %}">{% trans "Upload Event" %}</a></li>
                                         <li><a href="{% url "blog_upload" %}">{% trans "Upload Blog" %}</a></li>
                                         <li><a href="{% url "layer_upload" %}">{% trans "Upload Layer" %}</a></li>
+                                        <li role="separator" class="divider"></li>
                                         <li><a href="{% url "new_map" %}">{% trans "Create Map" %}</a></li>
                                         <li role="separator" class="divider"></li>
                                         <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
