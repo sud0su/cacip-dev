@@ -30,6 +30,9 @@ from . import enumerations
 from . import models
 from .serviceprocessors import get_service_handler
 
+from geonode.layers.models import Layer
+from geonode.catalogue.models import catalogue_post_save
+
 logger = logging.getLogger(__name__)
 
 

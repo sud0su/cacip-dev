@@ -2113,9 +2113,12 @@ def _prepare_thumbnail_body_from_opts(request_body, request=None):
                                              height=256, width=256,
                                              left=box[0], top=box[1])
         _img_request_template += "</div></div>"
-        tn_urls = [url_set_params(thumbnail_create_url, **params)]
-        if 'thumbnail_create_url' in request_body:
-            tn_urls += [request_body['thumbnail_create_url']]
+
+        # CACIP
+        tn_urls = [url_set_params(thumbnail_create_url, **params)] if 'params' in locals() else []
+        tn_urls += [request_body['thumbnail_create_url_complete']] if 'thumbnail_create_url_complete' in request_body else []
+        tn_urls += [request_body['thumbnail_create_url']] if 'thumbnail_create_url' in request_body else []
+
         image = _render_thumbnail(_img_request_template, width=width, height=height, tn_urls=tn_urls)
     except BaseException as e:
         logger.warning('Error generating thumbnail')

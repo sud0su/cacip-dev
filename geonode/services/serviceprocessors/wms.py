@@ -51,6 +51,7 @@ from . import base
 # CACIP
 from urlparse import urlparse, parse_qs
 from geonode.services.models import Service
+from geonode.base.templatetags.base_tags import url_set_params
 
 logger = logging.getLogger(__name__)
 
@@ -215,6 +216,7 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         resource_fields["keywords"] = keywords
         resource_fields["is_approved"] = True
         resource_fields["is_published"] = True
+        resource_fields["input_method"] = 'harvested'
         if settings.RESOURCE_PUBLISHING or settings.ADMIN_MODERATE_UPLOADS:
             resource_fields["is_approved"] = False
             resource_fields["is_published"] = False
@@ -261,8 +263,9 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         if params['layers'].startswith(geonode_layer.workspace+':'): # remove local workspace name from remote layer name
             params['layers'] = params['layers'].replace(geonode_layer.workspace+':', '', 1)
         kvp = "&".join("{}={}".format(*item) for item in params.items())
-        thumbnail_remote_url = "{}?{}".format(
-            geonode_layer.remote_service.service_url, kvp)
+        # thumbnail_remote_url = "{}?{}".format(
+        #     geonode_layer.remote_service.service_url, kvp)
+        thumbnail_remote_url = url_set_params(geonode_layer.remote_service.service_url, **params)
         logger.debug("thumbnail_remote_url: {}".format(thumbnail_remote_url))
         create_thumbnail(
             instance=geonode_layer,
