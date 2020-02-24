@@ -657,7 +657,18 @@ class CommonModelApi(ModelResource):
             return []
 
 
-class ResourceBaseResource(CommonModelApi):
+class ResourceBaseResourceMixin(object):
+
+    def format_objects(self, objects):
+        objects_json = super(ResourceBaseResourceMixin, self).format_objects(objects)
+
+        for obj in objects_json:
+            obj['abstract_original'] = obj['abstract']
+            obj['abstract'] = BeautifulSoup(obj['abstract']).get_text()
+
+        return objects_json
+
+class ResourceBaseResource(ResourceBaseResourceMixin, CommonModelApi):
 
     """ResourceBase api"""
 
@@ -1021,13 +1032,13 @@ class DocumentResource(CommonModelApi):
         resource_name = 'documents'
         authentication = MultiAuthentication(SessionAuthentication(), GeonodeApiKeyAuthentication())
 
-class EventsResource(DocumentResource):
+class EventsResource(ResourceBaseResourceMixin, DocumentResource):
 
     class Meta(DocumentResource.Meta):
         queryset = Event.objects.distinct().order_by('-date')
         resource_name = Event.namelc()
 
-class NewsResource(DocumentResource):
+class NewsResource(ResourceBaseResourceMixin, DocumentResource):
 
     class Meta(DocumentResource.Meta):
         queryset = News.objects.distinct().order_by('-date')
@@ -1039,16 +1050,7 @@ class KnowledgehubDocumentsResource(DocumentResource):
         queryset = KnowledgehubDocument.objects.distinct().order_by('-date')
         resource_name = KnowledgehubDocument.namelc()
 
-class BlogResource(DocumentResource):
-
-    def format_objects(self, objects):
-
-        objects_json = super(BlogResource, self).format_objects(objects)
-        for obj in objects_json:
-            obj['abstract_original'] = obj['abstract']
-            obj['abstract'] = BeautifulSoup(obj['abstract']).get_text()
-
-        return objects_json
+class BlogResource(ResourceBaseResourceMixin, DocumentResource):
 
     class Meta(DocumentResource.Meta):
         queryset = Blog.objects.distinct().order_by('-date')
