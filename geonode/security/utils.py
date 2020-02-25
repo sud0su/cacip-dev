@@ -426,7 +426,7 @@ def sync_geofence_with_guardian(layer, perms, user=None, group=None):
         and layer.is_vector()
     gf_services["WCS"] = ('download_resourcebase' in perms or 'change_layer_data' in perms) \
         and not layer.is_vector()
-    gf_services["WPS"] = 'download_resourcebase' or 'change_layer_data' in perms
+    gf_services["WPS"] = 'download_resourcebase' in perms or 'change_layer_data' in perms
 
     _user = None
     if user:
@@ -456,6 +456,7 @@ def set_owner_permissions(resource):
         if resource.polymorphic_ctype.name == 'layer':
             for perm in models.LAYER_ADMIN_PERMISSIONS:
                 assign_perm(perm, resource.owner, resource.layer)
+            sync_geofence_with_guardian(resource.layer, models.LAYER_ADMIN_PERMISSIONS, user=str(resource.owner))
         for perm in models.ADMIN_PERMISSIONS:
             assign_perm(perm, resource.owner, resource.get_self_resource())
 
