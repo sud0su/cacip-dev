@@ -46,6 +46,7 @@ from . import allauth_override
 from machina.app import board
 from geonode.api.urls import api_public
 from django.views.defaults import permission_denied
+from geonode.utils import superuser_only, decorate_include
 
 # Setup Django Admin
 autodiscover()
@@ -164,7 +165,9 @@ urlpatterns += [
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^groups/', include('geonode.groups.urls')),
     url(r'^documents/', include('geonode.documents.urls')),
-    url(r'^services/', include('geonode.services.urls')),
+
+    # url(r'^services/', include('geonode.services.urls')),
+    url(r'^services/', decorate_include(superuser_only, include('geonode.services.urls'))),
     
     # CACIP
     url(r'^knowledgehub/documents/', include('geonode.documents.urls_document')),

@@ -71,10 +71,14 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-# EPR-BGD01
+# CACIP
 from django.db.models.expressions import RawSQL
 from django.db.models.query import QuerySet
 from itertools import izip
+from django.contrib.admin.views.decorators import user_passes_test
+from django.views.defaults import permission_denied
+from django.conf.urls import include, url
+from django.core.urlresolvers import RegexURLResolver
 
 DEFAULT_TITLE = ""
 DEFAULT_ABSTRACT = ""
@@ -2248,3 +2252,30 @@ def json2xml(json_obj, line_padding="", parent_tag="", tab="    ", linefeed="\n"
         result_list.append("%s" % (json_obj))
 
     return linefeed.join(result_list)
+
+def superuser_only(view_success, view_fail=permission_denied):
+
+    def view(request, *args, **kwargs):
+        # if request.user.is_active and request.user.is_superuser:
+        #     pass
+        # return permission_denied(request, *args, **kwargs)
+        if request.user.is_active and request.user.is_superuser:
+            return view_success(request, *args, **kwargs)
+        else:
+            return view_fail(request)
+
+    # return view_success
+    return view
+    # return permission_denied
+
+def decorate_url(decorator, urlconf):
+    '''Recreates the url object with the callback decorated'''
+    # urlconf autoresolves names, so callback will always be a function
+    return url(urlconf._regex, decorator(urlconf.callback), urlconf.default_args, urlconf.name)
+
+def decorate_include(decorator, urlpatterns):
+    urls = [
+        decorate_url(decorator, urlconf) if not isinstance(urlconf, RegexURLResolver) else decorate_include(decorator, urlconf)
+        for urlconf in urlpatterns[0].urlpatterns
+    ]
+    return (urls,) + urlpatterns[1:]
