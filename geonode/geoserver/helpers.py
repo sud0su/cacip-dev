@@ -1920,7 +1920,7 @@ def _render_thumbnail(req_body, width=240, height=180, tn_urls=[]):
         resp, content = http_client.request(url, "POST", data, 
             headers={
                 'Content-type': 'text/html',
-                'HTTP_AUTHORIZATION': 'basic ' + base64.b64encode('%s:%s'%(_user, _password)),
+                'Authorization': 'Basic ' + base64.b64encode('%s:%s'%(_user, _password)),
             }
         )
         if 'image/png' not in resp.headers['Content-Type']:
