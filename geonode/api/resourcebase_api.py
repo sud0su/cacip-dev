@@ -154,6 +154,9 @@ class CommonModelApi(ModelResource):
         'has_time',
         'is_approved',
         'is_published',
+
+        # CACIP
+        'input_method',
     ]
 
     def build_filters(self, filters=None, ignore_bad_filters=False, **kwargs):
@@ -1033,6 +1036,8 @@ class DocumentResource(CommonModelApi):
         authentication = MultiAuthentication(SessionAuthentication(), GeonodeApiKeyAuthentication())
 
 class EventsResource(ResourceBaseResourceMixin, DocumentResource):
+
+    VALUES = DocumentResource.VALUES + ['event_date_start', 'event_date_end']
 
     class Meta(DocumentResource.Meta):
         queryset = Event.objects.distinct().order_by('-date')

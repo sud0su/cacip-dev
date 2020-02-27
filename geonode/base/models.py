@@ -776,6 +776,8 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     date_entry = models.DateTimeField(
         _('entry date'),
+        blank=True,
+        null=True,
         default=now,
         db_index=True,
         help_text=_('data entry date'))

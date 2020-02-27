@@ -8061,3 +8061,9 @@ body.documents.upload.news form#upload_form #s2id_id_links
 {
   display: none;
 }
+nav.filter ul,
+.filter-content-container{
+    max-height: 330px;
+    overflow-y: auto;
+    background-color: var(--white);
+}
