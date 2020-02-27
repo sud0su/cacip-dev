@@ -996,7 +996,7 @@ MAP_BASELAYERS = [{
     "group": "background"
 }]
 
-DISPLAY_SOCIAL = strtobool(os.getenv('DISPLAY_SOCIAL', 'True'))
+DISPLAY_SOCIAL = strtobool(os.getenv('DISPLAY_SOCIAL', 'False'))
 DISPLAY_COMMENTS = strtobool(os.getenv('DISPLAY_COMMENTS', 'True'))
 DISPLAY_RATINGS = strtobool(os.getenv('DISPLAY_RATINGS', 'True'))
 DISPLAY_WMS_LINKS = strtobool(os.getenv('DISPLAY_WMS_LINKS', 'True'))
@@ -1126,6 +1126,10 @@ AUTH_EXEMPT_URLS += (
     '^/rest-auth/user/',
     '^/search/',
     '^/uploaded/thumbs',
+    '^/o/',
+    '^/api/public/',
+    '^/i18n/',
+    '^/autocomplete/LayerAutocomplete',
 )
 
 # A tuple of hosts the proxy can send requests to.
@@ -1350,6 +1354,7 @@ SEARCH_FILTERS = {
     'DATE_ENABLED': True,
     'REGION_ENABLED': True,
     'EXTENT_ENABLED': True,
+    'DATA_SOURCES_ENABLED': True,
 }
 
 # Make Free-Text Kaywords writable from users or read-only

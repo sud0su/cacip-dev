@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load base_tags %}
+<nav class="filter">
+  <h4><a href="#" class="toggle toggle-nav"><i class="fa fa-chevron-down"></i>{% trans "Resources Data" %}</a></h4>
+  <ul class="nav" id="types">
+        {% dataresources as facets %}
+
+        {% for facet, count in facets.items %}
+        {% if count > 0 %}
+        <li>
+            <a id="{{ facet }}" data-value="{{ facet }}" data-filter="{% if facet_type == 'layers' %}store__in{% else %}datasource__in{% endif %}" ng-click="multiple_choice_listener($event)">{% tag_get_facet_title facet|custom_pluralize:count %}
+            <span class="badge pull-right">{{ count }}</span>
+            </a>
+        </li>
+        {% endif %}
+        {% endfor %}
+  </ul>
+</nav>

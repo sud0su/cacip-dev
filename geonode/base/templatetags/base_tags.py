@@ -31,7 +31,8 @@ from guardian.shortcuts import get_objects_for_user
 
 from geonode.layers.models import Layer
 from geonode.maps.models import Map
-from geonode.documents.models import Document
+from geonode.documents.models import Document, Event, KnowledgehubDocument, News, Blog
+from geonode.services.models import Service
 from geonode.groups.models import GroupProfile
 from geonode.base.models import HierarchicalKeyword
 from geonode.security.utils import get_visible_resources
@@ -372,4 +373,188 @@ def url_set_params(url, **kwargs):
     query = query_dict.urlencode()
     return urlunparse((scheme, netloc, path, params, query, fragment))
 
-    
+
+@register.assignment_tag(takes_context=True)
+def dataresources(context):
+    request = context['request']
+    title_filter = request.GET.get('title__icontains', '')
+    extent_filter = request.GET.get('extent', None)
+    keywords_filter = request.GET.getlist('keywords__slug__in', None)
+    category_filter = request.GET.getlist('category__identifier__in', None)
+    regions_filter = request.GET.getlist('regions__name__in', None)
+    owner_filter = request.GET.getlist('owner__username__in', None)
+    date_gte_filter = request.GET.get('date__gte', None)
+    date_lte_filter = request.GET.get('date__lte', None)
+    date_range_filter = request.GET.get('date__range', None)
+
+    facet_type = context['facet_type'] if 'facet_type' in context else 'all'
+
+    if facet_type == 'documents':
+        documents = context.get('basemodel', Document).objects.filter(title__icontains=title_filter)
+
+        if category_filter:
+            documents = documents.filter(category__identifier__in=category_filter)
+
+        if regions_filter:
+            documents = documents.filter(regions__name__in=regions_filter)
+
+        if owner_filter:
+            documents = documents.filter(owner__username__in=owner_filter)
+
+        if date_gte_filter:
+            documents = documents.filter(date__gte=date_gte_filter)
+        if date_lte_filter:
+            documents = documents.filter(date__lte=date_lte_filter)
+        if date_range_filter:
+            documents = documents.filter(date__range=date_range_filter.split(','))
+
+        documents = get_visible_resources(
+            documents,
+            request.user if request else None,
+            admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
+            unpublished_not_visible=settings.RESOURCE_PUBLISHING,
+            private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
+
+        if keywords_filter:
+            treeqs = HierarchicalKeyword.objects.none()
+            for keyword in keywords_filter:
+                try:
+                    kws = HierarchicalKeyword.objects.filter(name__iexact=keyword)
+                    for kw in kws:
+                        treeqs = treeqs | HierarchicalKeyword.get_tree(kw)
+                except BaseException:
+                    # Ignore keywords not actually used?
+                    pass
+
+            documents = documents.filter(Q(keywords__in=treeqs))
+
+        # if not settings.SKIP_PERMS_FILTER:
+        #     documents = documents.filter(id__in=authorized)
+
+        # return facets
+        counts = documents.values('datasource').annotate(datasource_count=Count('datasource'))
+        facets = dict([(count['datasource'], count['datasource_count']) for count in counts if count['datasource'] ])
+        return facets
+    else:
+        layers = Layer.objects.filter(title__icontains=title_filter)
+
+        if category_filter:
+            layers = layers.filter(category__identifier__in=category_filter)
+
+        if regions_filter:
+            layers = layers.filter(regions__name__in=regions_filter)
+
+        if owner_filter:
+            layers = layers.filter(owner__username__in=owner_filter)
+
+        if date_gte_filter:
+            layers = layers.filter(date__gte=date_gte_filter)
+        if date_lte_filter:
+            layers = layers.filter(date__lte=date_lte_filter)
+        if date_range_filter:
+            layers = layers.filter(date__range=date_range_filter.split(','))
+
+        layers = get_visible_resources(
+            layers,
+            request.user if request else None,
+            admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
+            unpublished_not_visible=settings.RESOURCE_PUBLISHING,
+            private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
+
+        if extent_filter:
+            bbox = extent_filter.split(
+                ',')  # TODO: Why is this different when done through haystack?
+            bbox = map(str, bbox)  # 2.6 compat - float to decimal conversion
+            intersects = ~(Q(bbox_x0__gt=bbox[2]) | Q(bbox_x1__lt=bbox[0]) |
+                           Q(bbox_y0__gt=bbox[3]) | Q(bbox_y1__lt=bbox[1]))
+
+            layers = layers.filter(intersects)
+
+        if keywords_filter:
+            treeqs = HierarchicalKeyword.objects.none()
+            for keyword in keywords_filter:
+                try:
+                    kws = HierarchicalKeyword.objects.filter(name__iexact=keyword)
+                    for kw in kws:
+                        treeqs = treeqs | HierarchicalKeyword.get_tree(kw)
+                except BaseException:
+                    # Ignore keywords not actually used?
+                    pass
+
+            layers = layers.filter(Q(keywords__in=treeqs))
+
+        # if not settings.SKIP_PERMS_FILTER:
+        #     layers = layers.filter(id__in=authorized)
+
+        counts = layers.values('storeType').annotate(count=Count('storeType'))
+        facets = {}
+        for count in counts:
+            if count['storeType'] == 'remoteStore':
+                count_service = layers.values('remote_service').filter(storeType__exact='remoteStore').annotate(store_count=Count('store'))
+                for cs in count_service:
+                    remoteId = cs['remote_service']
+                    # print(remoteId)
+                    getremoteurl = Service.objects.values('base_url','name').filter(id=remoteId)
+                    remoteurlcount = dict([(gm['name'], cs['store_count']) for gm in getremoteurl])
+                    
+                    facets.update(remoteurlcount)
+
+        if facet_type == 'layers':
+            return facets
+
+        documents = Document.objects.filter(title__icontains=title_filter)
+
+        if category_filter:
+            documents = documents.filter(category__identifier__in=category_filter)
+
+        if regions_filter:
+            documents = documents.filter(regions__name__in=regions_filter)
+
+        if owner_filter:
+            documents = documents.filter(owner__username__in=owner_filter)
+
+        if date_gte_filter:
+            documents = documents.filter(date__gte=date_gte_filter)
+        if date_lte_filter:
+            documents = documents.filter(date__lte=date_lte_filter)
+        if date_range_filter:
+            documents = documents.filter(date__range=date_range_filter.split(','))
+
+        documents = get_visible_resources(
+            documents,
+            request.user if request else None,
+            admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
+            unpublished_not_visible=settings.RESOURCE_PUBLISHING,
+            private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
+
+        if extent_filter:
+            bbox = extent_filter.split(
+                ',')  # TODO: Why is this different when done through haystack?
+            bbox = map(str, bbox)  # 2.6 compat - float to decimal conversion
+            intersects = ~(Q(bbox_x0__gt=bbox[2]) | Q(bbox_x1__lt=bbox[0]) |
+                           Q(bbox_y0__gt=bbox[3]) | Q(bbox_y1__lt=bbox[1]))
+
+            documents = documents.filter(intersects)
+
+        if keywords_filter:
+            treeqs = HierarchicalKeyword.objects.none()
+            for keyword in keywords_filter:
+                try:
+                    kws = HierarchicalKeyword.objects.filter(name__iexact=keyword)
+                    for kw in kws:
+                        treeqs = treeqs | HierarchicalKeyword.get_tree(kw)
+                except BaseException:
+                    # Ignore keywords not actually used?
+                    pass
+
+            documents = documents.filter(Q(keywords__in=treeqs))
+
+        # if not settings.SKIP_PERMS_FILTER:
+        #     maps = maps.filter(id__in=authorized)
+        #     documents = documents.filter(id__in=authorized)
+
+        documentcounts = documents.values('datasource').annotate(datasource_count=Count('datasource'))
+        facets.update(dict([(count['datasource'], count['datasource_count']) for count in documentcounts if count['datasource'] ]))
+
+    return facets
+

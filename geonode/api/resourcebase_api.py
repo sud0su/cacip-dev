@@ -906,6 +906,7 @@ class LayerResource(CommonModelApi):
             'id': ALL,
             'name': ALL,
             'alternate': ALL,
+            'store': ALL,
         })
 
 
@@ -1030,7 +1031,11 @@ class DocumentResource(CommonModelApi):
     class Meta(CommonMetaApi):
         paginator_class = CrossSiteXHRPaginator
         filtering = CommonMetaApi.filtering
-        filtering.update({'doc_type': ALL,'datasource': ALL})
+        filtering.update({
+            'doc_type': ALL,
+            'datasource': ALL,
+            'datasource': ALL,
+        })
         queryset = Document.objects.distinct().order_by('-date')
         resource_name = 'documents'
         authentication = MultiAuthentication(SessionAuthentication(), GeonodeApiKeyAuthentication())
