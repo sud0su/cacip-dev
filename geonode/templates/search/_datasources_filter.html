@@ -5,11 +5,11 @@
   <ul class="nav" id="types">
         {% dataresources as facets %}
 
-        {% for facet, count in facets.items %}
-        {% if count > 0 %}
+        {% for facetid, facet in facets.items %}
+        {% if facet.count > 0 %}
         <li>
-            <a id="{{ facet }}" data-value="{{ facet }}" data-filter="{% if facet_type == 'layers' %}store__in{% else %}datasource__in{% endif %}" ng-click="multiple_choice_listener($event)">{% tag_get_facet_title facet %}
-            <span class="badge pull-right">{{ count }}</span>
+            <a id="{{ facetid }}" data-value="{{ facetid }}" data-facet_type="{{facet.facet_type}}" data-filter="{% if facet.facet_type == 'layers' %}store__in{% else %}datasource__in{% endif %}" ng-click="multiple_choice_listener($event)">{% tag_get_facet_title facet.title %}
+            <span class="badge pull-right">{{ facet.count }}</span>
             </a>
         </li>
         {% endif %}

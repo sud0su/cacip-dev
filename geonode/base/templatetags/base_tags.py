@@ -407,6 +407,8 @@ def dataresources(context):
             documents = documents.filter(date__lte=date_lte_filter)
         if date_range_filter:
             documents = documents.filter(date__range=date_range_filter.split(','))
+        if 'datasource__in' in request.GET:
+            documents = documents.filter(datasource__in=request.GET.get('datasource__in'))
 
         documents = get_visible_resources(
             documents,
@@ -433,7 +435,7 @@ def dataresources(context):
 
         # return facets
         counts = documents.values('datasource').annotate(datasource_count=Count('datasource'))
-        facets = dict([(count['datasource'], count['datasource_count']) for count in counts if count['datasource'] ])
+        facets = dict([(count['datasource'], {'title':count['datasource'],'count':count['datasource_count'], 'facet_type':'documents'}) for count in counts if count['datasource'] ])
         return facets
     else:
         layers = Layer.objects.filter(title__icontains=title_filter)
@@ -453,6 +455,8 @@ def dataresources(context):
             layers = layers.filter(date__lte=date_lte_filter)
         if date_range_filter:
             layers = layers.filter(date__range=date_range_filter.split(','))
+        if 'store__in' in request.GET:
+            layers = layers.filter(store__in=request.GET.get('store__in'))
 
         layers = get_visible_resources(
             layers,
@@ -494,8 +498,8 @@ def dataresources(context):
                 for cs in count_service:
                     remoteId = cs['remote_service']
                     # print(remoteId)
-                    getremoteurl = Service.objects.values('base_url','name').filter(id=remoteId)
-                    remoteurlcount = dict([(gm['name'], cs['store_count']) for gm in getremoteurl])
+                    getremoteurl = Service.objects.values('base_url','name','title').filter(id=remoteId)
+                    remoteurlcount = dict([(gm['name'], {'title':gm['title'], 'count':cs['store_count'], 'facet_type':'layers'}) for gm in getremoteurl])
                     
                     facets.update(remoteurlcount)
 
@@ -519,6 +523,8 @@ def dataresources(context):
             documents = documents.filter(date__lte=date_lte_filter)
         if date_range_filter:
             documents = documents.filter(date__range=date_range_filter.split(','))
+        if 'datasource__in' in request.GET:
+            documents = documents.filter(datasource__in=request.GET.get('datasource__in'))
 
         documents = get_visible_resources(
             documents,
@@ -554,7 +560,7 @@ def dataresources(context):
         #     documents = documents.filter(id__in=authorized)
 
         documentcounts = documents.values('datasource').annotate(datasource_count=Count('datasource'))
-        facets.update(dict([(count['datasource'], count['datasource_count']) for count in documentcounts if count['datasource'] ]))
+        facets.update(dict([(count['datasource'], {'title':count['datasource'],'count':count['datasource_count'], 'facet_type':'documents'}) for count in documentcounts if count['datasource'] ]))
 
     return facets
 
