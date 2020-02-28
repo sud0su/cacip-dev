@@ -26,9 +26,10 @@ def countdata(request):
 
     docs = []
     for v in queryset_doc:
-        if v['doc_type'] != 'datasets':
-            docs.append({ 'datasets': 0 })
         docs.append({v['doc_type']: v['doc_type_count']})
+
+    if not len([i for i in docs if 'datasets' in i]):
+        docs.append({ 'datasets': 0 })
 
     data = {
         "layers_count": layers_count, 
