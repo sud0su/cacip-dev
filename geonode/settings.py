@@ -421,12 +421,14 @@ INSTALLED_APPS = (
     'matrix',
     'userstatistics',
     'dashboard',
+    'metadataharvester',
 
     # CACIP 3rd party
     'ckeditor',
     'ckeditor_uploader',
     'rest_auth',
     'rest_auth.registration',
+    'django_celery_beat',
 
     # Machina related apps:
     # 'mptt',
