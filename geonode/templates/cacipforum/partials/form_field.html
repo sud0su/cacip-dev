@@ -13,18 +13,13 @@
 
         {% if field.html_name == 'q' %}
         <b>{{ field |add_class:'form-control'|attr:'required' }}</b>
-        {% endif %}
-
-
-        {% if field.html_name == 'search_poster_name' %}
+        {% elif field.html_name == 'search_poster_name' %}
         <b>{{ field |add_class:'form-control' }}</b>
-        {% endif %}
-
-
-        {% if field.html_name == 'search_forums' %}
+        {% elif field.html_name == 'search_forums' %}
         <b>{{ field |add_class:'form-control'|attr:'required' }}</b>
+        {% else %}
+        {{ field|add_class:'form-control' }}
         {% endif %}
-
         {% comment %} {% if field.name == 'q' %}
             {{ field |add_class:'form-control' }}
         {% endif %} {% endcomment %}
