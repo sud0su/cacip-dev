@@ -2760,12 +2760,12 @@ msgstr "Сохранить"
 #: invitations/forms.py:53
 #, python-format
 msgid "The e-mail address '%(email)s' has already been invited."
-msgstr " ‘%(email)s’ Адрес электронной почты уже был приглашен."
+msgstr " '%(email)s' Адрес электронной почты уже был приглашен."
 
 #: invitations/forms.py:55
 #, python-format
 msgid "The e-mail address '%(email)s' has already accepted an invite."
-msgstr "Адрес электронной почты ‘%(email)s’ уже принял приглашение."
+msgstr "Адрес электронной почты '%(email)s' уже принял приглашение."
 
 #: invitations/forms.py:57
 #, python-format
@@ -2784,7 +2784,7 @@ msgstr "Приглашения успешно отправленные '%(email)
 #: invitations/views.py:78
 #, python-format
 msgid "Sorry, it was not possible to invite '%(email)s' due to the following isse: %(error)s (%(type)s)"
-msgstr "К сожалению, не было возможности пригласить ‘%(email)s’ из-за следующей Иссе:%(error)s  (%(type)s)"
+msgstr "К сожалению, не было возможности пригласить '%(email)s' из-за следующей Иссе: %(error)s (%(type)s)"
 
 #: layers/__init__.py:28
 msgid "Layer Created"
@@ -5191,7 +5191,7 @@ msgstr "Не удался найти ресурсы для импортируе�
 #: services/forms.py:99
 #, fuzzy, python-format
 msgid "Found service of type %(found_type)s instead of %(service_type)s"
-msgstr "Найдено услуги типа% (found_type) с вместо% %(service_type)s"
+msgstr "Найдено услуги типа% %(found_type)s вместо% %(service_type)s"
 
 #: services/models.py:46
 msgid "Local"
@@ -5868,7 +5868,7 @@ msgstr "Подтвердите адрес Вашей электронной по
 #: templates/account/email_confirm.html:16 templates/account/email_confirm_p.html:18
 #, fuzzy, python-format
 msgid "Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail address for user %(user_display)s."
-msgstr "Пожалуйста, подтвердите, что <a href=\"mailto:%(email)s\">% (по электронной почте) S </a> является адрес электронной почты пользователя %(user_display)s."
+msgstr "Пожалуйста, подтвердите, что <a href=\"mailto:%(email)s\">%(email)s</a> является адрес электронной почты пользователя %(user_display)s."
 
 #: templates/account/email_confirm.html:20 templates/account/email_confirm_p.html:23 templates/relationships/confirm.html:12
 msgid "Confirm"
@@ -5919,7 +5919,7 @@ msgstr "или"
 msgid ""
 "If you have not created an account yet, then please\n"
 "      <a href=\"%(signup_url)s\">sign up</a> first."
-msgstr "Если вы еще не создали учетную запись, пожалуйста, сначала <a href=“%(signup_url)s”>зарегистрируйтесь</a>."
+msgstr "Если вы еще не создали учетную запись, пожалуйста, сначала <a href=\"%(signup_url)s\">зарегистрируйтесь</a>."
 
 #: templates/account/login.html:44 templates/account/login_p.html:58
 msgid "Forgot Password?"
@@ -5952,7 +5952,7 @@ msgstr ""
 msgid ""
 "If you have not created an account yet, then please\n"
 "                <a href=\"%(signup_url)s\">sign up</a> first."
-msgstr "Если вы еще не создали учетную запись, пожалуйста, сначала <a href=“%(signup_url)s”>зарегистрируйтесь</a>."
+msgstr "Если вы еще не создали учетную запись, пожалуйста, сначала <a href=\"%(signup_url)s\">зарегистрируйтесь</a>."
 
 #: templates/account/logout.html:14
 msgid "Are you sure you want to log out?"
@@ -6108,7 +6108,10 @@ msgid ""
 "We have sent an email to you for verification. Follow the\n"
 "        link provided to finalize the signup process. Please contact us if you do\n"
 "        not receive it within a few minutes"
-msgstr "Мы отправили Вам письмо на <b>%(email)s</b> для подтверждения. Следуйте по ссылке в письме для завершения процесса регистрации."
+msgstr ""
+"Мы послали электронную почту к вам для\n"
+"    проверка. Пожалуйста, нажмите на ссылку внутри этой электронной почты. пожалуйста\n"
+"    свяжитесь с нами, если вы не получите его в течение нескольких минут."
 
 #: templates/account/verification_sent_p.html:13
 #| msgid "We have sent you an email to <b>%(email)s</b> for verification. Follow the link provided to finalize the signup process."
@@ -6116,7 +6119,10 @@ msgid ""
 "We have sent an email to you for verification. Follow the\n"
 "                    link provided to finalize the signup process. Please contact us if you do\n"
 "                    not receive it within a few minutes"
-msgstr "Мы отправили Вам письмо на <b>%(email)s</b> для подтверждения. Следуйте по ссылке в письме для завершения процесса регистрации."
+msgstr ""
+"Мы послали электронную почту к вам для\n"
+"    проверка. Пожалуйста, нажмите на ссылку внутри этой электронной почты. пожалуйста\n"
+"    свяжитесь с нами, если вы не получите его в течение нескольких минут."
 
 #: templates/account/verified_email_required.html:5 templates/account/verified_email_required.html:8 templates/account/verified_email_required_p.html:5 templates/account/verified_email_required_p.html:11
 #| msgid "Email Address"
