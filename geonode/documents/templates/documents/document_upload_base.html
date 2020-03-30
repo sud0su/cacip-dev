@@ -10,7 +10,7 @@
 
 {% block body_outer %}
 <div class="page-header">
-  <!-- <a href="{% url basemodel.namelc|add:"_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore "|add:basemodel.class_label %}</a> -->
+{% comment %} <a href="{% url basemodel.namelc|add:"_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore "|add:basemodel.class_label %}</a> {% endcomment %}
   <h2 class="page-title">{% blocktrans with basemodel.class_label as class_label %}Upload {{class_label}}{% endblocktrans %}</h2>
 	<p>{% trans "Allowed document types:" %}</p>
 	<p>
