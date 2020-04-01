@@ -404,6 +404,7 @@ class DocumentUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(DocumentUpdateView, self).get_context_data(**kwargs)
         context['ALLOWED_DOC_TYPES'] = ALLOWED_DOC_TYPES
+        context.update(getattr(self, 'context', {}))
         return context
 
     def form_valid(self, form):
@@ -416,7 +417,7 @@ class DocumentUpdateView(UpdateView):
                 self.request.add_resource('document', self.object.alternate)
         return HttpResponseRedirect(
             reverse(
-                'document_metadata',
+                self.form_class.Meta.model.namelc()+'_metadata',
                 args=(
                     self.object.id,
                 )))
