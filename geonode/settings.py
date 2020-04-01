@@ -1116,6 +1116,7 @@ AUTH_EXEMPT_URLS += (
     '^/maps/\d+$',
     '^/maps/$',
     '^/maps/h_keywords_api',
+    '^/maps/[a-zA-Z0-9:\-_]+/view$',
     '^/news/\d+/metadata_detail$',
     '^/news/\d+$',
     '^/news/$',
