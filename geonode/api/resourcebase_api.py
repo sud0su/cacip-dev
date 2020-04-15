@@ -1025,6 +1025,13 @@ class DocumentResource(CommonModelApi):
 
             formatted_obj['doc_type_long'] = dict(DOCUMENT_TYPE_SUBJECTS).get(obj.doc_type, obj.doc_type)
 
+            doc_file = getattr(obj, 'doc_file')
+            doc_url = getattr(obj, 'doc_url')
+            if doc_file:
+                formatted_obj['download_url'] = formatted_obj['detail_url']+'/download'
+            elif doc_url:
+                formatted_obj['download_url'] = doc_url
+
             formatted_objects.append(formatted_obj)
         return formatted_objects
 
