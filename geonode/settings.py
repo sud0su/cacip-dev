@@ -1095,6 +1095,7 @@ AUTH_EXEMPT_URLS += (
     '^/blog/\d+$',
     '^/blog/$',
     '^/blog/h_keywords_api',
+    '^/catalogue',
     '^/dashboard/print',
     '^/events/\d+/metadata_detail$',
     '^/events/\d+$',
