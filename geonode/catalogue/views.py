@@ -345,7 +345,7 @@ def csw_render_extra_format_txt(request, layeruuid, resname):
 
     content += 'regions' + s
     for reg in resource.regions.all():
-        content += fst(reg.name_en) + ','
+        content += fst(reg.name) + ','
     content = content[:-1]
     content += sc
 
