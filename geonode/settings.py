@@ -1129,6 +1129,7 @@ AUTH_EXEMPT_URLS += (
     '^/rest-auth/registration/',
     '^/rest-auth/user/',
     '^/search/',
+    '^/showmetadata/',
     '^/uploaded/thumbs',
     '^/o/',
     '^/api/public/',

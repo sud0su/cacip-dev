@@ -658,7 +658,7 @@
                 {% else %}
                 <iframe id="preview_encoder_iframe" frameborder="0" scrolling="no"
                     onload="if(this.contentWindow.document.body) {$('#preview').height(this.contentWindow.document.body.scrollHeight)}"
-                    src="/catalogue/csw_to_extra_format/{{resource.uuid}}/{{resource.title}}.html"></iframe>
+                    src="/catalogue/csw_to_extra_format/{{resource.uuid}}/{{resource.title|urlencode}}.html"></iframe>
                 {% endif %}
             </div>
             <div id="settings" class="tab-pane fade" style="overflow: hidden;">
