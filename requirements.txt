@@ -78,7 +78,7 @@ idna>=2.5,<2.7  # (2.6 in our ppa)
 
 # geopython dependencies
 pyproj>=1.9.5,<=1.9.5.1 # python-pyproj (1.9.5.1)
-OWSLib==0.16.0 # python-owslib (0.15.0 in our ppa) FIXME
+OWSLib==0.28.1 # python-owslib (0.15.0 in our ppa) FIXME
 pycsw==2.2.0 # python-pycsw (1.10.1, 2.0.0, 2.0.3 in our ppa) FIXME
 SQLAlchemy==1.1.14 # required by pycsw==2.2.0
 Shapely==1.5.17 # python-shapely (1.5.13) FIXME
